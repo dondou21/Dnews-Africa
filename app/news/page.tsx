@@ -1,0 +1,13 @@
+import { getArticlesByCategory } from "@/src/lib/articles";
+import CategoryPage from "@/components/articles/CategoryPage";
+
+export default function NewsPage() {
+  const articles = getArticlesByCategory("news");
+  return (
+    <CategoryPage
+      title="News"
+      description="Breaking news and top stories from across Africa and the world."
+      articles={articles}
+    />
+  );
+}
