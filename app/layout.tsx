@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
+import ThemeProvider from "@/components/theme/ThemeProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,11 +30,14 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${playfair.variable}`}
+      suppressHydrationWarning
     >
       <body className="min-h-screen font-sans antialiased">
-        <Header />
-        <Navbar />
-        {children}
+        <ThemeProvider>
+          <Header />
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

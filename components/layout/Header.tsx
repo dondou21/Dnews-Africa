@@ -1,6 +1,8 @@
+import ThemeToggle from "@/components/theme/ThemeToggle";
+
 export default function Header() {
   return (
-    <header className="border-b border-dnews-border bg-white">
+    <header className="border-b border-dnews-border bg-dnews-card">
       <div className="mx-auto flex max-w-[1180px] items-center justify-between px-4 py-4">
         <div className="flex-1" />
         <div className="text-center">
@@ -11,7 +13,8 @@ export default function Header() {
             Independent news media across the continent and the world
           </p>
         </div>
-        <div className="flex flex-1 justify-end">
+        <div className="flex flex-1 items-center justify-end gap-2">
+          <ThemeToggle />
           <button
             className="rounded border border-dnews-border px-3 py-1.5 text-sm text-dnews-gray hover:bg-dnews-light-gray"
             aria-label="Menu"
