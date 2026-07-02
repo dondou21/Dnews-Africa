@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -33,8 +34,15 @@ export default async function ArticlePage({
       <div className="flex flex-col gap-8 lg:flex-row">
         <article className="min-w-0 flex-1">
           <div className="mx-auto max-w-[720px]">
-            <div className="mb-4 aspect-[16/9] w-full bg-dnews-light-gray flex items-center justify-center text-dnews-muted text-sm">
-              Cover Image Placeholder
+            <div className="relative mb-6 aspect-[16/9] w-full overflow-hidden rounded-sm">
+              <Image
+                src={article.imageUrl}
+                alt={article.imageAlt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 720px) 100vw, 720px"
+                priority
+              />
             </div>
 
             <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
