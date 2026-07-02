@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Article } from "@/src/data/articles";
 
 export default function TrendingWidget({ articles }: { articles: Article[] }) {
@@ -12,12 +13,12 @@ export default function TrendingWidget({ articles }: { articles: Article[] }) {
             <span className="w-6 text-lg font-bold leading-none text-dnews-accent">
               {String(i + 1).padStart(2, "0")}
             </span>
-            <a
-              href="#"
+            <Link
+              href={`/articles/${article.slug}`}
               className="text-sm font-medium leading-snug text-dnews-dark transition-colors hover:text-dnews-accent"
             >
               {article.title}
-            </a>
+            </Link>
           </div>
         ))}
       </div>
