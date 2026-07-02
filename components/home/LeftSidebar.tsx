@@ -1,12 +1,14 @@
+import Link from "next/link";
+
 const categories = [
-  "Top Stories",
-  "Sports",
-  "Business",
-  "Innovation",
-  "Youth",
-  "Culture",
-  "Lifestyle",
-  "Interviews",
+  { label: "Top Stories", href: "/" },
+  { label: "Sports", href: "/sports" },
+  { label: "Business", href: "/business" },
+  { label: "Innovation", href: "/news" },
+  { label: "Youth", href: "/culture" },
+  { label: "Culture", href: "/culture" },
+  { label: "Lifestyle", href: "/culture" },
+  { label: "Interviews", href: "/featured" },
 ];
 
 const browseItems = ["Today", "This Week", "Archive"];
@@ -17,13 +19,13 @@ export default function LeftSidebar() {
       <Section label="Categories">
         <ul>
           {categories.map((cat) => (
-            <li key={cat}>
-              <a
-                href="#"
+            <li key={cat.label}>
+              <Link
+                href={cat.href}
                 className="block border-b border-dnews-border py-2 text-sm font-medium text-dnews-gray transition-colors hover:text-dnews-accent"
               >
-                {cat}
-              </a>
+                {cat.label}
+              </Link>
             </li>
           ))}
         </ul>

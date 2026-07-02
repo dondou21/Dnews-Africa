@@ -1,13 +1,15 @@
+import Link from "next/link";
+
 const navItems = [
-  "Home",
-  "News",
-  "Business",
-  "Sports",
-  "Featured",
-  "Culture",
-  "Pictorial",
-  "DnewsAfrica TV",
-  "About",
+  { label: "Home", href: "/" },
+  { label: "News", href: "/news" },
+  { label: "Business", href: "/business" },
+  { label: "Sports", href: "/sports" },
+  { label: "Featured", href: "/featured" },
+  { label: "Culture", href: "/culture" },
+  { label: "Pictorial", href: "/pictorial" },
+  { label: "DnewsAfrica TV", href: "/tv" },
+  { label: "About", href: "#" },
 ];
 
 export default function Navbar() {
@@ -16,15 +18,23 @@ export default function Navbar() {
       <div className="mx-auto max-w-[1180px] overflow-x-auto px-4">
         <ul className="flex min-w-max items-center divide-x divide-dnews-border text-sm">
           {navItems.map((item) => (
-            <li key={item}>
-              <a
-                href="#"
+            <li key={item.label}>
+              <Link
+                href={item.href}
                 className="inline-block px-3 py-2.5 font-medium uppercase tracking-wide text-dnews-gray transition-colors hover:text-dnews-accent md:px-4"
               >
-                {item}
-              </a>
+                {item.label}
+              </Link>
             </li>
           ))}
+          <li>
+            <Link
+              href="/search"
+              className="inline-block px-3 py-2.5 font-medium uppercase tracking-wide text-dnews-accent transition-colors hover:text-dnews-accent-light md:px-4"
+            >
+              Search
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
