@@ -21,7 +21,7 @@ export default function ArticleCard({ article }: { article: Article }) {
         <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
           {article.category}
         </div>
-        <h2 className="font-heading text-lg font-bold leading-snug text-dnews-dark">
+        <h2 className="font-heading text-lg font-bold leading-snug text-brand-red">
           <Link
             href={`/articles/${article.slug}`}
             className="transition-colors hover:text-dnews-accent"
@@ -33,7 +33,7 @@ export default function ArticleCard({ article }: { article: Article }) {
           {article.excerpt}
         </p>
         <div className="mt-3 flex items-center gap-2 text-[11px] text-dnews-muted">
-          <span className="font-medium text-dnews-dark">{article.authorName}</span>
+          <span className="font-medium text-brand-red">{article.authorName}</span>
           <span>·</span>
           <span>{article.publishedAt}</span>
           <span>·</span>

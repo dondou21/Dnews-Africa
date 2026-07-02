@@ -34,7 +34,7 @@ export default function ArticleListItem({ article }: { article: Article }) {
         <div className={`mb-1 text-[11px] font-semibold uppercase tracking-wider ${colorClass}`}>
           {article.category}
         </div>
-        <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark">
+        <h3 className="font-heading text-base font-bold leading-snug text-brand-red">
           <Link
             href={`/articles/${article.slug}`}
             className="transition-colors hover:text-dnews-accent"

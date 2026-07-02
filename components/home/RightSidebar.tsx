@@ -17,12 +17,12 @@ export default function RightSidebar({
 }) {
   return (
     <div>
-      <AdSlot size="medium" />
+      <AdSlot variant="sidebar" />
 
       <TrendingWidget articles={trendingArticles} />
 
       <div className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">
-        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
+        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-red">
           Newsletter
         </h3>
         <p className="mb-3 text-sm leading-relaxed text-dnews-gray">
@@ -44,7 +44,7 @@ export default function RightSidebar({
       </div>
 
       <div className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">
-        <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
+        <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-red">
           Follow Us
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -65,7 +65,7 @@ export default function RightSidebar({
       </div>
 
       <div className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">
-        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
+        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-red">
           Upcoming Events
         </h3>
         <div className="space-y-3">
@@ -85,7 +85,7 @@ export default function RightSidebar({
       </div>
 
       <div className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">
-        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
+        <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-red">
           Partner Spotlight
         </h3>
         <p className="text-sm leading-relaxed text-dnews-gray">
@@ -94,7 +94,7 @@ export default function RightSidebar({
         </p>
       </div>
 
-      <AdSlot size="small" label="Sponsor Ad" />
+      <AdSlot variant="small" />
     </div>
   );
 }

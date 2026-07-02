@@ -14,7 +14,7 @@ export default function Footer() {
       <div className="mx-auto max-w-[1180px] px-4 py-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h3 className="font-heading text-lg font-semibold text-dnews-dark">
+            <h3 className="font-heading text-lg font-semibold text-brand-red">
               Dnews Africa
             </h3>
             <p className="mt-2 text-xs leading-relaxed text-dnews-muted">
@@ -37,7 +37,7 @@ export default function Footer() {
             </div>
           </div>
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-dnews-gray">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-red">
               Sections
             </h4>
             <ul className="space-y-2 text-sm text-dnews-muted">
@@ -76,7 +76,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-dnews-gray">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-red">
               More
             </h4>
             <ul className="space-y-2 text-sm text-dnews-muted">
@@ -115,7 +115,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-dnews-gray">
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-red">
               Company
             </h4>
             <ul className="space-y-2 text-sm text-dnews-muted">

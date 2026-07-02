@@ -15,7 +15,7 @@ export default function CategoryPage({
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
       <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold text-dnews-dark md:text-4xl">
+        <h1 className="font-heading text-3xl font-bold text-brand-red md:text-4xl">
           {title}
         </h1>
         <p className="mt-2 text-sm text-dnews-gray">{description}</p>

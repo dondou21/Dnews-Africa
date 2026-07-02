@@ -11,7 +11,7 @@ export default async function SearchPage({
   if (!q || !q.trim()) {
     return (
       <div className="mx-auto max-w-[1180px] px-4 py-8">
-        <h1 className="font-heading text-3xl font-bold text-dnews-dark md:text-4xl">
+        <h1 className="font-heading text-3xl font-bold text-brand-red md:text-4xl">
           Search
         </h1>
         <p className="mt-4 text-sm text-dnews-gray">
@@ -25,7 +25,7 @@ export default async function SearchPage({
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
-      <h1 className="font-heading text-3xl font-bold text-dnews-dark md:text-4xl">
+      <h1 className="font-heading text-3xl font-bold text-brand-red md:text-4xl">
         Search
       </h1>
       <p className="mt-2 text-sm text-dnews-gray">

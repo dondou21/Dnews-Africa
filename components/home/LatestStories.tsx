@@ -4,7 +4,7 @@ import ArticleListItem from "./ArticleListItem";
 export default function LatestStories({ articles }: { articles: Article[] }) {
   return (
     <section>
-      <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
+      <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-red">
         Latest Stories
       </h3>
       <div className="space-y-4">

@@ -33,7 +33,7 @@ export default function AdvertisePage() {
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
       <div className="mb-10">
-        <h1 className="font-heading text-3xl font-bold text-dnews-dark md:text-4xl">
+        <h1 className="font-heading text-3xl font-bold text-brand-red md:text-4xl">
           Advertise & Partner With Us
         </h1>
         <p className="mt-2 text-sm text-dnews-gray">
@@ -53,7 +53,7 @@ export default function AdvertisePage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="font-heading text-2xl font-semibold text-dnews-dark">
+          <h2 className="font-heading text-2xl font-semibold text-brand-red">
             Opportunities
           </h2>
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -62,7 +62,7 @@ export default function AdvertisePage() {
                 key={item.title}
                 className="rounded border border-dnews-border bg-dnews-card p-5"
               >
-                <h3 className="font-heading text-lg font-semibold text-dnews-dark">
+                <h3 className="font-heading text-lg font-semibold text-brand-red">
                   {item.title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-dnews-gray">
@@ -74,7 +74,7 @@ export default function AdvertisePage() {
         </section>
 
         <section className="rounded border border-dnews-border bg-dnews-card p-6">
-          <h2 className="font-heading text-xl font-semibold text-dnews-dark">
+          <h2 className="font-heading text-xl font-semibold text-brand-red">
             Ready to Partner?
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-dnews-gray">

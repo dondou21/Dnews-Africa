@@ -4,7 +4,7 @@ import type { Article } from "@/src/lib/articles";
 export default function TrendingWidget({ articles }: { articles: Article[] }) {
   return (
     <div className="mb-6">
-      <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
+      <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-red">
         Trending · Most Read
       </h3>
       <div className="space-y-3">

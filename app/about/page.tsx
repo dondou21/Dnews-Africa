@@ -48,7 +48,7 @@ export default function AboutPage() {
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
       <div className="mb-10">
-        <h1 className="font-heading text-3xl font-bold text-dnews-dark md:text-4xl">
+        <h1 className="font-heading text-3xl font-bold text-brand-red md:text-4xl">
           About Dnews Africa
         </h1>
         <p className="mt-2 text-sm text-dnews-gray">
@@ -58,7 +58,7 @@ export default function AboutPage() {
 
       <div className="max-w-3xl">
         <section className="mb-10">
-          <h2 className="font-heading text-2xl font-semibold text-dnews-dark">
+          <h2 className="font-heading text-2xl font-semibold text-brand-red">
             Our Mission
           </h2>
           <p className="mt-3 leading-relaxed text-dnews-gray">
@@ -73,7 +73,7 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="font-heading text-2xl font-semibold text-dnews-dark">
+          <h2 className="font-heading text-2xl font-semibold text-brand-red">
             What We Cover
           </h2>
           <div className="mt-4 grid gap-5 sm:grid-cols-2">
@@ -82,7 +82,7 @@ export default function AboutPage() {
                 key={area.title}
                 className="rounded border border-dnews-border bg-dnews-card p-4"
               >
-                <h3 className="font-heading text-lg font-semibold text-dnews-dark">
+                <h3 className="font-heading text-lg font-semibold text-brand-red">
                   {area.title}
                 </h3>
                 <p className="mt-1 text-sm leading-relaxed text-dnews-gray">
@@ -94,7 +94,7 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-10">
-          <h2 className="font-heading text-2xl font-semibold text-dnews-dark">
+          <h2 className="font-heading text-2xl font-semibold text-brand-red">
             Our Positioning
           </h2>
           <p className="mt-3 leading-relaxed text-dnews-gray">
