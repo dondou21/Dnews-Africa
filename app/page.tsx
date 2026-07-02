@@ -6,22 +6,22 @@ import RightSidebar from "@/components/home/RightSidebar";
 export default function Home() {
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-6">
-      <div className="flex flex-col gap-6 lg:flex-row">
+      <div className="flex flex-col lg:flex-row">
         <aside className="hidden w-full shrink-0 lg:block lg:w-[220px]">
-          <div className="border-r border-dnews-border pr-4">
+          <div className="border-r border-dnews-border pr-5">
             <LeftSidebar />
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1">
-          <div className="lg:pr-6">
+        <main className="min-w-0 flex-1 px-0 lg:px-6">
+          <div>
             <HeroArticle />
             <LatestStories />
           </div>
         </main>
 
         <aside className="w-full shrink-0 lg:w-[260px]">
-          <div className="border-l border-dnews-border pl-4">
+          <div className="border-t border-dnews-border pt-6 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             <RightSidebar />
           </div>
         </aside>
