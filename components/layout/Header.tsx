@@ -32,24 +32,26 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <div className="w-[76px] md:w-[88px]" />
 
-          <div className="text-center">
-            <Link href="/">
-              <Image
-                src={logoSrc}
-                alt="Dnews Africa"
-                width={260}
-                height={65}
-                priority
-                className="mx-auto h-auto w-[170px] object-contain sm:w-[190px] md:w-[220px] lg:w-[260px]"
-                sizes="(max-width: 640px) 170px, (max-width: 768px) 220px, 260px"
-              />
-            </Link>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-dnews-muted md:text-[11px]">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center justify-center rounded-sm bg-dnews-red px-8 py-5 min-h-[150px] sm:min-h-[170px] sm:px-14 md:min-h-[200px] md:px-20 lg:min-h-[220px] lg:px-24">
+              <Link href="/">
+                <Image
+                  src={logoSrc}
+                  alt="Dnews Africa"
+                  width={260}
+                  height={65}
+                  priority
+                  className="mx-auto h-auto w-[160px] object-contain sm:w-[190px] md:w-[220px] lg:w-[250px]"
+                  sizes="(max-width: 640px) 160px, (max-width: 768px) 220px, 250px"
+                />
+              </Link>
+            </div>
+            <p className="mt-3 text-[10px] uppercase tracking-[0.2em] text-dnews-muted md:mt-4 md:text-[11px]">
               Independent news media across the continent and the world
             </p>
           </div>
 
-          <div className="flex w-[76px] items-center justify-end gap-1.5 md:w-[88px] md:gap-2">
+          <div className="flex w-[76px] items-center justify-end gap-1.5 self-center md:w-[88px] md:gap-2">
             <button
               onClick={toggleSearch}
               className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
