@@ -25,7 +25,8 @@
 @theme inline {
   --color-dnews-accent: #1e3a5f;
   --color-dnews-accent-light: #2c5f8a;
-  --color-dnews-red: #c0392b;
+  --color-dnews-red: #c81e1e;
+  --color-brand-red: #c81e1e;
   --color-dnews-bg: var(--dnews-bg);
   --color-dnews-dark: var(--dnews-fg);
   --color-dnews-gray: var(--dnews-gray);

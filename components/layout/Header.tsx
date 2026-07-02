@@ -3,20 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useCallback } from "react";
-import { useTheme } from "next-themes";
 import { Search, Menu, X as XIcon } from "lucide-react";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
 
 export default function Header() {
-  const { resolvedTheme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const logoSrc =
-    resolvedTheme === "dark"
-      ? "/images/logo-black_and_white.jpeg"
-      : "/images/logo-red.jpeg";
 
   const toggleSearch = useCallback(() => {
     setSearchOpen((prev) => !prev);
@@ -29,20 +22,26 @@ export default function Header() {
   return (
     <header className="border-b border-dnews-border bg-dnews-card">
       <div className="mx-auto max-w-[1180px] px-4 py-3 md:py-4">
-        <div className="flex items-center justify-between">
-          <div className="w-[76px] md:w-[88px]" />
+        <div className="flex items-stretch justify-between">
+          <div className="w-[76px] shrink-0 md:w-[88px]" />
 
           <div className="flex flex-col items-center">
-            <div className="flex items-center justify-center rounded-sm bg-dnews-red px-8 py-5 min-h-[150px] sm:min-h-[170px] sm:px-14 md:min-h-[200px] md:px-20 lg:min-h-[220px] lg:px-24">
+            <div
+              className="flex items-center justify-center rounded-sm bg-dnews-red
+                w-[90vw] max-w-[380px] min-h-[130px]
+                sm:w-[90vw] sm:max-w-[500px] sm:min-h-[160px]
+                md:max-w-[700px] md:min-h-[200px]
+                lg:max-w-[900px] lg:min-h-[250px]"
+            >
               <Link href="/">
                 <Image
-                  src={logoSrc}
+                  src="/images/logo-red.jpeg"
                   alt="Dnews Africa"
-                  width={260}
-                  height={65}
+                  width={350}
+                  height={88}
                   priority
-                  className="mx-auto h-auto w-[160px] object-contain sm:w-[190px] md:w-[220px] lg:w-[250px]"
-                  sizes="(max-width: 640px) 160px, (max-width: 768px) 220px, 250px"
+                  className="mx-auto h-auto w-[180px] object-contain sm:w-[220px] md:w-[280px] lg:w-[340px]"
+                  sizes="(max-width: 640px) 180px, (max-width: 768px) 280px, 340px"
                 />
               </Link>
             </div>
@@ -51,22 +50,24 @@ export default function Header() {
             </p>
           </div>
 
-          <div className="flex w-[76px] items-center justify-end gap-1.5 self-center md:w-[88px] md:gap-2">
-            <button
-              onClick={toggleSearch}
-              className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
-              aria-label="Open search"
-            >
-              <Search size={16} />
-            </button>
-            <ThemeToggle />
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-            >
-              {menuOpen ? <XIcon size={16} /> : <Menu size={16} />}
-            </button>
+          <div className="flex w-[76px] shrink-0 flex-col justify-end pb-0 md:w-[88px] md:pb-0.5">
+            <div className="flex items-center justify-end gap-1.5 md:gap-2">
+              <button
+                onClick={toggleSearch}
+                className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+                aria-label="Open search"
+              >
+                <Search size={16} />
+              </button>
+              <ThemeToggle />
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+              >
+                {menuOpen ? <XIcon size={16} /> : <Menu size={16} />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
