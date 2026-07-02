@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Video, Camera, MessageCircle, X } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact Us – Dnews Africa",
@@ -7,10 +8,10 @@ export const metadata: Metadata = {
 };
 
 const socialLinks = [
-  { name: "YouTube", href: "#", icon: "YT" },
-  { name: "Instagram", href: "#", icon: "IG" },
-  { name: "Facebook", href: "#", icon: "FB" },
-  { name: "X (Twitter)", href: "#", icon: "X" },
+  { name: "YouTube", href: "#", icon: Video },
+  { name: "Instagram", href: "#", icon: Camera },
+  { name: "Facebook", href: "#", icon: MessageCircle },
+  { name: "X (Twitter)", href: "#", icon: X },
 ];
 
 export default function ContactPage() {
@@ -45,15 +46,19 @@ export default function ContactPage() {
               Follow Us
             </h3>
             <div className="mt-3 flex flex-wrap gap-3">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="rounded border border-dnews-border bg-dnews-card px-4 py-2 text-sm font-medium text-dnews-gray transition-colors hover:border-dnews-accent hover:text-dnews-accent"
-                >
-                  {link.name}
-                </a>
-              ))}
+              {socialLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded border border-dnews-border bg-dnews-card text-dnews-gray transition-colors hover:border-dnews-accent hover:text-dnews-accent"
+                    aria-label={link.name}
+                  >
+                    <Icon size={18} />
+                  </a>
+                );
+              })}
             </div>
           </div>
         </section>

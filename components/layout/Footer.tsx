@@ -1,4 +1,12 @@
 import Link from "next/link";
+import { Video, Camera, MessageCircle, X } from "lucide-react";
+
+const socialLinks = [
+  { name: "YouTube", href: "#", icon: Video },
+  { name: "Instagram", href: "#", icon: Camera },
+  { name: "Facebook", href: "#", icon: MessageCircle },
+  { name: "X (Twitter)", href: "#", icon: X },
+];
 
 export default function Footer() {
   return (
@@ -12,6 +20,21 @@ export default function Footer() {
             <p className="mt-2 text-xs leading-relaxed text-dnews-muted">
               Independent news media across the continent and the world.
             </p>
+            <div className="mt-4 flex items-center gap-2">
+              {socialLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:border-dnews-accent hover:text-dnews-accent"
+                    aria-label={link.name}
+                  >
+                    <Icon size={16} />
+                  </a>
+                );
+              })}
+            </div>
           </div>
           <div>
             <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-dnews-gray">

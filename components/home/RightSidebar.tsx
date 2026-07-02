@@ -1,6 +1,14 @@
 import type { Article } from "@/src/lib/articles";
+import { Video, Camera, MessageCircle, X } from "lucide-react";
 import AdSlot from "./AdSlot";
 import TrendingWidget from "./TrendingWidget";
+
+const socialLinks = [
+  { name: "YouTube", href: "#", icon: Video },
+  { name: "Instagram", href: "#", icon: Camera },
+  { name: "Facebook", href: "#", icon: MessageCircle },
+  { name: "X (Twitter)", href: "#", icon: X },
+];
 
 export default function RightSidebar({
   trendingArticles,
@@ -40,15 +48,19 @@ export default function RightSidebar({
           Follow Us
         </h3>
         <div className="flex flex-wrap gap-2">
-          {["Twitter", "Facebook", "Instagram", "YouTube"].map((platform) => (
-            <a
-              key={platform}
-              href="#"
-              className="rounded border border-dnews-border px-3 py-1.5 text-xs font-medium text-dnews-gray transition-colors hover:border-dnews-accent hover:text-dnews-accent"
-            >
-              {platform}
-            </a>
-          ))}
+          {socialLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <a
+                key={link.name}
+                href={link.href}
+                className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:border-dnews-accent hover:text-dnews-accent"
+                aria-label={link.name}
+              >
+                <Icon size={16} />
+              </a>
+            );
+          })}
         </div>
       </div>
 
