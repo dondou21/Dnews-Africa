@@ -12,7 +12,7 @@ const navItems = [
 
 export default function Navbar() {
   return (
-    <nav className="border-b border-dnews-border bg-white">
+    <nav className="border-b border-dnews-border bg-dnews-card">
       <div className="mx-auto max-w-[1180px] overflow-x-auto px-4">
         <ul className="flex min-w-max items-center divide-x divide-dnews-border text-sm">
           {navItems.map((item) => (

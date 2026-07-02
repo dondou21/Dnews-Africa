@@ -19,7 +19,7 @@ export default function RightSidebar() {
           <input
             type="email"
             placeholder="Enter your email"
-            className="w-full border border-dnews-border px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
+            className="w-full border border-dnews-border bg-dnews-card px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
           />
           <button
             type="submit"
