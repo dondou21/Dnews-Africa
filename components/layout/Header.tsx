@@ -3,14 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useCallback } from "react";
-import { Search, Menu, X as XIcon } from "lucide-react";
+import { Search } from "lucide-react";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
 
 export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
   const toggleSearch = useCallback(() => {
     setSearchOpen((prev) => !prev);
   }, []);
@@ -60,13 +58,12 @@ export default function Header() {
                 <Search size={16} />
               </button>
               <ThemeToggle />
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
-                aria-label={menuOpen ? "Close menu" : "Open menu"}
+              <a
+                href="#newsletter"
+                className="inline-flex items-center justify-center rounded bg-dnews-red px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-red/90 md:px-4 md:text-sm"
               >
-                {menuOpen ? <XIcon size={16} /> : <Menu size={16} />}
-              </button>
+                Subscribe
+              </a>
             </div>
           </div>
         </div>
