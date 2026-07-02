@@ -1,20 +1,17 @@
-interface ArticleListItemProps {
-  category: string;
-  title: string;
-  date: string;
-  readTime: string;
-  categoryColor?: "red" | "blue";
+import type { Article } from "@/src/data/articles";
+
+function getCategoryColor(category: string): "red" | "blue" {
+  const sportsCulture = ["sports", "culture", "youth", "featured"];
+  return sportsCulture.some((c) => category.toLowerCase().includes(c))
+    ? "red"
+    : "blue";
 }
 
-export default function ArticleListItem({
-  category,
-  title,
-  date,
-  readTime,
-  categoryColor = "blue",
-}: ArticleListItemProps) {
+export default function ArticleListItem({ article }: { article: Article }) {
   const colorClass =
-    categoryColor === "red" ? "text-dnews-red" : "text-dnews-accent";
+    getCategoryColor(article.category) === "red"
+      ? "text-dnews-red"
+      : "text-dnews-accent";
 
   return (
     <article className="flex gap-4 border-b border-dnews-border pb-4">
@@ -23,15 +20,15 @@ export default function ArticleListItem({
       </div>
       <div className="min-w-0 flex-1">
         <div className={`mb-1 text-[11px] font-semibold uppercase tracking-wider ${colorClass}`}>
-          {category}
+          {article.category}
         </div>
         <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark">
-          {title}
+          {article.title}
         </h3>
         <div className="mt-1 flex items-center gap-2 text-[11px] text-dnews-muted">
-          <span>{date}</span>
+          <span>{article.publishedAt}</span>
           <span>·</span>
-          <span>{readTime}</span>
+          <span>{article.readTime}</span>
         </div>
       </div>
     </article>

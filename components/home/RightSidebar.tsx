@@ -1,12 +1,17 @@
+import type { Article } from "@/src/data/articles";
 import AdSlot from "./AdSlot";
 import TrendingWidget from "./TrendingWidget";
 
-export default function RightSidebar() {
+export default function RightSidebar({
+  trendingArticles,
+}: {
+  trendingArticles: Article[];
+}) {
   return (
     <div>
       <AdSlot size="medium" />
 
-      <TrendingWidget />
+      <TrendingWidget articles={trendingArticles} />
 
       <div className="mb-6 rounded border border-dnews-border p-4">
         <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
