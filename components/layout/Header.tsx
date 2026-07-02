@@ -19,7 +19,7 @@ export default function Header() {
 
   return (
     <header className="border-b border-dnews-border bg-dnews-card">
-      <div className="mx-auto max-w-[1180px] px-4 py-3 md:py-4">
+      <div className="mx-auto max-w-[1180px] px-4 py-3 md:py-5">
         <div className="flex items-stretch">
           <div className="flex-1" />
 
@@ -43,29 +43,32 @@ export default function Header() {
                 />
               </Link>
             </div>
-            <p className="mt-3 text-[10px] uppercase tracking-[0.2em] text-dnews-muted md:mt-4 md:text-[11px]">
-              Independent news media across the continent and the world
-            </p>
-          </div>
 
-          <div className="flex flex-1 flex-col justify-end pr-1 md:pr-8">
-            <div className="flex items-center justify-end gap-2 md:gap-3">
-              <button
-                onClick={toggleSearch}
-                className="inline-flex h-10 w-10 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
-                aria-label="Open search"
-              >
-                <Search size={20} />
-              </button>
-              <ThemeToggle />
-              <a
-                href="#newsletter"
-                className="ml-2 inline-flex items-center justify-center rounded bg-dnews-accent px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light md:ml-5 md:px-4 md:text-sm"
-              >
-                Subscribe
-              </a>
+            <div className="mt-4 flex flex-col items-center gap-2 md:mt-5 md:flex-row md:gap-0">
+              <p className="text-center text-[10px] uppercase tracking-[0.2em] text-dnews-muted md:text-[11px]">
+                Independent news media across the continent and the world
+              </p>
+              <div className="hidden md:block md:w-12 lg:w-14" />
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={toggleSearch}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+                  aria-label="Open search"
+                >
+                  <Search size={20} />
+                </button>
+                <ThemeToggle />
+                <a
+                  href="#newsletter"
+                  className="ml-2 inline-flex h-10 items-center justify-center rounded bg-dnews-accent px-4 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light md:ml-3 md:px-5 md:text-sm"
+                >
+                  Subscribe
+                </a>
+              </div>
             </div>
           </div>
+
+          <div className="flex-1" />
         </div>
       </div>
 
