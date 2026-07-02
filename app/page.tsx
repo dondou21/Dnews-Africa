@@ -14,19 +14,17 @@ export default function Home() {
   const trending = getTrendingArticles();
 
   return (
-    <div className="mx-auto max-w-[1180px] px-4 py-6">
-      <div className="flex flex-col lg:flex-row">
-        <aside className="hidden w-full shrink-0 lg:block lg:w-[220px]">
-          <div className="border-r border-dnews-border pr-5">
+    <div className="mx-auto max-w-[1180px] px-4 py-5 md:py-6">
+      <div className="flex flex-col lg:flex-row lg:gap-6">
+        <aside className="hidden w-full shrink-0 lg:block lg:w-[200px]">
+          <div className="border-r border-dnews-border pr-4">
             <LeftSidebar />
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 px-0 lg:px-6">
-          <div>
-            <HeroArticle article={featured} />
-            <LatestStories articles={latest} />
-          </div>
+        <main className="min-w-0 flex-1">
+          <HeroArticle article={featured} />
+          <LatestStories articles={latest} />
         </main>
 
         <aside className="w-full shrink-0 lg:w-[260px]">

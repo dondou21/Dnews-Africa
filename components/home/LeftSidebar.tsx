@@ -52,7 +52,7 @@ export default function LeftSidebar() {
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-6">
-      <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
+      <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
         {label}
       </h3>
       {children}
