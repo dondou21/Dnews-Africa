@@ -49,7 +49,7 @@ export default async function ArticlePage({
               {article.category}
             </div>
 
-            <h1 className="font-heading text-3xl font-bold leading-tight text-dnews-dark md:text-4xl">
+            <h1 className="font-heading text-3xl font-bold leading-tight text-brand-red md:text-4xl">
               {article.title}
             </h1>
 
@@ -95,7 +95,7 @@ export default async function ArticlePage({
         <aside className="w-full shrink-0 lg:w-[260px]">
           <div className="border-t border-dnews-border pt-6 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             <RelatedArticles articles={related} />
-            <AdSlot size="medium" />
+            <AdSlot variant="sidebar" />
           </div>
         </aside>
       </div>

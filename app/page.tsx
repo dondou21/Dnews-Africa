@@ -25,7 +25,7 @@ export default function Home() {
 
         <main className="min-w-0 flex-1">
           <HeroArticle article={featured} />
-          <AdSlot size="small" className="mb-8" />
+          <AdSlot variant="banner" className="mb-8" />
           <LatestStories articles={latest} />
         </main>
 
