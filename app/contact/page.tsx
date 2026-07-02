@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Video, Camera, MessageCircle, X } from "lucide-react";
+import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6";
 
 export const metadata: Metadata = {
   title: "Contact Us – Dnews Africa",
@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 };
 
 const socialLinks = [
-  { name: "YouTube", href: "#", icon: Video },
-  { name: "Instagram", href: "#", icon: Camera },
-  { name: "Facebook", href: "#", icon: MessageCircle },
-  { name: "X (Twitter)", href: "#", icon: X },
+  { name: "YouTube", href: "#", icon: FaYoutube },
+  { name: "Instagram", href: "#", icon: FaInstagram },
+  { name: "Facebook", href: "#", icon: FaFacebookF },
+  { name: "X (Twitter)", href: "#", icon: FaXTwitter },
 ];
 
 export default function ContactPage() {
@@ -52,7 +52,7 @@ export default function ContactPage() {
                   <a
                     key={link.name}
                     href={link.href}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded border border-dnews-border bg-dnews-card text-dnews-gray transition-colors hover:border-dnews-accent hover:text-dnews-accent"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded border border-dnews-border bg-dnews-card text-dnews-gray transition-colors hover:border-dnews-red hover:text-dnews-red"
                     aria-label={link.name}
                   >
                     <Icon size={18} />
