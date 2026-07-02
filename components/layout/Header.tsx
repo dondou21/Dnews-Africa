@@ -20,8 +20,8 @@ export default function Header() {
   return (
     <header className="border-b border-dnews-border bg-dnews-card">
       <div className="mx-auto max-w-[1180px] px-4 py-3 md:py-4">
-        <div className="flex items-stretch justify-between">
-          <div className="w-[76px] shrink-0 md:w-[88px]" />
+        <div className="flex items-stretch">
+          <div className="flex-1" />
 
           <div className="flex flex-col items-center">
             <div
@@ -48,19 +48,19 @@ export default function Header() {
             </p>
           </div>
 
-          <div className="flex w-[76px] shrink-0 flex-col justify-end pb-0 pl-3 md:w-[88px] md:pb-0.5 md:pl-4">
+          <div className="flex flex-1 flex-col justify-end pr-1 md:pr-8">
             <div className="flex items-center justify-end gap-2 md:gap-3">
               <button
                 onClick={toggleSearch}
-                className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+                className="inline-flex h-10 w-10 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
                 aria-label="Open search"
               >
-                <Search size={16} />
+                <Search size={20} />
               </button>
               <ThemeToggle />
               <a
                 href="#newsletter"
-                className="inline-flex items-center justify-center rounded bg-dnews-accent px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light md:px-4 md:text-sm"
+                className="ml-2 inline-flex items-center justify-center rounded bg-dnews-accent px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light md:ml-5 md:px-4 md:text-sm"
               >
                 Subscribe
               </a>
