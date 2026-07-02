@@ -11,6 +11,8 @@ export interface Article {
   readTime: string;
   isFeatured: boolean;
   isTrending: boolean;
+  imageUrl: string;
+  imageAlt: string;
 }
 
 export const articles: Article[] = [
@@ -38,6 +40,9 @@ Implementation will begin in January 2027, with pilot programmes launching in fi
     readTime: "6 min read",
     isFeatured: true,
     isTrending: true,
+    imageUrl:
+      "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=1200&q=80",
+    imageAlt: "African Union delegates at a diplomatic summit meeting",
   },
   {
     id: "2",
@@ -63,6 +68,9 @@ The startup plans to hire 200 local staff across its new markets and establish r
     readTime: "4 min read",
     isFeatured: false,
     isTrending: true,
+    imageUrl:
+      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=80",
+    imageAlt: "Mobile payment terminal and smartphone representing digital finance",
   },
   {
     id: "3",
@@ -86,6 +94,9 @@ Senegal, who won their first AFCON title in 2022, are seeking to become the firs
     readTime: "3 min read",
     isFeatured: false,
     isTrending: true,
+    imageUrl:
+      "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=1200&q=80",
+    imageAlt: "Football players competing during a match on a stadium field",
   },
   {
     id: "4",
@@ -109,6 +120,9 @@ The first satellite is expected to launch in 2027, with the full constellation o
     readTime: "5 min read",
     isFeatured: false,
     isTrending: false,
+    imageUrl:
+      "https://images.unsplash.com/photo-1451186859696-371d9477be93?w=1200&q=80",
+    imageAlt: "Global network and technology visualization representing satellite communications",
   },
   {
     id: "5",
@@ -132,6 +146,9 @@ The event also highlighted the role of digital platforms in promoting African st
     readTime: "4 min read",
     isFeatured: false,
     isTrending: false,
+    imageUrl:
+      "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1200&q=80",
+    imageAlt: "Rows of books on library shelves representing literature and storytelling",
   },
   {
     id: "6",
@@ -157,6 +174,9 @@ The government has supported the growth with tax incentives for film production 
     readTime: "8 min watch",
     isFeatured: false,
     isTrending: true,
+    imageUrl:
+      "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=1200&q=80",
+    imageAlt: "Movie projector illuminating a cinema screen representing film industry",
   },
   {
     id: "7",
@@ -182,6 +202,9 @@ The activists are also demanding accountability from policymakers. Several youth
     readTime: "6 min read",
     isFeatured: false,
     isTrending: false,
+    imageUrl:
+      "https://images.unsplash.com/photo-1511497584788-876760111969?w=1200&q=80",
+    imageAlt: "Sunlight streaming through a dense forest representing climate and environment",
   },
   {
     id: "8",
@@ -205,6 +228,9 @@ Analysts say the exchange could transform Ethiopia's economy by providing a form
     readTime: "4 min read",
     isFeatured: false,
     isTrending: true,
+    imageUrl:
+      "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&q=80",
+    imageAlt: "Stock market display showing trading data representing financial exchange",
   },
 ];
 
