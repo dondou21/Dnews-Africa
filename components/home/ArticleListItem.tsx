@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Article } from "@/src/data/articles";
+import type { Article } from "@/src/lib/articles";
 
 function getCategoryColor(category: string): "red" | "blue" {
   const sportsCulture = ["sports", "culture", "youth", "featured"];

@@ -2,7 +2,7 @@ import {
   getFeaturedArticle,
   getLatestArticles,
   getTrendingArticles,
-} from "@/src/data/articles";
+} from "@/src/lib/articles";
 import LeftSidebar from "@/components/home/LeftSidebar";
 import HeroArticle from "@/components/home/HeroArticle";
 import LatestStories from "@/components/home/LatestStories";

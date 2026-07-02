@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Article } from "@/src/data/articles";
+import type { Article } from "@/src/lib/articles";
 
 export default function HeroArticle({ article }: { article: Article }) {
   return (

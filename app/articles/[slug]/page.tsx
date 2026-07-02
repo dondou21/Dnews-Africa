@@ -5,7 +5,7 @@ import {
   getArticleBySlug,
   getRelatedArticles,
 } from "@/src/data/articles";
-import type { Article } from "@/src/data/articles";
+import type { Article } from "@/src/lib/articles";
 import AdSlot from "@/components/home/AdSlot";
 
 export function generateStaticParams() {

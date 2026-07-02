@@ -1,4 +1,4 @@
-import type { Article } from "@/src/data/articles";
+import type { Article } from "@/src/lib/articles";
 import AdSlot from "./AdSlot";
 import TrendingWidget from "./TrendingWidget";
 
