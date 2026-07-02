@@ -48,8 +48,8 @@ export default function Header() {
             </p>
           </div>
 
-          <div className="flex w-[76px] shrink-0 flex-col justify-end pb-0 md:w-[88px] md:pb-0.5">
-            <div className="flex items-center justify-end gap-1.5 md:gap-2">
+          <div className="flex w-[76px] shrink-0 flex-col justify-end pb-0 pl-3 md:w-[88px] md:pb-0.5 md:pl-4">
+            <div className="flex items-center justify-end gap-2 md:gap-3">
               <button
                 onClick={toggleSearch}
                 className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
@@ -60,7 +60,7 @@ export default function Header() {
               <ThemeToggle />
               <a
                 href="#newsletter"
-                className="inline-flex items-center justify-center rounded bg-dnews-red px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-red/90 md:px-4 md:text-sm"
+                className="inline-flex items-center justify-center rounded bg-dnews-accent px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light md:px-4 md:text-sm"
               >
                 Subscribe
               </a>
