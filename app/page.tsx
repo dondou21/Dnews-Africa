@@ -7,6 +7,7 @@ import LeftSidebar from "@/components/home/LeftSidebar";
 import HeroArticle from "@/components/home/HeroArticle";
 import LatestStories from "@/components/home/LatestStories";
 import RightSidebar from "@/components/home/RightSidebar";
+import AdSlot from "@/components/home/AdSlot";
 
 export default function Home() {
   const featured = getFeaturedArticle()!;
@@ -24,6 +25,7 @@ export default function Home() {
 
         <main className="min-w-0 flex-1">
           <HeroArticle article={featured} />
+          <AdSlot size="small" className="mb-8" />
           <LatestStories articles={latest} />
         </main>
 
