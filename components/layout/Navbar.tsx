@@ -9,7 +9,8 @@ const navItems = [
   { label: "Culture", href: "/culture" },
   { label: "Pictorial", href: "/pictorial" },
   { label: "DnewsAfrica TV", href: "/tv" },
-  { label: "About", href: "#" },
+  { label: "About", href: "/about" },
+  { label: "Advertise", href: "/advertise" },
 ];
 
 export default function Navbar() {
