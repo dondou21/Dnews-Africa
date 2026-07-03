@@ -19,7 +19,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="border-b border-dnews-border bg-dnews-card">
+    <header className="border-b border-dnews-border bg-dnews-card dark:bg-white">
       <SponsorBanner />
       <div className="mx-auto max-w-[1180px] px-4 py-3 md:py-5">
         <div className="flex items-stretch">
