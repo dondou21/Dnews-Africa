@@ -6,6 +6,7 @@ import { useState, useCallback } from "react";
 import { Search } from "lucide-react";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
+import SponsorBanner from "@/components/layout/SponsorBanner";
 
 export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -19,30 +20,23 @@ export default function Header() {
 
   return (
     <header className="border-b border-dnews-border bg-dnews-card">
+      <SponsorBanner />
       <div className="mx-auto max-w-[1180px] px-4 py-3 md:py-5">
         <div className="flex items-stretch">
           <div className="flex-1" />
 
           <div className="flex flex-col items-center">
-            <div
-              className="flex items-center justify-center rounded-sm bg-dnews-red
-                w-[90vw] max-w-[380px] min-h-[130px]
-                sm:w-[90vw] sm:max-w-[500px] sm:min-h-[160px]
-                md:max-w-[700px] md:min-h-[200px]
-                lg:max-w-[900px] lg:min-h-[250px]"
-            >
-              <Link href="/">
-                <Image
-                  src="/images/logo-red.jpeg"
-                  alt="Dnews Africa"
-                  width={350}
-                  height={88}
-                  priority
-                  className="mx-auto h-auto w-[180px] object-contain sm:w-[220px] md:w-[280px] lg:w-[340px]"
-                  sizes="(max-width: 640px) 180px, (max-width: 768px) 280px, 340px"
-                />
-              </Link>
-            </div>
+            <Link href="/">
+              <Image
+                src="/images/logo.png"
+                alt="Dnews Africa"
+                width={350}
+                height={88}
+                priority
+                className="h-auto w-[180px] object-contain sm:w-[220px] md:w-[280px] lg:w-[340px]"
+                sizes="(max-width: 640px) 180px, (max-width: 768px) 280px, 340px"
+              />
+            </Link>
 
             <div className="mt-4 flex flex-col items-center gap-2 md:mt-5 md:flex-row md:gap-0">
               <p className="text-center text-[10px] uppercase tracking-[0.2em] text-dnews-muted md:text-[11px]">
