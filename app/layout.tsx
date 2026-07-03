@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   description:
     "Independent news media across the continent and the world",
   icons: {
-    icon: "/images/logo-red.jpeg",
-    shortcut: "/images/logo-red.jpeg",
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
   },
 };
 
