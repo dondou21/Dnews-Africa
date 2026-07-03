@@ -28,7 +28,7 @@ export default function Header() {
           <div className="flex flex-col items-center">
             <Link href="/">
               <Image
-                src="/images/logo.png"
+                src="/images/logo0.png"
                 alt="Dnews Africa"
                 width={350}
                 height={88}
