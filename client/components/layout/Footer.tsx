@@ -43,6 +43,14 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-dnews-muted">
               <li>
                 <Link
+                  href="/africa"
+                  className="transition-colors hover:text-dnews-accent"
+                >
+                  Africa
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/news"
                   className="transition-colors hover:text-dnews-accent"
                 >
@@ -62,7 +70,7 @@ export default function Footer() {
                   href="/sports"
                   className="transition-colors hover:text-dnews-accent"
                 >
-                  Sports
+                  Sport
                 </Link>
               </li>
               <li>
@@ -82,18 +90,34 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-dnews-muted">
               <li>
                 <Link
-                  href="/featured"
+                  href="/innovation"
                   className="transition-colors hover:text-dnews-accent"
                 >
-                  Featured
+                  Innovation
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/pictorial"
+                  href="/youth"
                   className="transition-colors hover:text-dnews-accent"
                 >
-                  Pictorial
+                  Youth
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/travel"
+                  className="transition-colors hover:text-dnews-accent"
+                >
+                  Travel
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/lifestyle"
+                  className="transition-colors hover:text-dnews-accent"
+                >
+                  Lifestyle
                 </Link>
               </li>
               <li>
@@ -102,14 +126,6 @@ export default function Footer() {
                   className="transition-colors hover:text-dnews-accent"
                 >
                   DnewsAfrica TV
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/search"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Search
                 </Link>
               </li>
             </ul>

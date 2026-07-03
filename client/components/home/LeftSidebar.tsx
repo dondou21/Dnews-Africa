@@ -4,14 +4,14 @@ const categories = [
   { label: "Top Stories", href: "/" },
   { label: "Sports", href: "/sports" },
   { label: "Business", href: "/business" },
-  { label: "Innovation", href: "/news" },
-  { label: "Youth", href: "/culture" },
+  { label: "Innovation", href: "/innovation" },
+  { label: "Youth", href: "/youth" },
   { label: "Culture", href: "/culture" },
-  { label: "Lifestyle", href: "/culture" },
-  { label: "Interviews", href: "/featured" },
+  { label: "Travel", href: "/travel" },
+  { label: "Lifestyle", href: "/lifestyle" },
+  { label: "Interviews", href: "/interviews" },
+  { label: "Opinion & Analysis", href: "/opinion" },
 ];
-
-const browseItems = ["Today", "This Week", "Archive"];
 
 export default function LeftSidebar() {
   return (
@@ -31,20 +31,7 @@ export default function LeftSidebar() {
         </ul>
       </Section>
 
-      <Section label="Browse">
-        <ul>
-          {browseItems.map((item) => (
-            <li key={item}>
-              <a
-                href="#"
-                className="block border-b border-dnews-border py-2 text-sm font-medium text-dnews-gray transition-colors hover:text-dnews-accent"
-              >
-                {item}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </Section>
+
     </div>
   );
 }

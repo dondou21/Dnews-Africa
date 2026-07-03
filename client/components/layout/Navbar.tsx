@@ -2,15 +2,13 @@ import Link from "next/link";
 
 const navItems = [
   { label: "Home", href: "/" },
+  { label: "Africa", href: "/africa" },
   { label: "News", href: "/news" },
   { label: "Business", href: "/business" },
-  { label: "Sports", href: "/sports" },
-  { label: "Featured", href: "/featured" },
+  { label: "Features", href: "/featured" },
+  { label: "Sport", href: "/sports" },
   { label: "Culture", href: "/culture" },
-  { label: "Pictorial", href: "/pictorial" },
   { label: "DnewsAfrica TV", href: "/tv" },
-  { label: "About", href: "/about" },
-  { label: "Advertise", href: "/advertise" },
 ];
 
 export default function Navbar() {

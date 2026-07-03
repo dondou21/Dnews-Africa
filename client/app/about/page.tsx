@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const coverageAreas = [
   {
-    title: "Sports",
+    title: "Sport",
     description:
       "In-depth coverage of African sports, from football to athletics, celebrating the continent's athletic excellence.",
   },
@@ -23,14 +23,24 @@ const coverageAreas = [
       "Technology and innovation stories highlighting African ingenuity, startups, and digital transformation.",
   },
   {
+    title: "Youth",
+    description:
+      "Stories that amplify the voices of young Africans driving change across the continent.",
+  },
+  {
     title: "Culture",
     description:
       "African culture, arts, music, film, and lifestyle content that showcases the continent's rich heritage.",
   },
   {
-    title: "Youth Stories",
+    title: "Travel",
     description:
-      "Stories that amplify the voices of young Africans driving change across the continent.",
+      "Travel stories, destinations, and experiences from across Africa and beyond.",
+  },
+  {
+    title: "Lifestyle",
+    description:
+      "Fashion, food, wellness, and the lifestyle trends shaping modern Africa.",
   },
   {
     title: "Interviews",
@@ -38,9 +48,14 @@ const coverageAreas = [
       "Exclusive conversations with thought leaders, entrepreneurs, and changemakers from across Africa.",
   },
   {
-    title: "Multimedia Storytelling",
+    title: "Opinion & Analysis",
     description:
-      "Engaging visual and audio content including photo essays, video features, and interactive stories.",
+      "Thought-provoking commentary, editorials, and in-depth analysis on issues shaping the continent.",
+  },
+  {
+    title: "DnewsAfrica TV",
+    description:
+      "Video reports, documentaries, and visual journalism from Dnews Africa.",
   },
 ];
 
