@@ -5,6 +5,8 @@ import articlesRouter from "./articles";
 import authRouter from "./auth";
 import usersRouter from "./users";
 import rolesRouter from "./roles";
+import contactRouter from "./contact";
+import newsletterRouter from "./newsletter";
 
 const router = Router();
 
@@ -14,5 +16,7 @@ router.use("/articles", articlesRouter);
 router.use("/auth", authRouter);
 router.use("/users", usersRouter);
 router.use("/roles", rolesRouter);
+router.use("/contact", contactRouter);
+router.use("/newsletter", newsletterRouter);
 
 export default router;
