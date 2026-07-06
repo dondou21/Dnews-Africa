@@ -7,6 +7,7 @@ import usersRouter from "./users";
 import rolesRouter from "./roles";
 import contactRouter from "./contact";
 import newsletterRouter from "./newsletter";
+import searchRouter from "./search";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use("/users", usersRouter);
 router.use("/roles", rolesRouter);
 router.use("/contact", contactRouter);
 router.use("/newsletter", newsletterRouter);
+router.use("/search", searchRouter);
 
 export default router;
