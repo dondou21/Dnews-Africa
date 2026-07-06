@@ -24,4 +24,20 @@ export const userRepository = {
       data,
       include: { role: true },
     }),
+
+  findAll: () =>
+    prisma.user.findMany({
+      include: { role: true },
+      orderBy: { createdAt: "desc" },
+    }),
+
+  update: (id: string, data: Record<string, unknown>) =>
+    prisma.user.update({
+      where: { id },
+      data,
+      include: { role: true },
+    }),
+
+  delete: (id: string) =>
+    prisma.user.delete({ where: { id } }),
 };
