@@ -47,12 +47,11 @@ export const articleController = {
 
   async create(req: Request, res: Response, next: NextFunction) {
     try {
-      // TODO: Add auth/role protection — require Admin or Editor role
       const parsed = createArticleSchema.safeParse(req.body);
       if (!parsed.success) {
         throw new AppError(parsed.error.errors[0].message, 400);
       }
-      const article = await articleService.create(parsed.data);
+      const article = await articleService.create(parsed.data, req.user!);
       res.status(201).json({ status: "success", data: article });
     } catch (error) {
       next(error);
@@ -61,13 +60,12 @@ export const articleController = {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      // TODO: Add auth/role protection — require Admin or Editor role
       const { id } = req.params;
       const parsed = updateArticleSchema.safeParse(req.body);
       if (!parsed.success) {
         throw new AppError(parsed.error.errors[0].message, 400);
       }
-      const article = await articleService.update(id, parsed.data);
+      const article = await articleService.update(id, parsed.data, req.user!);
       res.json({ status: "success", data: article });
     } catch (error) {
       next(error);
@@ -76,7 +74,6 @@ export const articleController = {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      // TODO: Add auth/role protection — require Admin role
       const { id } = req.params;
       await articleService.delete(id);
       res.json({ status: "success", data: null });

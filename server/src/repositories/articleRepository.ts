@@ -35,7 +35,7 @@ export interface CreateArticleInput {
   coverImageUrl?: string;
   coverImageAlt?: string;
   categoryId: number;
-  authorId: string;
+  authorId?: string;
   status?: string;
   isFeatured?: boolean;
   isTrending?: boolean;
@@ -185,7 +185,7 @@ export const articleRepository = {
         coverImageUrl: articleFields.coverImageUrl,
         coverImageAlt: articleFields.coverImageAlt,
         categoryId: articleFields.categoryId,
-        authorId: articleFields.authorId,
+        authorId: articleFields.authorId!,
         status: articleFields.status as any,
         isFeatured: articleFields.isFeatured,
         isTrending: articleFields.isTrending,
