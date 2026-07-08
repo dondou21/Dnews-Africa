@@ -9,6 +9,7 @@ import contactRouter from "./contact";
 import newsletterRouter from "./newsletter";
 import searchRouter from "./search";
 import mediaRouter from "./media";
+import commentsRouter from "./comments";
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use("/contact", contactRouter);
 router.use("/newsletter", newsletterRouter);
 router.use("/search", searchRouter);
 router.use("/media", mediaRouter);
+router.use("/comments", commentsRouter);
 
 export default router;
