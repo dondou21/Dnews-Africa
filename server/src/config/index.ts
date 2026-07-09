@@ -10,4 +10,5 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || "default-secret-change-me",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   isProduction: process.env.NODE_ENV === "production",
+  enableApiDocs: process.env.ENABLE_API_DOCS !== "false",
 };
