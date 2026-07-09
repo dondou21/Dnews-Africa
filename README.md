@@ -127,6 +127,65 @@ Obtain a token via `POST /api/auth/login`.
 
 ---
 
+## Local Development Database
+
+### Start database
+
+```bash
+cd server
+docker compose up -d
+```
+
+### Stop database
+
+```bash
+cd server
+docker compose down
+```
+
+### Reset database (deletes all data)
+
+```bash
+cd server
+docker compose down -v
+docker compose up -d
+```
+
+### Run migrations
+
+```bash
+cd server
+npx prisma migrate dev
+```
+
+### Seed database
+
+```bash
+cd server
+npx prisma db seed
+```
+
+### Open Prisma Studio
+
+```bash
+cd server
+npx prisma studio
+```
+
+All commands above are also available as npm scripts with `db:` prefix:
+
+| Command | Description |
+|---------|-------------|
+| `npm run db:up` | Start PostgreSQL |
+| `npm run db:down` | Stop PostgreSQL |
+| `npm run db:reset` | Reset database (deletes all data) |
+| `npm run db:migrate` | Run development migrations |
+| `npm run db:generate` | Generate Prisma client |
+| `npm run db:seed` | Seed the database |
+| `npm run db:studio` | Open Prisma Studio GUI |
+
+---
+
 ## Database
 
 ### Commands
