@@ -27,42 +27,35 @@ Express backend with TypeScript, Prisma ORM, and PostgreSQL.
 
 ---
 
-## Local Setup
+## Quick Start (Docker)
+
+The fastest way to get the backend running with PostgreSQL.
 
 ### Prerequisites
 
-- Node.js 22+
-- PostgreSQL running locally
-- npm
+- Docker and Docker Compose
 
-### 1. Environment variables
+### 1. Start PostgreSQL
 
 ```bash
 cd server
-cp .env.example .env
-# Edit .env with your database credentials
+docker compose up -d db
 ```
 
-### 2. Install dependencies
+### 2. Install dependencies and run migrations
 
 ```bash
 npm install
+npx prisma migrate dev
 ```
 
-### 3. Generate Prisma client and run migrations
+### 3. Seed the database
 
 ```bash
-npm run prisma:generate
-npm run prisma:migrate
+npx prisma db seed
 ```
 
-### 4. Seed the database
-
-```bash
-npm run prisma:seed
-```
-
-### 5. Start development server
+### 4. Start the dev server
 
 ```bash
 npm run dev
@@ -72,42 +65,46 @@ The API will be available at `http://localhost:4000`.
 
 ---
 
-## Docker Setup
+## Local Setup (without Docker)
 
 ### Prerequisites
 
-- Docker and Docker Compose
+- Node.js 22+
+- PostgreSQL 16+ running locally
+- npm
 
-### 1. Build and start
+### 1. Create the database
+
+```bash
+createdb dnews_africa
+```
+
+### 2. Install dependencies
 
 ```bash
 cd server
-docker compose up --build
+npm install
 ```
 
-### 2. Run migrations (first time)
+### 3. Run migrations
 
 ```bash
-docker compose exec backend npx prisma migrate deploy
+npx prisma migrate dev
 ```
 
-### 3. Seed the database
+### 4. Seed the database
 
 ```bash
-docker compose exec backend npx prisma db seed
+npx prisma db seed
 ```
 
-### 4. Stop
+### 5. Start development server
 
 ```bash
-docker compose down
+npm run dev
 ```
 
-To remove volumes as well (resets database):
-
-```bash
-docker compose down -v
-```
+The API will be available at `http://localhost:4000`.
 
 ---
 

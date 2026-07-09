@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { Prisma } from "@prisma/client";
 import { config } from "../config";
 
 export class AppError extends Error {
@@ -23,6 +24,14 @@ export const errorHandler = (
     return res.status(err.statusCode).json({
       status: "error",
       message: err.message,
+    });
+  }
+
+  if (err instanceof Prisma.PrismaClientInitializationError) {
+    console.error("Database connection failed:", err.message);
+    return res.status(503).json({
+      status: "error",
+      message: "Database unavailable. Please try again later.",
     });
   }
 
