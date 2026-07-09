@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dnews
+      POSTGRES_PASSWORD: dnews_password
+      POSTGRES_DB: dnews_africa
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dnews -d dnews_africa"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      CORS_ORIGIN: http://localhost:3000
+      DATABASE_URL: postgresql://dnews:dnews_password@db:5432/dnews_africa
+      JWT_SECRET: change-this-to-a-secure-random-string
+      JWT_EXPIRES_IN: 7d
+      ENABLE_API_DOCS: "true"
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  uploads_data:
