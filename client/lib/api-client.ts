@@ -1,4 +1,5 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+export const SERVER_BASE = API_BASE.replace(/\/api\/?$/, "");
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -72,6 +73,42 @@ async function request<T>(
   if (!res.ok) {
     throw new ApiError(
       json.message || json.error || "Request failed",
+      res.status
+    );
+  }
+
+  return json.data as T;
+}
+
+export async function uploadFile<T>(path: string, file: File): Promise<T> {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    if (typeof window !== "undefined") {
+      window.location.href = "/dashboard/login";
+    }
+    throw new ApiError("Unauthorized", 401);
+  }
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new ApiError(
+      json.message || json.error || "Upload failed",
       res.status
     );
   }
