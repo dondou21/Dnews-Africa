@@ -8,5 +8,7 @@ const router = Router();
 
 router.post("/", contactLimiter, contactController.create);
 router.get("/messages", authenticate, requireRole("ADMIN", "EDITOR"), contactController.getAll);
+router.patch("/messages/:id/read", authenticate, requireRole("ADMIN", "EDITOR"), contactController.markAsRead);
+router.delete("/messages/:id", authenticate, requireRole("ADMIN", "EDITOR"), contactController.delete);
 
 export default router;

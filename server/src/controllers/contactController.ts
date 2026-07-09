@@ -25,4 +25,24 @@ export const contactController = {
       next(error);
     }
   },
+
+  async markAsRead(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const message = await contactService.markAsRead(id);
+      res.json({ status: "success", data: message });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await contactService.delete(id);
+      res.json({ status: "success", data: null });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
