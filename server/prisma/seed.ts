@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -10,12 +11,15 @@ async function main() {
     { name: "Moderator", description: "Can moderate comments and content" },
   ];
 
+  const createdRoles: Record<string, number> = {};
+
   for (const role of roles) {
-    await prisma.role.upsert({
+    const result = await prisma.role.upsert({
       where: { name: role.name },
       update: { description: role.description },
       create: role,
     });
+    createdRoles[role.name] = result.id;
   }
 
   const categories = [
@@ -38,12 +42,41 @@ async function main() {
       create: category,
     });
   }
+
+  const testUsers = [
+    { firstName: "Admin", lastName: "User", email: "admin@dnewsafrica.com", password: "Admin@12345", role: "Admin" },
+    { firstName: "Editor", lastName: "User", email: "editor@dnewsafrica.com", password: "Editor@12345", role: "Editor" },
+    { firstName: "Journalist", lastName: "User", email: "journalist@dnewsafrica.com", password: "Journalist@12345", role: "Journalist" },
+    { firstName: "Moderator", lastName: "User", email: "moderator@dnewsafrica.com", password: "Moderator@12345", role: "Moderator" },
+  ];
+
+  for (const u of testUsers) {
+    const existing = await prisma.user.findUnique({ where: { email: u.email } });
+    if (!existing) {
+      const passwordHash = await bcrypt.hash(u.password, 12);
+      await prisma.user.create({
+        data: {
+          email: u.email,
+          passwordHash,
+          firstName: u.firstName,
+          lastName: u.lastName,
+          roleId: createdRoles[u.role],
+          isActive: true,
+        },
+      });
+    }
+  }
+
+  console.log("\n=== Dnews Africa Development Credentials ===\n");
+  console.log("  Admin      | admin@dnewsafrica.com    | Admin@12345");
+  console.log("  Editor     | editor@dnewsafrica.com   | Editor@12345");
+  console.log("  Journalist | journalist@dnewsafrica.com| Journalist@12345");
+  console.log("  Moderator  | moderator@dnewsafrica.com | Moderator@12345");
+  console.log("\n==========================================\n");
+  console.log("Seed completed successfully");
 }
 
 main()
-  .then(() => {
-    console.log("Seed completed successfully");
-  })
   .catch((e) => {
     console.error("Seed failed:", e);
     process.exit(1);

@@ -2,11 +2,14 @@
 
 import { useState, FormEvent } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
@@ -32,31 +35,45 @@ export default function DashboardLogin() {
     }
   };
 
+  const inputClass =
+    "w-full rounded-sm border border-dnews-border bg-white px-3 py-2.5 pr-10 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent disabled:opacity-50 dark:bg-dnews-dark-gray dark:text-white";
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-dnews-bg px-4">
-      <div className="w-full max-w-sm">
-        <div className="rounded-sm border border-dnews-border bg-dnews-card p-8">
-          <div className="mb-8 text-center">
-            <Link href="/" className="inline-block">
-              <span className="font-heading text-2xl font-bold text-dnews-accent">
+    <div className="flex min-h-screen">
+      <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-12">
+        <div className="mx-auto w-full max-w-sm">
+          <Link href="/" className="mb-8 inline-flex items-center gap-2">
+            <Image
+              src="/images/logo0.png"
+              alt="Dnews Africa"
+              width={40}
+              height={40}
+              className="h-10 w-auto"
+            />
+            <div>
+              <span className="font-heading text-xl font-bold text-dnews-accent">
                 Dnews
               </span>
-              <span className="font-heading text-2xl font-bold text-dnews-red">
+              <span className="font-heading text-xl font-bold text-dnews-red">
                 Africa
               </span>
-            </Link>
-            <p className="mt-2 text-sm text-dnews-muted">
-              Sign in to your dashboard
-            </p>
-          </div>
+            </div>
+          </Link>
+
+          <h1 className="font-heading text-2xl font-bold text-dnews-dark">
+            Welcome back
+          </h1>
+          <p className="mt-1 text-sm text-dnews-muted">
+            Sign in to your dashboard to manage content.
+          </p>
 
           {error && (
-            <div className="mb-5 rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+            <div className="mt-6 rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
               <p className="text-xs font-medium text-dnews-red">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="mt-6 space-y-5">
             <div>
               <label
                 htmlFor="email"
@@ -72,7 +89,8 @@ export default function DashboardLogin() {
                 placeholder="you@example.com"
                 required
                 disabled={submitting}
-                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent disabled:opacity-50"
+                autoComplete="email"
+                className={inputClass}
               />
             </div>
 
@@ -83,22 +101,46 @@ export default function DashboardLogin() {
               >
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                disabled={submitting}
-                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent disabled:opacity-50"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  disabled={submitting}
+                  autoComplete="current-password"
+                  className={inputClass}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((p) => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-dnews-muted transition-colors hover:text-dnews-gray"
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end">
+              <span className="text-xs text-dnews-muted">
+                Forgot password?{" "}
+                <button
+                  type="button"
+                  className="font-medium text-dnews-accent transition-colors hover:text-dnews-accent-light"
+                >
+                  Reset it
+                </button>
+              </span>
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 rounded-sm bg-dnews-accent px-4 py-2.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-sm bg-dnews-accent px-4 py-2.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent/80 disabled:opacity-60"
             >
               {submitting && (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -107,14 +149,64 @@ export default function DashboardLogin() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-xs text-dnews-muted">
+          <p className="mt-8 text-center text-xs text-dnews-muted">
             <Link
               href="/"
-              className="text-dnews-accent transition-colors hover:text-dnews-accent-light"
+              className="inline-flex items-center gap-1 text-dnews-accent transition-colors hover:text-dnews-accent-light"
             >
-              &larr; Back to website
+              <ArrowLeft size={12} />
+              Back to website
             </Link>
           </p>
+        </div>
+      </div>
+
+      <div className="hidden lg:flex lg:w-1/2">
+        <div className="flex min-h-full w-full flex-col justify-center bg-dnews-accent px-16">
+          <div className="mx-auto max-w-md">
+            <h2 className="font-heading text-3xl font-bold leading-tight text-white">
+              Your hub for African news management
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-white/80">
+              Publish, moderate, and analyze news content across Africa. From
+              breaking stories to in-depth features, manage every aspect of your
+              editorial workflow in one place.
+            </p>
+
+            <div className="mt-10 grid grid-cols-2 gap-6">
+              <div className="rounded-sm border border-white/20 p-4">
+                <p className="text-2xl font-bold text-white">Publish</p>
+                <p className="mt-1 text-xs text-white/70">
+                  Create and schedule articles
+                </p>
+              </div>
+              <div className="rounded-sm border border-white/20 p-4">
+                <p className="text-2xl font-bold text-white">Moderate</p>
+                <p className="mt-1 text-xs text-white/70">
+                  Review comments and feedback
+                </p>
+              </div>
+              <div className="rounded-sm border border-white/20 p-4">
+                <p className="text-2xl font-bold text-white">Manage</p>
+                <p className="mt-1 text-xs text-white/70">
+                  Organize categories and media
+                </p>
+              </div>
+              <div className="rounded-sm border border-white/20 p-4">
+                <p className="text-2xl font-bold text-white">Track</p>
+                <p className="mt-1 text-xs text-white/70">
+                  Monitor performance and reach
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-10 border-t border-white/20 pt-6">
+              <p className="text-xs text-white/60">
+                &copy; {new Date().getFullYear()} Dnews Africa. All rights
+                reserved.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
