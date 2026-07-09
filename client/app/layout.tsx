@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
-import Header from "@/components/layout/Header";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import ThemeProvider from "@/components/theme/ThemeProvider";
+import PublicLayout from "@/components/layout/PublicLayout";
 import "./globals.css";
 
 const inter = Inter({
@@ -39,10 +37,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen font-sans antialiased">
         <ThemeProvider>
-          <Header />
-          <Navbar />
-          {children}
-          <Footer />
+          <PublicLayout>{children}</PublicLayout>
         </ThemeProvider>
       </body>
     </html>
