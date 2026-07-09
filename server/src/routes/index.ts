@@ -10,6 +10,7 @@ import newsletterRouter from "./newsletter";
 import searchRouter from "./search";
 import mediaRouter from "./media";
 import commentsRouter from "./comments";
+import tagsRouter from "./tags";
 import dashboardRouter from "./dashboard";
 
 const router = Router();
@@ -25,6 +26,7 @@ router.use("/newsletter", newsletterRouter);
 router.use("/search", searchRouter);
 router.use("/media", mediaRouter);
 router.use("/comments", commentsRouter);
+router.use("/tags", tagsRouter);
 router.use("/dashboard", dashboardRouter);
 
 export default router;

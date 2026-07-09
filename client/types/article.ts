@@ -55,6 +55,22 @@ export interface ArticlesResponse {
 
 export type Category = ArticleCategory;
 
+export interface CategoryWithCount extends Category {
+  description: string | null;
+  _count: { articles: number };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TagInfo {
+  id: number;
+  name: string;
+  slug: string;
+  _count: { articles: number };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CreateArticleInput {
   title: string;
   slug: string;
