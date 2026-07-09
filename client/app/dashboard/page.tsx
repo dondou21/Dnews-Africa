@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -8,59 +11,72 @@ import {
   Image,
 } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
-
-const stats = [
-  {
-    label: "Total Articles",
-    value: 0,
-    icon: FileText,
-    trend: { value: "0%", positive: true },
-  },
-  {
-    label: "Pending Comments",
-    value: 0,
-    icon: MessageSquare,
-    trend: { value: "0", positive: false },
-    variant: "red" as const,
-  },
-  {
-    label: "Total Users",
-    value: 0,
-    icon: Users,
-    trend: { value: "0%", positive: true },
-  },
-  {
-    label: "Newsletter Subscribers",
-    value: 0,
-    icon: Mail,
-    trend: { value: "0%", positive: true },
-  },
-  {
-    label: "Contact Messages",
-    value: 0,
-    icon: MessageCircle,
-    trend: { value: "0", positive: false },
-    variant: "red" as const,
-  },
-  {
-    label: "Media Files",
-    value: 0,
-    icon: Image,
-    trend: { value: "0%", positive: true },
-  },
-  {
-    label: "Categories",
-    value: 0,
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Tags",
-    value: 0,
-    icon: LayoutDashboard,
-  },
-];
+import LoadingState from "@/components/dashboard/LoadingState";
+import { get } from "@/lib/api-client";
+import type { DashboardStats } from "@/types/dashboard";
 
 export default function DashboardOverview() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    get<DashboardStats>("/dashboard")
+      .then(setStats)
+      .catch(() => {
+        // silently fail — stats stay null
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <LoadingState rows={4} />;
+  }
+
+  const cards = [
+    {
+      label: "Total Articles",
+      value: stats?.overview.totalArticles ?? 0,
+      icon: FileText,
+    },
+    {
+      label: "Pending Comments",
+      value: stats?.comments.pendingComments ?? 0,
+      icon: MessageSquare,
+      variant: "red" as const,
+    },
+    {
+      label: "Total Users",
+      value: stats?.users.totalUsers ?? 0,
+      icon: Users,
+    },
+    {
+      label: "Newsletter Subscribers",
+      value: stats?.newsletter.totalSubscribers ?? 0,
+      icon: Mail,
+    },
+    {
+      label: "Contact Messages",
+      value: stats?.contact.totalMessages ?? 0,
+      icon: MessageCircle,
+      variant: "red" as const,
+    },
+    {
+      label: "Media Files",
+      value: stats?.media.totalFiles ?? 0,
+      icon: Image,
+    },
+    {
+      label: "Categories",
+      value: stats?.categories.totalCategories ?? 0,
+      icon: LayoutDashboard,
+    },
+    {
+      label: "Articles Today",
+      value: stats?.overview.articlesPublishedToday ?? 0,
+      icon: FileText,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -73,8 +89,8 @@ export default function DashboardOverview() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <StatsCard key={stat.label} {...stat} />
+        {cards.map((card) => (
+          <StatsCard key={card.label} {...card} />
         ))}
       </div>
 

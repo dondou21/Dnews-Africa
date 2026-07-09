@@ -16,19 +16,27 @@ import {
   Settings,
   X,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
-const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/articles", label: "Articles", icon: FileText },
-  { href: "/dashboard/categories", label: "Categories", icon: FolderTree },
-  { href: "/dashboard/tags", label: "Tags", icon: Tags },
-  { href: "/dashboard/media", label: "Media", icon: Image },
-  { href: "/dashboard/comments", label: "Comments", icon: MessageSquare },
-  { href: "/dashboard/users", label: "Users", icon: Users },
-  { href: "/dashboard/roles", label: "Roles", icon: ShieldCheck },
-  { href: "/dashboard/newsletter", label: "Newsletter", icon: Mail },
-  { href: "/dashboard/messages", label: "Messages", icon: MessageCircle },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number }>;
+  roles: string[];
+}
+
+const allNavItems: NavItem[] = [
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, roles: ["Admin", "Editor", "Journalist", "Moderator"] },
+  { href: "/dashboard/articles", label: "Articles", icon: FileText, roles: ["Admin", "Editor", "Journalist"] },
+  { href: "/dashboard/categories", label: "Categories", icon: FolderTree, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/tags", label: "Tags", icon: Tags, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/media", label: "Media", icon: Image, roles: ["Admin", "Editor", "Journalist"] },
+  { href: "/dashboard/comments", label: "Comments", icon: MessageSquare, roles: ["Admin", "Editor", "Moderator"] },
+  { href: "/dashboard/users", label: "Users", icon: Users, roles: ["Admin"] },
+  { href: "/dashboard/roles", label: "Roles", icon: ShieldCheck, roles: ["Admin"] },
+  { href: "/dashboard/newsletter", label: "Newsletter", icon: Mail, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/messages", label: "Messages", icon: MessageCircle, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings, roles: ["Admin", "Editor", "Journalist", "Moderator"] },
 ];
 
 interface SidebarProps {
@@ -38,6 +46,12 @@ interface SidebarProps {
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const navItems = allNavItems.filter((item) => {
+    if (!user) return false;
+    return item.roles.includes(user.role.name);
+  });
 
   return (
     <>

@@ -1,15 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // TODO: Implement login logic
+    setError("");
+
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await login(email, password);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Invalid email or password.";
+      setError(message);
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -30,6 +50,12 @@ export default function DashboardLogin() {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-5 rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+              <p className="text-xs font-medium text-dnews-red">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
@@ -45,7 +71,8 @@ export default function DashboardLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+                disabled={submitting}
+                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent disabled:opacity-50"
               />
             </div>
 
@@ -63,15 +90,20 @@ export default function DashboardLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 required
-                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+                disabled={submitting}
+                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent disabled:opacity-50"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full rounded-sm bg-dnews-accent px-4 py-2.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-sm bg-dnews-accent px-4 py-2.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light disabled:opacity-60"
             >
-              Sign In
+              {submitting && (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              )}
+              {submitting ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
