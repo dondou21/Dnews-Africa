@@ -1,17 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Article } from "@/src/lib/articles";
 
-function getCategoryColor(category: string): "red" | "blue" {
+interface ArticleItem {
+  slug: string;
+  title: string;
+  summary: string;
+  category: { id: number; name: string; slug: string };
+  author: { firstName: string; lastName: string };
+  coverImageUrl: string | null;
+  coverImageAlt: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+}
+
+function getCategoryColor(categoryName: string): "red" | "blue" {
   const sportsCulture = ["sports", "culture", "youth", "featured"];
-  return sportsCulture.some((c) => category.toLowerCase().includes(c))
+  return sportsCulture.some((c) => categoryName.toLowerCase().includes(c))
     ? "red"
     : "blue";
 }
 
-export default function ArticleListItem({ article }: { article: Article }) {
+export default function ArticleListItem({ article }: { article: ArticleItem }) {
   const colorClass =
-    getCategoryColor(article.category) === "red"
+    getCategoryColor(article.category.name) === "red"
       ? "text-dnews-red"
       : "text-dnews-accent";
 
@@ -21,18 +32,20 @@ export default function ArticleListItem({ article }: { article: Article }) {
         href={`/articles/${article.slug}`}
         className="relative h-20 w-24 shrink-0 overflow-hidden"
       >
-        <Image
-          src={article.imageUrl}
-          alt={article.imageAlt}
-          fill
-          className="object-cover transition-transform duration-300 hover:scale-110"
-          sizes="96px"
-          loading="lazy"
-        />
+        {article.coverImageUrl && (
+          <Image
+            src={article.coverImageUrl}
+            alt={article.coverImageAlt || ""}
+            fill
+            className="object-cover transition-transform duration-300 hover:scale-110"
+            sizes="96px"
+            loading="lazy"
+          />
+        )}
       </Link>
       <div className="min-w-0 flex-1">
         <div className={`mb-1 text-[11px] font-semibold uppercase tracking-wider ${colorClass}`}>
-          {article.category}
+          {article.category.name}
         </div>
         <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark">
           <Link
@@ -43,9 +56,21 @@ export default function ArticleListItem({ article }: { article: Article }) {
           </Link>
         </h3>
         <div className="mt-1 flex items-center gap-2 text-[11px] text-dnews-muted">
-          <span>{article.publishedAt}</span>
+          <span>
+            {article.publishedAt
+              ? new Date(article.publishedAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : new Date(article.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+          </span>
           <span>·</span>
-          <span>{article.readTime}</span>
+          <span>{article.author.firstName} {article.author.lastName}</span>
         </div>
       </div>
     </article>

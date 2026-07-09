@@ -42,28 +42,23 @@ export default function DashboardLogin() {
     <div className="flex min-h-screen">
       <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-12">
         <div className="mx-auto w-full max-w-sm">
-          <Link href="/" className="mb-8 inline-flex items-center gap-2">
-            <Image
-              src="/images/logo0.png"
-              alt="Dnews Africa"
-              width={40}
-              height={40}
-              className="h-10 w-auto"
-            />
-            <div>
-              <span className="font-heading text-xl font-bold text-dnews-accent">
-                Dnews
-              </span>
-              <span className="font-heading text-xl font-bold text-dnews-red">
-                Africa
-              </span>
-            </div>
-          </Link>
+          <div className="mb-10 flex justify-center">
+            <Link href="/">
+              <Image
+                src="/images/logo0.png"
+                alt="Dnews Africa"
+                width={280}
+                height={70}
+                priority
+                className="h-auto w-[220px] object-contain sm:w-[260px]"
+              />
+            </Link>
+          </div>
 
-          <h1 className="font-heading text-2xl font-bold text-dnews-dark">
+          <h1 className="text-center font-heading text-2xl font-bold text-dnews-dark">
             Welcome back
           </h1>
-          <p className="mt-1 text-sm text-dnews-muted">
+          <p className="mt-1 text-center text-sm text-dnews-muted">
             Sign in to your dashboard to manage content.
           </p>
 
@@ -161,46 +156,57 @@ export default function DashboardLogin() {
         </div>
       </div>
 
-      <div className="hidden lg:flex lg:w-1/2">
-        <div className="flex min-h-full w-full flex-col justify-center bg-dnews-accent px-16">
+      <div className="relative hidden lg:flex lg:w-1/2">
+        <div className="absolute inset-0 bg-gradient-to-br from-dnews-accent/90 to-dnews-accent" />
+        <Image
+          src="https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=1200&q=80"
+          alt="Newsroom"
+          fill
+          className="object-cover"
+          priority
+          sizes="50vw"
+        />
+        <div className="relative z-10 flex min-h-full w-full flex-col justify-center px-16">
           <div className="mx-auto max-w-md">
-            <h2 className="font-heading text-3xl font-bold leading-tight text-white">
-              Your hub for African news management
-            </h2>
-            <p className="mt-4 text-base leading-relaxed text-white/80">
-              Publish, moderate, and analyze news content across Africa. From
-              breaking stories to in-depth features, manage every aspect of your
-              editorial workflow in one place.
-            </p>
+            <div className="rounded-sm border border-white/20 bg-white/10 p-8 backdrop-blur-sm">
+              <h2 className="font-heading text-3xl font-bold leading-tight text-white">
+                Your hub for African news management
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-white/80">
+                Publish, moderate, and analyze news content across Africa. From
+                breaking stories to in-depth features, manage every aspect of your
+                editorial workflow in one place.
+              </p>
 
-            <div className="mt-10 grid grid-cols-2 gap-6">
-              <div className="rounded-sm border border-white/20 p-4">
-                <p className="text-2xl font-bold text-white">Publish</p>
-                <p className="mt-1 text-xs text-white/70">
-                  Create and schedule articles
-                </p>
-              </div>
-              <div className="rounded-sm border border-white/20 p-4">
-                <p className="text-2xl font-bold text-white">Moderate</p>
-                <p className="mt-1 text-xs text-white/70">
-                  Review comments and feedback
-                </p>
-              </div>
-              <div className="rounded-sm border border-white/20 p-4">
-                <p className="text-2xl font-bold text-white">Manage</p>
-                <p className="mt-1 text-xs text-white/70">
-                  Organize categories and media
-                </p>
-              </div>
-              <div className="rounded-sm border border-white/20 p-4">
-                <p className="text-2xl font-bold text-white">Track</p>
-                <p className="mt-1 text-xs text-white/70">
-                  Monitor performance and reach
-                </p>
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <div className="rounded-sm border border-white/20 p-4">
+                  <p className="text-2xl font-bold text-white">Publish</p>
+                  <p className="mt-1 text-xs text-white/70">
+                    Create and schedule articles
+                  </p>
+                </div>
+                <div className="rounded-sm border border-white/20 p-4">
+                  <p className="text-2xl font-bold text-white">Moderate</p>
+                  <p className="mt-1 text-xs text-white/70">
+                    Review comments and feedback
+                  </p>
+                </div>
+                <div className="rounded-sm border border-white/20 p-4">
+                  <p className="text-2xl font-bold text-white">Manage</p>
+                  <p className="mt-1 text-xs text-white/70">
+                    Organize categories and media
+                  </p>
+                </div>
+                <div className="rounded-sm border border-white/20 p-4">
+                  <p className="text-2xl font-bold text-white">Track</p>
+                  <p className="mt-1 text-xs text-white/70">
+                    Monitor performance and reach
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="mt-10 border-t border-white/20 pt-6">
+            <div className="mt-8 border-t border-white/20 pt-6">
               <p className="text-xs text-white/60">
                 &copy; {new Date().getFullYear()} Dnews Africa. All rights
                 reserved.

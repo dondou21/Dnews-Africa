@@ -8,7 +8,6 @@ import {
   FolderTree,
   Tags,
   Image,
-  MessageSquare,
   Users,
   ShieldCheck,
   Mail,
@@ -31,7 +30,6 @@ const allNavItems: NavItem[] = [
   { href: "/dashboard/categories", label: "Categories", icon: FolderTree, roles: ["Admin", "Editor"] },
   { href: "/dashboard/tags", label: "Tags", icon: Tags, roles: ["Admin", "Editor"] },
   { href: "/dashboard/media", label: "Media", icon: Image, roles: ["Admin", "Editor", "Journalist"] },
-  { href: "/dashboard/comments", label: "Comments", icon: MessageSquare, roles: ["Admin", "Editor", "Moderator"] },
   { href: "/dashboard/users", label: "Users", icon: Users, roles: ["Admin"] },
   { href: "/dashboard/roles", label: "Roles", icon: ShieldCheck, roles: ["Admin"] },
   { href: "/dashboard/newsletter", label: "Newsletter", icon: Mail, roles: ["Admin", "Editor"] },
@@ -68,13 +66,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         }`}
       >
         <div className="flex h-16 items-center justify-between border-b border-dnews-border px-4">
-          <Link href="/dashboard" className="flex items-center gap-2" onClick={onClose}>
-            <span className="font-heading text-lg font-bold text-dnews-accent">
-              Dnews
-            </span>
-            <span className="font-heading text-lg font-bold text-dnews-red">
-              Africa
-            </span>
+          <Link href="/dashboard" onClick={onClose}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo0.png"
+              alt="Dnews Africa"
+              className="h-auto w-[120px] object-contain"
+            />
           </Link>
           <button
             onClick={onClose}

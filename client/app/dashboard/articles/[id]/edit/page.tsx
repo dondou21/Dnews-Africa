@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, useRef, type FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { get, patch } from "@/lib/api-client";
+import Image from "next/image";
+import { ArrowLeft, Upload } from "lucide-react";
+import { get, patch, uploadFile } from "@/lib/api-client";
 import LoadingState from "@/components/dashboard/LoadingState";
 import type { Article, Category } from "@/types/article";
 
@@ -15,9 +16,12 @@ export default function EditArticlePage() {
 
   const [article, setArticle] = useState<Article | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -39,6 +43,7 @@ export default function EditArticlePage() {
         ]);
         setArticle(articleData);
         setCategories(cats);
+        setCategoriesLoading(false);
 
         setTitle(articleData.title);
         setSlug(articleData.slug);
@@ -54,6 +59,7 @@ export default function EditArticlePage() {
         );
       } catch {
         setError("Failed to load article.");
+        setCategoriesLoading(false);
       } finally {
         setLoading(false);
       }
@@ -229,15 +235,58 @@ export default function EditArticlePage() {
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
-                Cover Image URL
+                Cover Image
               </label>
-              <input
-                type="url"
-                value={coverImageUrl}
-                onChange={(e) => setCoverImageUrl(e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
-              />
+              <div className="flex items-start gap-4">
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="url"
+                    value={coverImageUrl}
+                    onChange={(e) => setCoverImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+                  />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploading(true);
+                      try {
+                        const result = await uploadFile<{ url: string }>("/media/upload", file);
+                        setCoverImageUrl(result.url);
+                      } catch {
+                        setError("Failed to upload image.");
+                      } finally {
+                        setUploading(false);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-2 rounded-sm border border-dnews-border px-3 py-2 text-xs font-medium text-dnews-gray transition-colors hover:bg-dnews-light-gray disabled:opacity-50"
+                  >
+                    <Upload size={14} />
+                    {uploading ? "Uploading..." : "Upload from computer"}
+                  </button>
+                </div>
+                {coverImageUrl && (
+                  <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-sm border border-dnews-border">
+                    <Image
+                      src={coverImageUrl}
+                      alt="Cover preview"
+                      fill
+                      className="object-cover"
+                      sizes="128px"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -271,13 +320,24 @@ export default function EditArticlePage() {
                 required
                 className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
               >
-                <option value="">Select category</option>
+                <option value="">
+                  {categoriesLoading
+                    ? "Loading categories..."
+                    : categories.length === 0
+                      ? "No categories available"
+                      : "Select category"}
+                </option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
                   </option>
                 ))}
               </select>
+              {!categoriesLoading && categories.length === 0 && (
+                <p className="mt-1 text-xs text-dnews-red">
+                  No categories found. Create one in Categories first.
+                </p>
+              )}
             </div>
 
             <div>

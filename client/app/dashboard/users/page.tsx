@@ -11,6 +11,7 @@ import type { UserItem, RoleInfo } from "@/types/user";
 export default function UsersPage() {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [roles, setRoles] = useState<RoleInfo[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -41,8 +42,10 @@ export default function UsersPage() {
       ]);
       setUsers(usersData);
       setRoles(rolesData);
+      setRolesLoading(false);
     } catch {
       setError("Failed to load data.");
+      setRolesLoading(false);
     } finally {
       setLoading(false);
     }
@@ -411,12 +414,24 @@ export default function UsersPage() {
                 required
                 className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
               >
-                <option value="">Select role</option>
-                {roles.map((r) => (
+                <option value="">
+                  {rolesLoading
+                    ? "Loading roles..."
+                    : roles.length === 0
+                      ? "No roles available"
+                      : "Select role"}
+                </option>
+          {rolesLoading && (
+            <span className="text-xs text-dnews-muted">Loading roles...</span>
+          )}
+          {roles.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.name}
                   </option>
                 ))}
+                {!rolesLoading && roles.length === 0 && (
+                  <option value="" disabled>No roles found — contact your administrator</option>
+                )}
               </select>
             </div>
             {editing && (

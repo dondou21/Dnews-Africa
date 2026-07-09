@@ -1,7 +1,12 @@
 import Link from "next/link";
-import type { Article } from "@/src/lib/articles";
 
-export default function TrendingWidget({ articles }: { articles: Article[] }) {
+interface TrendingArticle {
+  id: string;
+  title: string;
+  slug: string;
+}
+
+export default function TrendingWidget({ articles }: { articles: TrendingArticle[] }) {
   return (
     <div className="mb-6">
       <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-red">

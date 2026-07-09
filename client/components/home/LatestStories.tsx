@@ -1,7 +1,18 @@
-import type { Article } from "@/src/data/articles";
 import ArticleListItem from "./ArticleListItem";
 
-export default function LatestStories({ articles }: { articles: Article[] }) {
+interface ArticleItem {
+  slug: string;
+  title: string;
+  summary: string;
+  category: { id: number; name: string; slug: string };
+  author: { firstName: string; lastName: string };
+  coverImageUrl: string | null;
+  coverImageAlt: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+}
+
+export default function LatestStories({ articles }: { articles: ArticleItem[] }) {
   return (
     <section>
       <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-red">
@@ -9,7 +20,7 @@ export default function LatestStories({ articles }: { articles: Article[] }) {
       </h3>
       <div className="space-y-4">
         {articles.map((article) => (
-          <ArticleListItem key={article.id} article={article} />
+          <ArticleListItem key={article.slug} article={article} />
         ))}
       </div>
     </section>

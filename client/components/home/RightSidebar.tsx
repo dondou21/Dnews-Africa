@@ -1,7 +1,12 @@
-import type { Article } from "@/src/lib/articles";
 import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6";
 import AdSlot from "./AdSlot";
 import TrendingWidget from "./TrendingWidget";
+
+interface TrendingArticle {
+  id: string;
+  title: string;
+  slug: string;
+}
 
 const socialLinks = [
   { name: "YouTube", href: "#", icon: FaYoutube },
@@ -13,7 +18,7 @@ const socialLinks = [
 export default function RightSidebar({
   trendingArticles,
 }: {
-  trendingArticles: Article[];
+  trendingArticles: TrendingArticle[];
 }) {
   return (
     <div>
