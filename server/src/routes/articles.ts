@@ -7,6 +7,8 @@ import { requireRole } from "../middlewares/requireRole";
 const router = Router();
 
 router.get("/", articleController.getAll);
+router.get("/admin/all", authenticate, requireRole("ADMIN", "EDITOR", "JOURNALIST"), articleController.getAllAdmin);
+router.get("/admin/:id", authenticate, requireRole("ADMIN", "EDITOR", "JOURNALIST"), articleController.getById);
 router.get("/featured", articleController.getFeatured);
 router.get("/latest", articleController.getLatest);
 router.get("/:slug", articleController.getBySlug);

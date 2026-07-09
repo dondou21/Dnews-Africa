@@ -17,10 +17,34 @@ export const articleController = {
     }
   },
 
+  async getAllAdmin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = articleQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new AppError("Invalid query parameters", 400);
+      }
+      const status = req.query.status as string | undefined;
+      const result = await articleService.getAllAdmin({ ...parsed.data, status });
+      res.json({ status: "success", data: result });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getBySlug(req: Request, res: Response, next: NextFunction) {
     try {
       const { slug } = req.params;
       const article = await articleService.getBySlug(slug);
+      res.json({ status: "success", data: article });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const article = await articleService.getById(id);
       res.json({ status: "success", data: article });
     } catch (error) {
       next(error);

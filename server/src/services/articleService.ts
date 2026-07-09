@@ -7,8 +7,20 @@ export const articleService = {
     return articleRepository.findAllPublished(params);
   },
 
+  async getAllAdmin(params: ArticleQueryParams & { status?: string }) {
+    return articleRepository.findAllAdmin(params);
+  },
+
   async getBySlug(slug: string) {
     const article = await articleRepository.findPublishedBySlug(slug);
+    if (!article) {
+      throw new AppError("Article not found", 404);
+    }
+    return article;
+  },
+
+  async getById(id: string) {
+    const article = await articleRepository.findByIdWithDetails(id);
     if (!article) {
       throw new AppError("Article not found", 404);
     }

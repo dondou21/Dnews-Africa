@@ -142,8 +142,62 @@ export const articleRepository = {
     });
   },
 
+  async findAllAdmin(params: ArticleQueryParams & { status?: string }) {
+    const where: Prisma.ArticleWhereInput = {};
+
+    if (params.status && params.status !== "ALL") {
+      where.status = params.status as any;
+    }
+
+    if (params.search) {
+      where.OR = [
+        { title: { contains: params.search, mode: "insensitive" } },
+        { summary: { contains: params.search, mode: "insensitive" } },
+      ];
+    }
+
+    const orderBy: Prisma.ArticleOrderByWithRelationInput =
+      params.sort === "oldest"
+        ? { createdAt: "asc" as const }
+        : params.sort === "title_asc"
+          ? { title: "asc" as const }
+          : params.sort === "title_desc"
+            ? { title: "desc" as const }
+            : { createdAt: "desc" as const };
+
+    const skip = (params.page - 1) * params.limit;
+
+    const [articles, total] = await Promise.all([
+      prisma.article.findMany({
+        where,
+        orderBy,
+        skip,
+        take: params.limit,
+        include: articleInclude,
+      }),
+      prisma.article.count({ where }),
+    ]);
+
+    return {
+      articles,
+      pagination: {
+        page: params.page,
+        limit: params.limit,
+        total,
+        totalPages: Math.ceil(total / params.limit),
+      },
+    };
+  },
+
   async findById(id: string) {
     return prisma.article.findUnique({ where: { id } });
+  },
+
+  async findByIdWithDetails(id: string) {
+    return prisma.article.findUnique({
+      where: { id },
+      include: articleInclude,
+    });
   },
 
   async findFeatured() {
