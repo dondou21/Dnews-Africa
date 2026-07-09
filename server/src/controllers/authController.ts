@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { authService } from "../services/authService";
-import { registerSchema, loginSchema } from "../validators/authValidator";
+import { registerSchema, loginSchema, changePasswordSchema } from "../validators/authValidator";
 import { AppError } from "../middlewares/errorHandler";
 
 export const authController = {
@@ -34,6 +34,23 @@ export const authController = {
     try {
       const user = await authService.getMe(req.user!.id);
       res.json({ status: "success", data: user });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = changePasswordSchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new AppError(parsed.error.errors[0].message, 400);
+      }
+      await authService.changePassword(
+        req.user!.id,
+        parsed.data.currentPassword,
+        parsed.data.newPassword
+      );
+      res.json({ status: "success", data: null });
     } catch (error) {
       next(error);
     }

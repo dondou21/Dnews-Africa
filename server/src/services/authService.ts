@@ -5,6 +5,11 @@ import { config } from "../config";
 import { userRepository } from "../repositories/userRepository";
 import { AppError } from "../middlewares/errorHandler";
 
+function stripPassword(user: any) {
+  const { passwordHash, ...rest } = user;
+  return rest;
+}
+
 export const authService = {
   async register(data: { firstName: string; lastName: string; email: string; password: string }) {
     const existing = await userRepository.findByEmail(data.email);
@@ -27,8 +32,7 @@ export const authService = {
       roleId: journalistRole.id,
     });
 
-    const { passwordHash: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return stripPassword(user);
   },
 
   async login(email: string, password: string) {
@@ -57,7 +61,21 @@ export const authService = {
     if (!user) {
       throw new AppError("User not found", 404);
     }
-    const { passwordHash: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return stripPassword(user);
+  },
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isValid) {
+      throw new AppError("Current password is incorrect", 400);
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await userRepository.update(userId, { passwordHash });
   },
 };
