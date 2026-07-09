@@ -1,7 +1,59 @@
-import EmptyState from "@/components/dashboard/EmptyState";
-import { ShieldCheck } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import DataTable, { type Column } from "@/components/dashboard/DataTable";
+import { get } from "@/lib/api-client";
+import type { RoleInfo } from "@/types/user";
 
 export default function RolesPage() {
+  const [roles, setRoles] = useState<RoleInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchRoles = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await get<RoleInfo[]>("/roles");
+      setRoles(data);
+    } catch {
+      setError("Failed to load roles.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const columns: Column<RoleInfo>[] = [
+    {
+      key: "name",
+      header: "Name",
+      render: (r) => <span className="font-medium text-dnews-dark">{r.name}</span>,
+    },
+    {
+      key: "description",
+      header: "Description",
+      render: (r) => (
+        <span className="text-sm text-dnews-gray">
+          {r.description || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "users",
+      header: "Users",
+      className: "text-center",
+      render: (r) => (
+        <span className="text-sm font-medium text-dnews-dark">
+          {r._count?.users ?? 0}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -9,13 +61,23 @@ export default function RolesPage() {
           Roles
         </h2>
         <p className="mt-1 text-sm text-dnews-muted">
-          Define roles and permissions for platform users.
+          {roles.length} role{roles.length !== 1 ? "s" : ""} defined
         </p>
       </div>
-      <EmptyState
-        title="Roles Management"
-        description="This dashboard section will be available soon. You will be able to manage user roles and their access permissions."
-        icon={ShieldCheck}
+
+      {error && (
+        <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+          <p className="text-xs font-medium text-dnews-red">{error}</p>
+        </div>
+      )}
+
+      <DataTable
+        columns={columns}
+        data={roles}
+        keyExtractor={(r) => String(r.id)}
+        loading={loading}
+        emptyTitle="No roles defined"
+        emptyDescription="Roles control user permissions on the platform."
       />
     </div>
   );

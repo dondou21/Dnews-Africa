@@ -1,9 +1,22 @@
 import { Request, Response, NextFunction } from "express";
 import { userService } from "../services/userService";
-import { updateUserSchema } from "../validators/userValidator";
+import { createUserSchema, updateUserSchema } from "../validators/userValidator";
 import { AppError } from "../middlewares/errorHandler";
 
 export const userController = {
+  async createByAdmin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = createUserSchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new AppError(parsed.error.errors[0].message, 400);
+      }
+      const user = await userService.createByAdmin(parsed.data);
+      res.status(201).json({ status: "success", data: user });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getAll(_req: Request, res: Response, next: NextFunction) {
     try {
       const users = await userService.getAll();

@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import prisma from "../utils/prisma";
 import { userRepository } from "../repositories/userRepository";
 import { AppError } from "../middlewares/errorHandler";
@@ -12,6 +13,22 @@ export const userService = {
   async getAll() {
     const users = await userRepository.findAll();
     return users.map(stripPassword);
+  },
+
+  async createByAdmin(data: { firstName: string; lastName: string; email: string; password: string; roleId: number }) {
+    const existing = await userRepository.findByEmail(data.email);
+    if (existing) {
+      throw new AppError("Email already in use", 409);
+    }
+    const passwordHash = await bcrypt.hash(data.password, 12);
+    const user = await userRepository.create({
+      email: data.email,
+      passwordHash,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      roleId: data.roleId,
+    });
+    return stripPassword(user);
   },
 
   async getById(id: string, currentUser: AuthenticatedUser) {

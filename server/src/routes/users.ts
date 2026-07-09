@@ -6,6 +6,7 @@ import { requireRole } from "../middlewares/requireRole";
 const router = Router();
 
 router.get("/", authenticate, requireRole("ADMIN"), userController.getAll);
+router.post("/", authenticate, requireRole("ADMIN"), userController.createByAdmin);
 router.get("/:id", authenticate, userController.getById);
 router.patch("/:id", authenticate, userController.update);
 router.delete("/:id", authenticate, requireRole("ADMIN"), userController.delete);
