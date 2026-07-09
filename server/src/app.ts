@@ -8,6 +8,7 @@ import routes from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import { notFound } from "./middlewares/notFound";
 import { globalLimiter } from "./middlewares/rateLimit";
+import docsRouter from "./routes/docs";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
 
+app.use("/api/docs", docsRouter);
 app.use("/api", globalLimiter, routes);
 
 app.use(notFound);
