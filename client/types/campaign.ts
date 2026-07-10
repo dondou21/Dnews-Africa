@@ -1,3 +1,5 @@
+import type { NewsletterAnalytics } from "./analytics";
+
 export type CampaignStatus = "DRAFT" | "SCHEDULED" | "SENDING" | "SENT" | "CANCELLED";
 export type RecipientStatus = "PENDING" | "SENT" | "FAILED";
 
@@ -16,12 +18,17 @@ export interface Campaign {
   totalRecipients: number;
   totalSent: number;
   totalFailed: number;
+  totalOpened: number;
+  totalClicked: number;
+  templateId: string | null;
+  template?: { id: string; name: string } | null;
   createdById: string;
   createdBy: { id: string; firstName: string; lastName: string };
   updatedById: string | null;
   updatedBy: { id: string; firstName: string; lastName: string } | null;
   _count: { recipients: number };
   recipients?: CampaignRecipient[];
+  analytics?: NewsletterAnalytics[];
   createdAt: string;
   updatedAt: string;
 }

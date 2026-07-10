@@ -57,6 +57,7 @@ model User {
   media    Media[]
   newsletterCampaignsCreated NewsletterCampaign[] @relation("CampaignCreatedBy")
   newsletterCampaignsUpdated NewsletterCampaign[] @relation("CampaignUpdatedBy")
+  newsletterTemplates        NewsletterTemplate[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -202,6 +203,12 @@ model ContactMessage {
   @@map("contact_messages")
 }
 
+enum AutomationFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
 enum CampaignStatus {
   DRAFT
   SCHEDULED
@@ -214,6 +221,48 @@ enum RecipientStatus {
   PENDING
   SENT
   FAILED
+}
+
+model NewsletterTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  subject     String
+  content     String
+  thumbnail   String?
+  isDefault   Boolean  @default(false)
+
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  campaigns   NewsletterCampaign[]
+  automations NewsletterAutomation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_templates")
+}
+
+model NewsletterAutomation {
+  id        String              @id @default(uuid())
+  name      String
+  enabled   Boolean             @default(true)
+  frequency AutomationFrequency
+  sendDay   Int?
+  sendTime  String
+  timezone  String              @default("UTC")
+
+  templateId String
+  template   NewsletterTemplate @relation(fields: [templateId], references: [id])
+
+  lastRun DateTime?
+  nextRun DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_automations")
 }
 
 model NewsletterCampaign {
@@ -231,6 +280,11 @@ model NewsletterCampaign {
   totalRecipients Int             @default(0)
   totalSent       Int             @default(0)
   totalFailed     Int             @default(0)
+  totalOpened     Int             @default(0)
+  totalClicked    Int             @default(0)
+
+  templateId String?
+  template   NewsletterTemplate? @relation(fields: [templateId], references: [id])
 
   createdById String
   createdBy   User   @relation("CampaignCreatedBy", fields: [createdById], references: [id])
@@ -238,6 +292,9 @@ model NewsletterCampaign {
   updatedBy   User?  @relation("CampaignUpdatedBy", fields: [updatedById], references: [id])
 
   recipients NewsletterCampaignRecipient[]
+  opens      NewsletterOpen[]
+  clicks     NewsletterClick[]
+  analytics  NewsletterAnalytics[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -250,6 +307,8 @@ model NewsletterCampaignRecipient {
   status       RecipientStatus @default(PENDING)
   sentAt       DateTime?
   deliveredAt  DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
   failedAt     DateTime?
   errorMessage String?
 
@@ -262,6 +321,70 @@ model NewsletterCampaignRecipient {
   createdAt DateTime @default(now())
 
   @@map("newsletter_campaign_recipients")
+}
+
+model NewsletterAnalytics {
+  id              String   @id @default(uuid())
+  totalRecipients Int      @default(0)
+  delivered       Int      @default(0)
+  opened          Int      @default(0)
+  clicked         Int      @default(0)
+  bounced         Int      @default(0)
+  unsubscribed    Int      @default(0)
+  failed          Int      @default(0)
+
+  campaignId String
+  campaign   NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("newsletter_analytics")
+}
+
+model NewsletterOpen {
+  id           String   @id @default(uuid())
+  subscriberId String
+  openedAt     DateTime @default(now())
+
+  campaignId String
+  campaign   NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("newsletter_opens")
+}
+
+model NewsletterClick {
+  id           String   @id @default(uuid())
+  url          String
+  articleId    String?
+  clickedAt    DateTime @default(now())
+
+  campaignId   String
+  campaign     NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  subscriberId String
+
+  @@map("newsletter_clicks")
+}
+
+model NewsletterSettings {
+  id             Int      @id @default(autoincrement())
+  senderName     String   @default("Dnews Africa")
+  senderEmail    String   @default("noreply@dnewsafrica.com")
+  replyToEmail   String   @default("noreply@dnewsafrica.com")
+  companyName    String   @default("Dnews Africa")
+  footerText     String   @default("Follow us for the latest African stories.")
+  logoUrl        String?
+  timezone       String   @default("UTC")
+  defaultTemplateId String?
+  socialFacebook String?
+  socialTwitter  String?
+  socialInstagram String?
+  socialLinkedin String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_settings")
 }
 
 model Media {

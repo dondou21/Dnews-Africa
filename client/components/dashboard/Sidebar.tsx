@@ -17,6 +17,9 @@ import {
   MessageSquare,
   Settings,
   X,
+  File,
+  Clock,
+  BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -38,6 +41,9 @@ const allNavItems: NavItem[] = [
   { href: "/dashboard/roles", label: "Roles", icon: ShieldCheck, roles: ["Admin"] },
   { href: "/dashboard/newsletter", label: "Subscribers", icon: Mail, roles: ["Admin"] },
   { href: "/dashboard/newsletter/campaigns", label: "Campaigns", icon: Send, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/newsletter/templates", label: "Templates", icon: File, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/newsletter/automation", label: "Automation", icon: Clock, roles: ["Admin"] },
+  { href: "/dashboard/newsletter/analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle, roles: ["Admin", "Editor"] },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, roles: ["Admin", "Editor", "Journalist", "Moderator"] },
 ];

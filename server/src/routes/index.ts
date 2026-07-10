@@ -12,6 +12,11 @@ import mediaRouter from "./media";
 import commentsRouter from "./comments";
 import tagsRouter from "./tags";
 import campaignsRouter from "./campaigns";
+import templatesRouter from "./templates";
+import automationsRouter from "./automations";
+import trackingRouter from "./tracking";
+import reportsRouter from "./reports";
+import settingsRouter from "./settings";
 import dashboardRouter from "./dashboard";
 
 const router = Router();
@@ -30,5 +35,10 @@ router.use("/comments", commentsRouter);
 router.use("/tags", tagsRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/newsletter/campaigns", campaignsRouter);
+router.use("/newsletter/templates", templatesRouter);
+router.use("/newsletter/automations", automationsRouter);
+router.use("/tracking", trackingRouter);
+router.use("/newsletter/reports", reportsRouter);
+router.use("/newsletter/settings", settingsRouter);
 
 export default router;
