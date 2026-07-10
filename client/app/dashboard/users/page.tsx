@@ -6,9 +6,18 @@ import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Modal from "@/components/dashboard/Modal";
 import { get, post, patch, del } from "@/lib/api-client";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { UserItem, RoleInfo } from "@/types/user";
 
 export default function UsersPage() {
+  return (
+    <RoleGuard roles={["Admin"]}>
+      <UsersPageContent />
+    </RoleGuard>
+  );
+}
+
+function UsersPageContent() {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [roles, setRoles] = useState<RoleInfo[]>([]);
   const [rolesLoading, setRolesLoading] = useState(true);

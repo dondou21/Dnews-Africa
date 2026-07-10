@@ -7,9 +7,9 @@ import { uploadLimiter } from "../middlewares/rateLimit";
 
 const router = Router();
 
-router.post("/upload", authenticate, requireRole("ADMIN", "EDITOR", "JOURNALIST"), uploadLimiter, uploadMiddleware, mediaController.upload);
+router.post("/upload", authenticate, requireRole("Admin", "Editor", "Journalist"), uploadLimiter, uploadMiddleware, mediaController.upload);
 router.get("/", authenticate, mediaController.getAll);
 router.get("/:id", authenticate, mediaController.getById);
-router.delete("/:id", authenticate, requireRole("ADMIN", "EDITOR"), mediaController.delete);
+router.delete("/:id", authenticate, requireRole("Admin", "Editor"), mediaController.delete);
 
 export default router;

@@ -7,10 +7,19 @@ import Image from "next/image";
 import { ArrowLeft, Upload, Send } from "lucide-react";
 import { get, post, uploadFile } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { Category } from "@/types/article";
 
 
 export default function NewArticlePage() {
+  return (
+    <RoleGuard roles={["Admin", "Editor", "Journalist"]}>
+      <NewArticleForm />
+    </RoleGuard>
+  );
+}
+
+function NewArticleForm() {
   const router = useRouter();
   const { user } = useAuth();
   const isJournalist = user?.role.name === "Journalist";

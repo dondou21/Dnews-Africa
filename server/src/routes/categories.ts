@@ -10,8 +10,8 @@ router.get("/", categoryController.getAll);
 router.get("/:slug", validateSlug, categoryController.getBySlug);
 router.get("/:slug/articles", validateSlug, categoryController.getArticlesBySlug);
 
-router.post("/", authenticate, requireRole("ADMIN", "EDITOR"), categoryController.create);
-router.patch("/:id", authenticate, requireRole("ADMIN", "EDITOR"), categoryController.update);
-router.delete("/:id", authenticate, requireRole("ADMIN", "EDITOR"), categoryController.delete);
+router.post("/", authenticate, requireRole("Admin", "Editor"), categoryController.create);
+router.patch("/:id", authenticate, requireRole("Admin", "Editor"), categoryController.update);
+router.delete("/:id", authenticate, requireRole("Admin", "Editor"), categoryController.delete);
 
 export default router;

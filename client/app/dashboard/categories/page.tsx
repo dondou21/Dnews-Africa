@@ -5,9 +5,18 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import Modal from "@/components/dashboard/Modal";
 import { get, post, patch, del } from "@/lib/api-client";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { CategoryWithCount } from "@/types/article";
 
 export default function CategoriesPage() {
+  return (
+    <RoleGuard roles={["Admin", "Editor"]}>
+      <CategoriesPageContent />
+    </RoleGuard>
+  );
+}
+
+function CategoriesPageContent() {
   const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

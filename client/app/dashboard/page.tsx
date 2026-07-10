@@ -13,9 +13,21 @@ import {
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";
 import { get } from "@/lib/api-client";
+import { useAuth } from "@/contexts/AuthContext";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { DashboardStats } from "@/types/dashboard";
 
 export default function DashboardOverview() {
+  return (
+    <RoleGuard roles={["Admin", "Editor", "Journalist", "Moderator"]}>
+      <DashboardOverviewContent />
+    </RoleGuard>
+  );
+}
+
+function DashboardOverviewContent() {
+  const { user } = useAuth();
+  const role = user?.role.name ?? "";
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -99,30 +111,38 @@ export default function DashboardOverview() {
           Quick Actions
         </h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickActionCard
-            label="Create Article"
-            description="Write and publish a new article"
-            href="/dashboard/articles"
-            icon={FileText}
-          />
-          <QuickActionCard
-            label="Moderate Comments"
-            description="Review and approve pending comments"
-            href="/dashboard/comments"
-            icon={MessageSquare}
-          />
-          <QuickActionCard
-            label="View Messages"
-            description="Check new contact messages"
-            href="/dashboard/messages"
-            icon={MessageCircle}
-          />
-          <QuickActionCard
-            label="Manage Media"
-            description="Upload and manage media files"
-            href="/dashboard/media"
-            icon={Image}
-          />
+          {["Admin", "Editor", "Journalist"].includes(role) && (
+            <QuickActionCard
+              label="Create Article"
+              description="Write and publish a new article"
+              href="/dashboard/articles"
+              icon={FileText}
+            />
+          )}
+          {["Admin", "Editor", "Moderator"].includes(role) && (
+            <QuickActionCard
+              label="Moderate Comments"
+              description="Review and approve pending comments"
+              href="/dashboard/comments"
+              icon={MessageSquare}
+            />
+          )}
+          {["Admin", "Editor"].includes(role) && (
+            <QuickActionCard
+              label="View Messages"
+              description="Check new contact messages"
+              href="/dashboard/messages"
+              icon={MessageCircle}
+            />
+          )}
+          {["Admin", "Editor", "Journalist"].includes(role) && (
+            <QuickActionCard
+              label="Manage Media"
+              description="Upload and manage media files"
+              href="/dashboard/media"
+              icon={Image}
+            />
+          )}
         </div>
       </div>
     </div>

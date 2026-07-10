@@ -7,7 +7,7 @@ import { newsletterLimiter } from "../middlewares/rateLimit";
 const router = Router();
 
 router.post("/subscribe", newsletterLimiter, newsletterController.subscribe);
-router.get("/subscribers", authenticate, requireRole("ADMIN", "EDITOR"), newsletterController.getAll);
-router.delete("/subscribers/:id", authenticate, requireRole("ADMIN", "EDITOR"), newsletterController.unsubscribe);
+router.get("/subscribers", authenticate, requireRole("Admin", "Editor"), newsletterController.getAll);
+router.delete("/subscribers/:id", authenticate, requireRole("Admin", "Editor"), newsletterController.unsubscribe);
 
 export default router;

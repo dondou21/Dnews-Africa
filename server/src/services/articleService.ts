@@ -8,7 +8,7 @@ export const articleService = {
   },
 
   async getAllAdmin(params: ArticleQueryParams & { status?: string }, user: AuthenticatedUser) {
-    if (user.role.name === "JOURNALIST") {
+    if (user.role.name === "Journalist") {
       return articleRepository.findAllByAuthor(user.id, params);
     }
     return articleRepository.findAllAdmin(params);
@@ -41,7 +41,7 @@ export const articleService = {
   async create(data: CreateArticleInput, user: AuthenticatedUser) {
     const createData = { ...data, authorId: user.id };
 
-    if (user.role.name !== "ADMIN" && user.role.name !== "EDITOR") {
+    if (user.role.name !== "Admin" && user.role.name !== "Editor") {
       createData.status = "DRAFT";
     }
 
@@ -54,7 +54,7 @@ export const articleService = {
       throw new AppError("Article not found", 404);
     }
 
-    if (user.role.name === "JOURNALIST" && existing.authorId !== user.id) {
+    if (user.role.name === "Journalist" && existing.authorId !== user.id) {
       throw new AppError("You can only submit your own articles for review", 403);
     }
 
@@ -71,7 +71,7 @@ export const articleService = {
       throw new AppError("Article not found", 404);
     }
 
-    if (user.role.name === "JOURNALIST") {
+    if (user.role.name === "Journalist") {
       if (existing.authorId !== user.id) {
         throw new AppError("You can only update your own articles", 403);
       }
@@ -83,11 +83,11 @@ export const articleService = {
       }
     }
 
-    if (data.status === "PUBLISHED" && user.role.name !== "ADMIN" && user.role.name !== "EDITOR") {
+    if (data.status === "PUBLISHED" && user.role.name !== "Admin" && user.role.name !== "Editor") {
       throw new AppError("Only editors and admins can publish articles", 403);
     }
 
-    if (data.status === "ARCHIVED" && user.role.name !== "ADMIN" && user.role.name !== "EDITOR") {
+    if (data.status === "ARCHIVED" && user.role.name !== "Admin" && user.role.name !== "Editor") {
       throw new AppError("Only editors and admins can archive articles", 403);
     }
 
@@ -100,7 +100,7 @@ export const articleService = {
       throw new AppError("Article not found", 404);
     }
 
-    if (user.role.name === "JOURNALIST") {
+    if (user.role.name === "Journalist") {
       if (existing.authorId !== user.id) {
         throw new AppError("You can only delete your own articles", 403);
       }

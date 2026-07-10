@@ -6,9 +6,18 @@ import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Modal from "@/components/dashboard/Modal";
 import { get, del } from "@/lib/api-client";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { NewsletterSubscriber } from "@/types/newsletter";
 
 export default function NewsletterPage() {
+  return (
+    <RoleGuard roles={["Admin", "Editor"]}>
+      <NewsletterPageContent />
+    </RoleGuard>
+  );
+}
+
+function NewsletterPageContent() {
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

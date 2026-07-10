@@ -6,9 +6,18 @@ import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Modal from "@/components/dashboard/Modal";
 import { get, patch, del } from "@/lib/api-client";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { ContactMessage } from "@/types/contact";
 
 export default function MessagesPage() {
+  return (
+    <RoleGuard roles={["Admin", "Editor"]}>
+      <MessagesPageContent />
+    </RoleGuard>
+  );
+}
+
+function MessagesPageContent() {
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

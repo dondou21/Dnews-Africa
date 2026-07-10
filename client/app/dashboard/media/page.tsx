@@ -13,6 +13,7 @@ import Modal from "@/components/dashboard/Modal";
 import EmptyState from "@/components/dashboard/EmptyState";
 import LoadingState from "@/components/dashboard/LoadingState";
 import { get, del, uploadFile, SERVER_BASE } from "@/lib/api-client";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { MediaItem } from "@/types/media";
 
 function formatSize(bytes: number | null): string {
@@ -36,6 +37,14 @@ function getFileName(url: string): string {
 }
 
 export default function MediaPage() {
+  return (
+    <RoleGuard roles={["Admin", "Editor", "Journalist"]}>
+      <MediaPageContent />
+    </RoleGuard>
+  );
+}
+
+function MediaPageContent() {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

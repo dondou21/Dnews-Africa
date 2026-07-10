@@ -9,6 +9,7 @@ import Pagination from "@/components/dashboard/Pagination";
 import Modal from "@/components/dashboard/Modal";
 import { get, del, post } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { Article, ArticlesResponse } from "@/types/article";
 
 const statusFilters = [
@@ -20,6 +21,14 @@ const statusFilters = [
 ];
 
 export default function ArticlesPage() {
+  return (
+    <RoleGuard roles={["Admin", "Editor", "Journalist"]}>
+      <ArticlesPageContent />
+    </RoleGuard>
+  );
+}
+
+function ArticlesPageContent() {
   const { user } = useAuth();
   const isJournalist = user?.role.name === "Journalist";
   const [articles, setArticles] = useState<Article[]>([]);

@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Mail,
   MessageCircle,
+  MessageSquare,
   Settings,
   X,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const allNavItems: NavItem[] = [
   { href: "/dashboard/articles", label: "Articles", icon: FileText, roles: ["Admin", "Editor", "Journalist"] },
   { href: "/dashboard/categories", label: "Categories", icon: FolderTree, roles: ["Admin", "Editor"] },
   { href: "/dashboard/tags", label: "Tags", icon: Tags, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/comments", label: "Comments", icon: MessageSquare, roles: ["Admin", "Editor", "Moderator"] },
   { href: "/dashboard/media", label: "Media", icon: Image, roles: ["Admin", "Editor", "Journalist"] },
   { href: "/dashboard/users", label: "Users", icon: Users, roles: ["Admin"] },
   { href: "/dashboard/roles", label: "Roles", icon: ShieldCheck, roles: ["Admin"] },

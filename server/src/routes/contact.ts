@@ -7,8 +7,8 @@ import { contactLimiter } from "../middlewares/rateLimit";
 const router = Router();
 
 router.post("/", contactLimiter, contactController.create);
-router.get("/messages", authenticate, requireRole("ADMIN", "EDITOR"), contactController.getAll);
-router.patch("/messages/:id/read", authenticate, requireRole("ADMIN", "EDITOR"), contactController.markAsRead);
-router.delete("/messages/:id", authenticate, requireRole("ADMIN", "EDITOR"), contactController.delete);
+router.get("/messages", authenticate, requireRole("Admin", "Editor"), contactController.getAll);
+router.patch("/messages/:id/read", authenticate, requireRole("Admin", "Editor"), contactController.markAsRead);
+router.delete("/messages/:id", authenticate, requireRole("Admin", "Editor"), contactController.delete);
 
 export default router;

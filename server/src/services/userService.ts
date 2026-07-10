@@ -32,7 +32,7 @@ export const userService = {
   },
 
   async getById(id: string, currentUser: AuthenticatedUser) {
-    if (id !== currentUser.id && currentUser.role.name !== "ADMIN") {
+    if (id !== currentUser.id && currentUser.role.name !== "Admin") {
       throw new AppError("Access denied", 403);
     }
 
@@ -49,11 +49,11 @@ export const userService = {
       throw new AppError("User not found", 404);
     }
 
-    if (id !== currentUser.id && currentUser.role.name !== "ADMIN") {
+    if (id !== currentUser.id && currentUser.role.name !== "Admin") {
       throw new AppError("Access denied", 403);
     }
 
-    if (currentUser.role.name !== "ADMIN") {
+    if (currentUser.role.name !== "Admin") {
       if (data.roleId !== undefined || data.isActive !== undefined) {
         throw new AppError("Only admins can change role or status", 403);
       }

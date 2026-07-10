@@ -2,11 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import { patch } from "@/lib/api-client";
 import { saveUser } from "@/lib/api-client";
 import { User, Shield, Calendar, Key, Palette, Monitor } from "lucide-react";
 
 export default function SettingsPage() {
+  return (
+    <RoleGuard roles={["Admin", "Editor", "Journalist", "Moderator"]}>
+      <SettingsPageContent />
+    </RoleGuard>
+  );
+}
+
+function SettingsPageContent() {
   const { user } = useAuth();
 
   const [firstName, setFirstName] = useState("");

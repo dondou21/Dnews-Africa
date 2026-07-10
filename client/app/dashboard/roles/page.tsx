@@ -3,9 +3,18 @@
 import { useEffect, useState } from "react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import { get } from "@/lib/api-client";
+import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { RoleInfo } from "@/types/user";
 
 export default function RolesPage() {
+  return (
+    <RoleGuard roles={["Admin"]}>
+      <RolesPageContent />
+    </RoleGuard>
+  );
+}
+
+function RolesPageContent() {
   const [roles, setRoles] = useState<RoleInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
