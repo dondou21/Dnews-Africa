@@ -20,7 +20,7 @@ export default function Navbar() {
             <li key={item.label}>
               <Link
                 href={item.href}
-                className="inline-block whitespace-nowrap px-3 py-2.5 font-medium uppercase tracking-wide text-dnews-gray transition-colors hover:text-dnews-accent md:px-4"
+                className="inline-block whitespace-nowrap px-3 py-2 font-medium uppercase tracking-wide text-dnews-gray transition-colors hover:text-dnews-accent md:px-4"
               >
                 {item.label}
               </Link>

@@ -42,25 +42,18 @@ export default function DashboardLogin() {
     <div className="flex min-h-screen">
       <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-12">
         <div className="mx-auto w-full max-w-sm">
-          <div className="mb-10 flex justify-center">
+          <div className="mb-8 flex justify-center">
             <Link href="/">
               <Image
                 src="/images/logo0.png"
                 alt="Dnews Africa"
-                width={280}
-                height={70}
+                width={320}
+                height={80}
                 priority
-                className="h-auto w-[220px] object-contain sm:w-[260px]"
+                className="h-auto w-[280px] object-contain sm:w-[320px]"
               />
             </Link>
           </div>
-
-          <h1 className="text-center font-heading text-2xl font-bold text-dnews-dark">
-            Welcome back
-          </h1>
-          <p className="mt-1 text-center text-sm text-dnews-muted">
-            Sign in to your dashboard to manage content.
-          </p>
 
           {error && (
             <div className="mt-6 rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
@@ -178,32 +171,26 @@ export default function DashboardLogin() {
                 editorial workflow in one place.
               </p>
 
-              <div className="mt-8 grid grid-cols-2 gap-4">
-                <div className="rounded-sm border border-white/20 p-4">
-                  <p className="text-2xl font-bold text-white">Publish</p>
-                  <p className="mt-1 text-xs text-white/70">
-                    Create and schedule articles
-                  </p>
+                <div className="mt-8 grid grid-cols-2 gap-4">
+                  <div className="rounded-sm border border-white/20 p-4">
+                    <p className="text-2xl font-bold text-white">Publish</p>
+                    <p className="mt-1 text-xs text-white/70">
+                      Create and schedule articles
+                    </p>
+                  </div>
+                  <div className="rounded-sm border border-white/20 p-4">
+                    <p className="text-2xl font-bold text-white">Manage</p>
+                    <p className="mt-1 text-xs text-white/70">
+                      Organize categories and media
+                    </p>
+                  </div>
+                  <div className="rounded-sm border border-white/20 p-4">
+                    <p className="text-2xl font-bold text-white">Track</p>
+                    <p className="mt-1 text-xs text-white/70">
+                      Monitor performance and reach
+                    </p>
+                  </div>
                 </div>
-                <div className="rounded-sm border border-white/20 p-4">
-                  <p className="text-2xl font-bold text-white">Moderate</p>
-                  <p className="mt-1 text-xs text-white/70">
-                    Review comments and feedback
-                  </p>
-                </div>
-                <div className="rounded-sm border border-white/20 p-4">
-                  <p className="text-2xl font-bold text-white">Manage</p>
-                  <p className="mt-1 text-xs text-white/70">
-                    Organize categories and media
-                  </p>
-                </div>
-                <div className="rounded-sm border border-white/20 p-4">
-                  <p className="text-2xl font-bold text-white">Track</p>
-                  <p className="mt-1 text-xs text-white/70">
-                    Monitor performance and reach
-                  </p>
-                </div>
-              </div>
             </div>
 
             <div className="mt-8 border-t border-white/20 pt-6">

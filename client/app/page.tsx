@@ -51,7 +51,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-[1180px] px-4 py-4 md:py-5">
+    <div className="mx-auto max-w-[1180px] px-4 py-2 md:py-3">
       <div className="flex flex-col lg:flex-row lg:gap-6">
         <aside className="hidden w-full shrink-0 lg:block lg:w-[200px]">
           <div className="border-r border-dnews-border pr-4">
@@ -61,13 +61,13 @@ export default function Home() {
 
         <main className="min-w-0 flex-1">
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="aspect-[16/9] w-full animate-pulse rounded-sm bg-dnews-border/50" />
               <div className="h-6 w-3/4 animate-pulse rounded bg-dnews-border/50" />
               <div className="h-4 w-1/2 animate-pulse rounded bg-dnews-border/50" />
             </div>
           ) : featured ? (
-            <article className="group mb-6 border-b border-dnews-border pb-6">
+            <article className="group mb-4 border-b border-dnews-border pb-4">
               <Link href={`/articles/${featured.slug}`}>
                 {featured.coverImageUrl && (
                   <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden">
@@ -115,7 +115,7 @@ export default function Home() {
             </article>
           ) : null}
 
-          <AdSlot variant="banner" className="mb-6" />
+          <AdSlot variant="banner" className="mb-4" />
 
           <section>
             <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-red">
@@ -136,7 +136,7 @@ export default function Home() {
         </main>
 
         <aside className="w-full shrink-0 lg:w-[260px]">
-          <div className="border-t border-dnews-border pt-6 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+          <div className="border-t border-dnews-border pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             <RightSidebar trendingArticles={trending} />
           </div>
         </aside>

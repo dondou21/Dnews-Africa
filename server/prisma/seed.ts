@@ -263,6 +263,96 @@ Analysts say the exchange could transform Ethiopia's economy by providing a form
       isTrending: true,
       publishedAt: new Date("2026-06-25"),
     },
+    {
+      title: "Morocco's high-speed rail network expands to Marrakech, boosting tourism and trade",
+      slug: "morocco-high-speed-rail-marrakech-tourism-trade",
+      summary: "Morocco's ONCF has launched high-speed rail service connecting Casablanca to Marrakech, cutting travel time in half and strengthening economic ties between the country's two largest cities.",
+      content: `Morocco's national railway operator ONCF launched high-speed rail service between Casablanca and Marrakech on Monday, extending the African continent's first bullet train network and slashing travel time between the two cities from three hours to just over 90 minutes.
+
+The expansion of the Al Boraq service, which originally launched in 2018 connecting Casablanca to Tangier, represents a $2 billion investment in Moroccan infrastructure. The new line is expected to carry 3 million passengers annually by 2028.
+
+"High-speed rail is transforming how Moroccans live, work, and travel," said the CEO of ONCF. "This connection between our economic capital and tourism hub will create new opportunities for businesses and make Morocco more competitive globally."
+
+The extended line passes through some of Morocco's most productive agricultural regions, and officials expect the service to boost both tourism and agricultural exports. Hotel bookings in Marrakech have already increased 15 percent since the service was announced.
+
+Morocco's rail modernization programme has positioned the country as a leader in African transportation infrastructure. The government has announced plans to eventually extend the network to link with other North African countries.`,
+      coverImageUrl: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1200&q=80",
+      coverImageAlt: "High-speed train travelling through a landscape",
+      categorySlug: "travel",
+      authorId: adminId,
+      status: "PUBLISHED" as const,
+      isFeatured: false,
+      isTrending: false,
+      publishedAt: new Date("2026-06-24"),
+    },
+    {
+      title: "The rise of Afro-minimalism: How African designers are redefining contemporary fashion",
+      slug: "rise-of-afro-minimalism-african-designers-fashion",
+      summary: "A new generation of African fashion designers is embracing minimalism, blending traditional craftsmanship with clean lines to create a distinctly modern aesthetic that is gaining global recognition.",
+      content: `A quiet revolution is taking place in African fashion. While bold prints and vibrant colours have long defined the continent's style identity, a growing number of designers are embracing minimalism, creating pieces that speak to a new generation of consumers.
+
+Afro-minimalism, as it has been dubbed, combines the precision of Scandinavian design with African textile traditions. The result is clothing that is both contemporary and deeply rooted in heritage.
+
+"We are moving beyond the idea that African fashion has to be loud to be authentic," said a Lagos-based designer whose collections have been featured at Paris Fashion Week. "Minimalism allows the craftsmanship and the quality of our materials to speak for themselves."
+
+The movement has been driven by a younger demographic of consumers who are increasingly conscious of sustainability and versatility. These consumers want pieces that can transition from the office to social events, reflecting the fast pace of modern African urban life.
+
+International fashion houses have taken notice, with several European brands collaborating with African minimalist designers. The aesthetic has also found a strong following on social media, where the hashtag #AfroMinimalism has garnered millions of views.`,
+      coverImageUrl: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1200&q=80",
+      coverImageAlt: "Fashionable clothing on display representing modern African design",
+      categorySlug: "lifestyle",
+      authorId: adminId,
+      status: "PUBLISHED" as const,
+      isFeatured: false,
+      isTrending: false,
+      publishedAt: new Date("2026-06-23"),
+    },
+    {
+      title: "Exclusive interview: Dr. Akinwumi Adesina on Africa's agricultural transformation and food sovereignty",
+      slug: "interview-akinwumi-adesina-agricultural-transformation-food-sovereignty",
+      summary: "The President of the African Development Bank shares his vision for ending hunger on the continent, the role of technology in farming, and why African agriculture is the world's next big investment opportunity.",
+      content: `Dr. Akinwumi Adesina, President of the African Development Bank, has long been one of the continent's most vocal advocates for agricultural transformation. In this exclusive interview with Dnews Africa, he discusses the challenges and opportunities facing African farmers.
+
+"For too long, Africa has been importing food that it should be producing. That is not just an economic issue; it is a matter of sovereignty," Adesina says. "We have 65 percent of the world's uncultivated arable land. There is no reason we cannot feed ourselves and the world."
+
+Under Adesina's leadership, the AfDB has invested over $10 billion in agricultural projects across the continent, focusing on irrigation, access to credit for smallholder farmers, and the adoption of climate-resilient crop varieties.
+
+"The future of African agriculture is digital. We are seeing young entrepreneurs developing apps that help farmers access weather information, market prices, and veterinary services. This is the kind of innovation we need to scale."
+
+Adesina also highlighted the importance of processing agricultural products locally rather than exporting raw materials. "We cannot continue to export raw cocoa and import chocolate. Value addition must happen here, on the continent, creating jobs and wealth for our people."`,
+      coverImageUrl: "https://images.unsplash.com/photo-1577962917302-c3f0f8e3de4c?w=1200&q=80",
+      coverImageAlt: "Agricultural landscape with crops representing African farming",
+      categorySlug: "interviews",
+      authorId: adminId,
+      status: "PUBLISHED" as const,
+      isFeatured: false,
+      isTrending: false,
+      publishedAt: new Date("2026-06-22"),
+    },
+    {
+      title: "Why Africa must own its data: The case for continental data sovereignty",
+      slug: "africa-data-sovereignty-digital-economy",
+      summary: "As Africa's digital economy grows, experts argue that data sovereignty is critical to ensuring the continent benefits from its own digital transformation rather than being a source of raw data for foreign tech giants.",
+      content: `The digital economy is projected to contribute over $700 billion to Africa's GDP by 2030, but a growing chorus of policymakers, technologists, and civil society leaders is asking a difficult question: who owns Africa's data?
+
+Data sovereignty, the concept that data should be subject to the laws and governance structures of the country where it is collected, has become a central issue in Africa's digital transformation debate.
+
+"When African users generate data on foreign platforms, that data leaves the continent, and so does the value it creates," says a professor of digital economics at the University of Nairobi. "We are effectively exporting our digital raw materials and importing finished digital products."
+
+Several African countries have enacted data protection laws in recent years, but enforcement remains inconsistent. The African Union's Digital Africa Framework aims to harmonize these regulations across the continent.
+
+"We need a unified approach to data governance that protects the rights of African citizens while still enabling innovation," said a digital rights activist. "The European Union's GDPR showed that strong data protection can coexist with a thriving digital economy."
+
+The debate comes as major tech companies increase their investment in African markets, building data centres and expanding services across the continent.`,
+      coverImageUrl: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=80",
+      coverImageAlt: "Data centre server racks representing digital infrastructure",
+      categorySlug: "opinion-analysis",
+      authorId: adminId,
+      status: "PUBLISHED" as const,
+      isFeatured: false,
+      isTrending: false,
+      publishedAt: new Date("2026-06-21"),
+    },
   ];
 
   for (const article of demoArticles) {
