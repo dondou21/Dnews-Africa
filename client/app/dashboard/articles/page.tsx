@@ -2,12 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Plus, Search, ExternalLink, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, ExternalLink, Edit, Trash2, Send } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Pagination from "@/components/dashboard/Pagination";
 import Modal from "@/components/dashboard/Modal";
-import { get, del } from "@/lib/api-client";
+import { get, del, post } from "@/lib/api-client";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Article, ArticlesResponse } from "@/types/article";
 
 const statusFilters = [
@@ -19,6 +20,8 @@ const statusFilters = [
 ];
 
 export default function ArticlesPage() {
+  const { user } = useAuth();
+  const isJournalist = user?.role.name === "Journalist";
   const [articles, setArticles] = useState<Article[]>([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
@@ -80,6 +83,15 @@ export default function ArticlesPage() {
     }
   };
 
+  const handleSubmitForReview = async (article: Article) => {
+    try {
+      await post(`/articles/${article.id}/submit`, {});
+      fetchArticles();
+    } catch {
+      setError("Failed to submit article for review.");
+    }
+  };
+
   const columns: Column<Article>[] = [
     {
       key: "title",
@@ -95,32 +107,36 @@ export default function ArticlesPage() {
         <span className="text-xs text-dnews-gray">{a.category.name}</span>
       ),
     },
-    {
-      key: "author",
-      header: "Author",
-      render: (a) => (
-        <span className="text-xs text-dnews-gray">
-          {a.author.firstName} {a.author.lastName}
-        </span>
-      ),
-    },
+    ...(isJournalist ? [] : [
+      {
+        key: "author",
+        header: "Author",
+        render: (a: Article) => (
+          <span className="text-xs text-dnews-gray">
+            {a.author.firstName} {a.author.lastName}
+          </span>
+        ),
+      },
+    ] as Column<Article>[]),
     {
       key: "status",
       header: "Status",
       render: (a) => <StatusBadge status={a.status} />,
     },
-    {
-      key: "featured",
-      header: "Featured",
-      className: "text-center",
-      render: (a) => (
-        <span
-          className={`text-xs font-medium ${a.isFeatured ? "text-dnews-accent" : "text-dnews-muted"}`}
-        >
-          {a.isFeatured ? "Yes" : "No"}
-        </span>
-      ),
-    },
+    ...(isJournalist ? [] : [
+      {
+        key: "featured",
+        header: "Featured",
+        className: "text-center",
+        render: (a: Article) => (
+          <span
+            className={`text-xs font-medium ${a.isFeatured ? "text-dnews-accent" : "text-dnews-muted"}`}
+          >
+            {a.isFeatured ? "Yes" : "No"}
+          </span>
+        ),
+      },
+    ] as Column<Article>[]),
     {
       key: "publishedAt",
       header: "Published",
@@ -138,28 +154,43 @@ export default function ArticlesPage() {
       className: "text-right",
       render: (a) => (
         <div className="flex items-center justify-end gap-1">
-          <Link
-            href={`/articles/${a.slug}`}
-            target="_blank"
-            className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
-            title="View public article"
-          >
-            <ExternalLink size={14} />
-          </Link>
-          <Link
-            href={`/dashboard/articles/${a.id}/edit`}
-            className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
-            title="Edit article"
-          >
-            <Edit size={14} />
-          </Link>
-          <button
-            onClick={() => setDeleteTarget(a)}
-            className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-red"
-            title="Delete article"
-          >
-            <Trash2 size={14} />
-          </button>
+          {a.status === "PUBLISHED" && (
+            <Link
+              href={`/articles/${a.slug}`}
+              target="_blank"
+              className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+              title="View public article"
+            >
+              <ExternalLink size={14} />
+            </Link>
+          )}
+          {(!isJournalist || a.status === "DRAFT") && (
+            <Link
+              href={`/dashboard/articles/${a.id}/edit`}
+              className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+              title="Edit article"
+            >
+              <Edit size={14} />
+            </Link>
+          )}
+          {isJournalist && a.status === "DRAFT" && (
+            <button
+              onClick={() => handleSubmitForReview(a)}
+              className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+              title="Submit for review"
+            >
+              <Send size={14} />
+            </button>
+          )}
+          {(!isJournalist || a.status === "DRAFT") && (
+            <button
+              onClick={() => setDeleteTarget(a)}
+              className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-red"
+              title="Delete article"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
       ),
     },

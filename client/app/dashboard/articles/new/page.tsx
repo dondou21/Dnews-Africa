@@ -4,13 +4,16 @@ import { useEffect, useState, useRef, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload, Send } from "lucide-react";
 import { get, post, uploadFile } from "@/lib/api-client";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Category } from "@/types/article";
 
 
 export default function NewArticlePage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const isJournalist = user?.role.name === "Journalist";
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -335,29 +338,33 @@ export default function NewArticlePage() {
                   />
                   <span className="text-sm text-dnews-dark">Draft</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="status"
-                    value="PUBLISHED"
-                    checked={status === "PUBLISHED"}
-                    onChange={() => setStatus("PUBLISHED")}
-                    className="accent-dnews-accent"
-                  />
-                  <span className="text-sm text-dnews-dark">Published</span>
-                </label>
+                {!isJournalist && (
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="PUBLISHED"
+                      checked={status === "PUBLISHED"}
+                      onChange={() => setStatus("PUBLISHED")}
+                      className="accent-dnews-accent"
+                    />
+                    <span className="text-sm text-dnews-dark">Published</span>
+                  </label>
+                )}
               </div>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isFeatured}
-                onChange={(e) => setIsFeatured(e.target.checked)}
-                className="h-4 w-4 accent-dnews-accent"
-              />
-              <span className="text-sm text-dnews-dark">Featured article</span>
-            </label>
+            {!isJournalist && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isFeatured}
+                  onChange={(e) => setIsFeatured(e.target.checked)}
+                  className="h-4 w-4 accent-dnews-accent"
+                />
+                <span className="text-sm text-dnews-dark">Featured article</span>
+              </label>
+            )}
           </div>
         </div>
 
@@ -373,7 +380,7 @@ export default function NewArticlePage() {
             disabled={submitting}
             className="flex items-center gap-2 rounded-sm bg-dnews-accent px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light disabled:opacity-60"
           >
-            {submitting ? "Saving..." : "Create Article"}
+            {submitting ? "Saving..." : isJournalist ? "Save as Draft" : "Create Article"}
           </button>
         </div>
       </form>

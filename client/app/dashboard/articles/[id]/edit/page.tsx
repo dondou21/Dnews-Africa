@@ -4,8 +4,9 @@ import { useEffect, useState, useRef, type FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Upload } from "lucide-react";
-import { get, patch, uploadFile } from "@/lib/api-client";
+import { ArrowLeft, Upload, Send, Lock } from "lucide-react";
+import { get, patch, post, uploadFile } from "@/lib/api-client";
+import { useAuth } from "@/contexts/AuthContext";
 import LoadingState from "@/components/dashboard/LoadingState";
 import type { Article, Category } from "@/types/article";
 
@@ -13,12 +14,15 @@ export default function EditArticlePage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+  const { user } = useAuth();
+  const isJournalist = user?.role.name === "Journalist";
 
   const [article, setArticle] = useState<Article | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [submittingReview, setSubmittingReview] = useState(false);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -98,7 +102,7 @@ export default function EditArticlePage() {
         coverImageUrl: coverImageUrl || undefined,
         coverImageAlt: coverImageAlt || undefined,
         categoryId: Number(categoryId),
-        status,
+        status: isJournalist ? "DRAFT" : status,
         isFeatured,
         tags,
       });
@@ -107,6 +111,19 @@ export default function EditArticlePage() {
       const msg = err instanceof Error ? err.message : "Failed to update article.";
       setError(msg);
       setSubmitting(false);
+    }
+  };
+
+  const handleSubmitForReview = async () => {
+    setError("");
+    setSubmittingReview(true);
+    try {
+      await post(`/articles/${id}/submit`, {});
+      router.push("/dashboard/articles");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to submit for review.";
+      setError(msg);
+      setSubmittingReview(false);
     }
   };
 
@@ -170,6 +187,17 @@ export default function EditArticlePage() {
       {error && (
         <div ref={errorRef} className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
           <p className="text-xs font-medium text-dnews-red">{error}</p>
+        </div>
+      )}
+
+      {isJournalist && article && article.status !== "DRAFT" && (
+        <div className="rounded-sm border border-dnews-accent/30 bg-dnews-accent/5 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Lock size={14} className="text-dnews-accent" />
+            <p className="text-xs font-medium text-dnews-accent">
+              This article has been submitted for review and is locked for editing.
+            </p>
+          </div>
         </div>
       )}
 
@@ -383,44 +411,53 @@ export default function EditArticlePage() {
                     value="DRAFT"
                     checked={status === "DRAFT"}
                     onChange={() => setStatus("DRAFT")}
+                    disabled={!(!isJournalist || article?.status === "DRAFT")}
                     className="accent-dnews-accent"
                   />
                   <span className="text-sm text-dnews-dark">Draft</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="status"
-                    value="PUBLISHED"
-                    checked={status === "PUBLISHED"}
-                    onChange={() => setStatus("PUBLISHED")}
-                    className="accent-dnews-accent"
-                  />
-                  <span className="text-sm text-dnews-dark">Published</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="status"
-                    value="ARCHIVED"
-                    checked={status === "ARCHIVED"}
-                    onChange={() => setStatus("ARCHIVED")}
-                    className="accent-dnews-accent"
-                  />
-                  <span className="text-sm text-dnews-dark">Archived</span>
-                </label>
+                {!isJournalist && (
+                  <>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="status"
+                        value="PUBLISHED"
+                        checked={status === "PUBLISHED"}
+                        onChange={() => setStatus("PUBLISHED")}
+                        disabled={!(!isJournalist || article?.status === "DRAFT")}
+                        className="accent-dnews-accent"
+                      />
+                      <span className="text-sm text-dnews-dark">Published</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="status"
+                        value="ARCHIVED"
+                        checked={status === "ARCHIVED"}
+                        onChange={() => setStatus("ARCHIVED")}
+                        disabled={!(!isJournalist || article?.status === "DRAFT")}
+                        className="accent-dnews-accent"
+                      />
+                      <span className="text-sm text-dnews-dark">Archived</span>
+                    </label>
+                  </>
+                )}
               </div>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isFeatured}
-                onChange={(e) => setIsFeatured(e.target.checked)}
-                className="h-4 w-4 accent-dnews-accent"
-              />
-              <span className="text-sm text-dnews-dark">Featured article</span>
-            </label>
+            {!isJournalist && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isFeatured}
+                  onChange={(e) => setIsFeatured(e.target.checked)}
+                  className="h-4 w-4 accent-dnews-accent"
+                />
+                <span className="text-sm text-dnews-dark">Featured article</span>
+              </label>
+            )}
           </div>
         </div>
 
@@ -431,13 +468,34 @@ export default function EditArticlePage() {
           >
             Cancel
           </Link>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex items-center gap-2 rounded-sm bg-dnews-accent px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light disabled:opacity-60"
-          >
-            {submitting ? "Saving..." : "Save Changes"}
-          </button>
+          {isJournalist && article?.status === "DRAFT" ? (
+            <>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="flex items-center gap-2 rounded-sm border border-dnews-accent px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-dnews-accent transition-colors hover:bg-dnews-accent/5 disabled:opacity-60"
+              >
+                {submitting ? "Saving..." : "Save Draft"}
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitForReview}
+                disabled={submittingReview || submitting}
+                className="flex items-center gap-2 rounded-sm bg-dnews-accent px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light disabled:opacity-60"
+              >
+                <Send size={14} />
+                {submittingReview ? "Submitting..." : "Submit for Review"}
+              </button>
+            </>
+          ) : (
+            <button
+              type="submit"
+              disabled={submitting || !(!isJournalist || article?.status === "DRAFT")}
+              className="flex items-center gap-2 rounded-sm bg-dnews-accent px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light disabled:opacity-60"
+            >
+              {submitting ? "Saving..." : "Save Changes"}
+            </button>
+          )}
         </div>
       </form>
     </div>

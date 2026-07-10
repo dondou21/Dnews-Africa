@@ -24,7 +24,7 @@ export const articleController = {
         throw new AppError("Invalid query parameters", 400);
       }
       const status = req.query.status as string | undefined;
-      const result = await articleService.getAllAdmin({ ...parsed.data, status });
+      const result = await articleService.getAllAdmin({ ...parsed.data, status }, req.user!);
       res.json({ status: "success", data: result });
     } catch (error) {
       next(error);
@@ -82,6 +82,16 @@ export const articleController = {
     }
   },
 
+  async submitForReview(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const article = await articleService.submitForReview(id, req.user!);
+      res.json({ status: "success", data: article });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -99,7 +109,7 @@ export const articleController = {
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      await articleService.delete(id);
+      await articleService.delete(id, req.user!);
       res.json({ status: "success", data: null });
     } catch (error) {
       next(error);
