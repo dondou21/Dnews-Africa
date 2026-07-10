@@ -21,14 +21,11 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="border-b border-dnews-border bg-dnews-card dark:bg-white">
+    <header className="border-b border-dnews-border bg-dnews-card dark:bg-black">
       <SponsorBanner />
       <div className="mx-auto max-w-[1180px] px-4 py-1 md:py-1.5">
         <div className="flex items-center justify-center">
-          <Link
-            href="/"
-            className="inline-block dark:bg-black dark:px-3 dark:py-1 dark:rounded-sm"
-          >
+          <Link href="/">
             <Image
               src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
               alt="Dnews Africa"
@@ -42,13 +39,13 @@ export default function Header() {
         </div>
 
         <div className="mt-1 flex items-center justify-center gap-2 md:mt-1.5">
-          <p className="text-center text-[9px] uppercase tracking-[0.15em] text-dnews-muted md:text-[10px]">
+          <p className="text-center text-[9px] uppercase tracking-[0.15em] text-dnews-muted dark:text-white/60 md:text-[10px]">
             Independent news media across the continent and the world
           </p>
           <div className="hidden items-center gap-2 md:flex">
             <button
               onClick={toggleSearch}
-              className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+              className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
               aria-label="Open search"
             >
               <Search size={16} />
@@ -66,7 +63,7 @@ export default function Header() {
         <div className="mt-1 flex items-center justify-center gap-2 md:hidden">
           <button
             onClick={toggleSearch}
-            className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+            className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
             aria-label="Open search"
           >
             <Search size={16} />
