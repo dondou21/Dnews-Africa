@@ -9,9 +9,13 @@ import {
   Mail,
   MessageCircle,
   Image,
+  FileWarning,
+  SendHorizonal,
+  CheckCircle2,
 } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";
+import EmptyState from "@/components/dashboard/EmptyState";
 import { get } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
@@ -30,13 +34,12 @@ function DashboardOverviewContent() {
   const role = user?.role.name ?? "";
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     get<DashboardStats>("/dashboard")
       .then(setStats)
-      .catch(() => {
-        // silently fail — stats stay null
-      })
+      .catch(() => setError("Failed to load dashboard statistics."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -44,48 +47,80 @@ function DashboardOverviewContent() {
     return <LoadingState rows={4} />;
   }
 
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="font-heading text-xl font-bold text-dnews-dark">
+            Welcome to Dnews Africa Dashboard
+          </h2>
+          <p className="mt-1 text-sm text-dnews-muted">
+            Overview of your news platform at a glance.
+          </p>
+        </div>
+        <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+          <p className="text-xs font-medium text-dnews-red">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <EmptyState
+        title="No data available"
+        description="Dashboard statistics could not be loaded."
+        icon={FileWarning}
+      />
+    );
+  }
+
   const cards = [
     {
       label: "Total Articles",
-      value: stats?.overview.totalArticles ?? 0,
+      value: stats.overview.totalArticles,
       icon: FileText,
     },
     {
-      label: "Pending Comments",
-      value: stats?.comments.pendingComments ?? 0,
-      icon: MessageSquare,
-      variant: "red" as const,
+      label: "Draft Articles",
+      value: stats.overview.draftArticles,
+      icon: FileWarning,
     },
     {
-      label: "Total Users",
-      value: stats?.users.totalUsers ?? 0,
+      label: "Pending Review",
+      value: stats.overview.pendingReviewArticles,
+      icon: SendHorizonal,
+    },
+    {
+      label: "Published Articles",
+      value: stats.overview.publishedArticles,
+      icon: CheckCircle2,
+    },
+    {
+      label: "Categories",
+      value: stats.categories.totalCategories,
+      icon: LayoutDashboard,
+    },
+    {
+      label: "Users",
+      value: stats.users.totalUsers,
       icon: Users,
     },
     {
+      label: "Media",
+      value: stats.media.totalFiles,
+      icon: Image,
+    },
+    {
       label: "Newsletter Subscribers",
-      value: stats?.newsletter.totalSubscribers ?? 0,
+      value: stats.newsletter.totalSubscribers,
       icon: Mail,
     },
     {
       label: "Contact Messages",
-      value: stats?.contact.totalMessages ?? 0,
+      value: stats.contact.totalMessages,
       icon: MessageCircle,
       variant: "red" as const,
-    },
-    {
-      label: "Media Files",
-      value: stats?.media.totalFiles ?? 0,
-      icon: Image,
-    },
-    {
-      label: "Categories",
-      value: stats?.categories.totalCategories ?? 0,
-      icon: LayoutDashboard,
-    },
-    {
-      label: "Articles Today",
-      value: stats?.overview.articlesPublishedToday ?? 0,
-      icon: FileText,
     },
   ];
 
@@ -100,7 +135,7 @@ function DashboardOverviewContent() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {cards.map((card) => (
           <StatsCard key={card.label} {...card} />
         ))}
