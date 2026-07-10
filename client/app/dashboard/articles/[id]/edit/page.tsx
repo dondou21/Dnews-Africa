@@ -22,6 +22,7 @@ export default function EditArticlePage() {
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -66,6 +67,12 @@ export default function EditArticlePage() {
     }
     load();
   }, [id]);
+
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [error]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -161,7 +168,7 @@ export default function EditArticlePage() {
       </div>
 
       {error && (
-        <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+        <div ref={errorRef} className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
           <p className="text-xs font-medium text-dnews-red">{error}</p>
         </div>
       )}

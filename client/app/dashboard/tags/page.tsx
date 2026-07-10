@@ -18,6 +18,7 @@ export default function TagsPage() {
   const [formName, setFormName] = useState("");
   const [formSlug, setFormSlug] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const [deleteTarget, setDeleteTarget] = useState<TagInfo | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -43,6 +44,7 @@ export default function TagsPage() {
     setEditing(null);
     setFormName("");
     setFormSlug("");
+    setFormError("");
     setFormOpen(true);
   };
 
@@ -50,6 +52,7 @@ export default function TagsPage() {
     setEditing(tag);
     setFormName(tag.name);
     setFormSlug(tag.slug);
+    setFormError("");
     setFormOpen(true);
   };
 
@@ -65,9 +68,9 @@ export default function TagsPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
+    setFormError("");
     if (!formName || !formSlug) {
-      setError("Name and slug are required.");
+      setFormError("Name and slug are required.");
       return;
     }
     setSubmitting(true);
@@ -82,7 +85,7 @@ export default function TagsPage() {
       setFormOpen(false);
       fetchTags();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Operation failed.");
+      setFormError(err instanceof Error ? err.message : "Operation failed.");
     } finally {
       setSubmitting(false);
     }
@@ -196,7 +199,7 @@ export default function TagsPage() {
 
       <Modal
         open={formOpen}
-        onClose={() => setFormOpen(false)}
+        onClose={() => { setFormError(""); setFormOpen(false); }}
         title={editing ? "Edit Tag" : "New Tag"}
         size="sm"
         footer={
@@ -220,6 +223,11 @@ export default function TagsPage() {
         }
       >
         <form id="tag-form" onSubmit={handleSubmit} className="space-y-4">
+          {formError && (
+            <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+              <p className="text-xs font-medium text-dnews-red">{formError}</p>
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
               Name <span className="text-dnews-red">*</span>

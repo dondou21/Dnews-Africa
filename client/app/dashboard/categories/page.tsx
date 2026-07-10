@@ -19,6 +19,7 @@ export default function CategoriesPage() {
   const [formSlug, setFormSlug] = useState("");
   const [formDescription, setFormDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const [deleteTarget, setDeleteTarget] = useState<CategoryWithCount | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -45,6 +46,7 @@ export default function CategoriesPage() {
     setFormName("");
     setFormSlug("");
     setFormDescription("");
+    setFormError("");
     setFormOpen(true);
   };
 
@@ -53,6 +55,7 @@ export default function CategoriesPage() {
     setFormName(cat.name);
     setFormSlug(cat.slug);
     setFormDescription(cat.description || "");
+    setFormError("");
     setFormOpen(true);
   };
 
@@ -68,9 +71,9 @@ export default function CategoriesPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
+    setFormError("");
     if (!formName || !formSlug) {
-      setError("Name and slug are required.");
+      setFormError("Name and slug are required.");
       return;
     }
     setSubmitting(true);
@@ -93,7 +96,7 @@ export default function CategoriesPage() {
       setFormOpen(false);
       fetchCategories();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Operation failed.");
+      setFormError(err instanceof Error ? err.message : "Operation failed.");
     } finally {
       setSubmitting(false);
     }
@@ -218,7 +221,7 @@ export default function CategoriesPage() {
 
       <Modal
         open={formOpen}
-        onClose={() => setFormOpen(false)}
+        onClose={() => { setFormError(""); setFormOpen(false); }}
         title={editing ? "Edit Category" : "New Category"}
         size="md"
         footer={
@@ -242,6 +245,11 @@ export default function CategoriesPage() {
         }
       >
         <form id="category-form" onSubmit={handleSubmit} className="space-y-4">
+          {formError && (
+            <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+              <p className="text-xs font-medium text-dnews-red">{formError}</p>
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
               Name <span className="text-dnews-red">*</span>

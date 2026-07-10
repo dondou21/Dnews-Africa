@@ -27,6 +27,7 @@ export default function UsersPage() {
   const [formPassword, setFormPassword] = useState("");
   const [formRoleId, setFormRoleId] = useState<number | "">("");
   const [formIsActive, setFormIsActive] = useState(true);
+  const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<UserItem | null>(null);
@@ -75,6 +76,7 @@ export default function UsersPage() {
     setFormPassword("");
     setFormRoleId("");
     setFormIsActive(true);
+    setFormError("");
     setFormOpen(true);
   };
 
@@ -86,18 +88,19 @@ export default function UsersPage() {
     setFormPassword("");
     setFormRoleId(user.roleId);
     setFormIsActive(user.isActive);
+    setFormError("");
     setFormOpen(true);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
+    setFormError("");
     if (!formFirstName || !formLastName || !formEmail || !formRoleId) {
-      setError("Please fill in all required fields.");
+      setFormError("Please fill in all required fields.");
       return;
     }
     if (!editing && !formPassword) {
-      setError("Password is required for new users.");
+      setFormError("Password is required for new users.");
       return;
     }
     setSubmitting(true);
@@ -124,9 +127,10 @@ export default function UsersPage() {
         setSuccess("User created successfully.");
       }
       setFormOpen(false);
+      setFormError("");
       fetchData();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Operation failed.");
+      setFormError(err instanceof Error ? err.message : "Operation failed.");
     } finally {
       setSubmitting(false);
     }
@@ -328,7 +332,7 @@ export default function UsersPage() {
 
       <Modal
         open={formOpen}
-        onClose={() => setFormOpen(false)}
+        onClose={() => { setFormOpen(false); setFormError(""); }}
         title={editing ? "Edit User" : "New User"}
         size="md"
         footer={
@@ -352,6 +356,11 @@ export default function UsersPage() {
         }
       >
         <form id="user-form" onSubmit={handleSubmit} className="space-y-4">
+          {formError && (
+            <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+              <p className="text-xs font-medium text-dnews-red">{formError}</p>
+            </div>
+          )}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
@@ -421,10 +430,7 @@ export default function UsersPage() {
                       ? "No roles available"
                       : "Select role"}
                 </option>
-          {rolesLoading && (
-            <span className="text-xs text-dnews-muted">Loading roles...</span>
-          )}
-          {roles.map((r) => (
+                {roles.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.name}
                   </option>

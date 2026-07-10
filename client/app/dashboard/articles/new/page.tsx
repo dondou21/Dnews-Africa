@@ -17,6 +17,7 @@ export default function NewArticlePage() {
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -36,6 +37,12 @@ export default function NewArticlePage() {
       .catch(() => setError("Failed to load categories."))
       .finally(() => setCategoriesLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [error]);
 
   const generateSlug = (val: string) => {
     return val
@@ -105,7 +112,7 @@ export default function NewArticlePage() {
       </div>
 
       {error && (
-        <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
+        <div ref={errorRef} className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
           <p className="text-xs font-medium text-dnews-red">{error}</p>
         </div>
       )}

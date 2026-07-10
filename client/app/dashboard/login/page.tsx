@@ -150,7 +150,6 @@ export default function DashboardLogin() {
       </div>
 
       <div className="relative hidden lg:flex lg:w-1/2">
-        <div className="absolute inset-0 bg-gradient-to-br from-dnews-accent/90 to-dnews-accent" />
         <Image
           src="https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=1200&q=80"
           alt="Newsroom"
@@ -159,6 +158,7 @@ export default function DashboardLogin() {
           priority
           sizes="50vw"
         />
+        <div className="absolute inset-0 bg-gradient-to-br from-dnews-accent/80 to-dnews-accent" />
         <div className="relative z-10 flex min-h-full w-full flex-col justify-center px-16">
           <div className="mx-auto max-w-md">
             <div className="rounded-sm border border-white/20 bg-white/10 p-8 backdrop-blur-sm">
