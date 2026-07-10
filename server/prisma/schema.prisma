@@ -151,13 +151,36 @@ model Comment {
   @@map("comments")
 }
 
+enum NewsletterStatus {
+  PENDING
+  ACTIVE
+  UNSUBSCRIBED
+  BLOCKED
+}
+
+enum NewsletterSource {
+  HOME_PAGE
+  FOOTER
+  ARTICLE
+  POPUP
+  MANUAL
+}
+
 model NewsletterSubscriber {
-  id             String    @id @default(uuid())
-  email          String    @unique
-  name           String?
-  isActive       Boolean   @default(true)
-  subscribedAt   DateTime  @default(now())
-  unsubscribedAt DateTime?
+  id                 String            @id @default(uuid())
+  email              String            @unique
+  name               String?
+  status             NewsletterStatus  @default(PENDING)
+  verified           Boolean           @default(false)
+  verificationToken  String?
+  verificationExpires DateTime?
+  source             NewsletterSource?
+  preferences        Json?
+  subscribedAt       DateTime          @default(now())
+  unsubscribedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("newsletter_subscribers")
 }

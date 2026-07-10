@@ -1,6 +1,7 @@
 import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6";
 import AdSlot from "./AdSlot";
 import TrendingWidget from "./TrendingWidget";
+import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
 
 interface TrendingArticle {
   id: string;
@@ -26,26 +27,16 @@ export default function RightSidebar({
 
       <TrendingWidget articles={trendingArticles} />
 
-      <div className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">
+      <div id="newsletter" className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">
         <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-red">
           Newsletter
         </h3>
-        <p className="mb-3 text-sm leading-relaxed text-dnews-gray">
-          Get the latest African news delivered to your inbox.
-        </p>
-        <form className="space-y-2">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="w-full border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
-          />
-          <button
-            type="submit"
-            className="w-full bg-dnews-accent px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-dnews-accent-light"
-          >
-            Subscribe
-          </button>
-        </form>
+        <NewsletterSubscribe
+          title=""
+          description="Get the latest African news delivered to your inbox."
+          source="HOME_PAGE"
+          buttonText="Subscribe"
+        />
       </div>
 
       <div className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">

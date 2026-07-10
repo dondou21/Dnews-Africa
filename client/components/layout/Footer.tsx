@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6";
+import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
 
 const socialLinks = [
   { name: "YouTube", href: "#", icon: FaYoutube },
@@ -35,6 +36,17 @@ export default function Footer() {
                 );
               })}
             </div>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-red">
+              Newsletter
+            </h4>
+            <NewsletterSubscribe
+              title=""
+              description="Get the latest African news delivered to your inbox."
+              source="FOOTER"
+              buttonText="Subscribe"
+            />
           </div>
           <div>
             <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-brand-red">

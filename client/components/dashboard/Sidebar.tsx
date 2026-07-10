@@ -35,7 +35,7 @@ const allNavItems: NavItem[] = [
   { href: "/dashboard/media", label: "Media", icon: Image, roles: ["Admin", "Editor", "Journalist"] },
   { href: "/dashboard/users", label: "Users", icon: Users, roles: ["Admin"] },
   { href: "/dashboard/roles", label: "Roles", icon: ShieldCheck, roles: ["Admin"] },
-  { href: "/dashboard/newsletter", label: "Newsletter", icon: Mail, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/newsletter", label: "Newsletter", icon: Mail, roles: ["Admin"] },
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle, roles: ["Admin", "Editor"] },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, roles: ["Admin", "Editor", "Journalist", "Moderator"] },
 ];

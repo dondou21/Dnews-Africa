@@ -47,7 +47,7 @@ export const dashboardRepository = {
       prisma.category.count(),
       prisma.user.count(),
       prisma.media.count(),
-      prisma.newsletterSubscriber.count({ where: { isActive: true } }),
+      prisma.newsletterSubscriber.count({ where: { status: "ACTIVE" } }),
       prisma.contactMessage.count(),
       prisma.contactMessage.count({ where: { isRead: false } }),
       prisma.comment.count(),

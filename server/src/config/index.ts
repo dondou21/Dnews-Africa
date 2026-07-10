@@ -11,4 +11,7 @@ export const config = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   isProduction: process.env.NODE_ENV === "production",
   enableApiDocs: process.env.ENABLE_API_DOCS !== "false",
+  clientUrl: process.env.CLIENT_URL || "http://localhost:3000",
+  resendApiKey: process.env.RESEND_API_KEY || "",
+  emailFrom: process.env.EMAIL_FROM || "noreply@dnewsafrica.com",
 };

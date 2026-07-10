@@ -6,8 +6,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { get } from "@/lib/api-client";
-import AdSlot from "@/components/home/AdSlot";
 import { SERVER_BASE } from "@/lib/api-client";
+import AdSlot from "@/components/home/AdSlot";
+import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
 
 interface ArticleDetail {
   id: string;
@@ -166,6 +167,15 @@ export default function ArticlePage() {
                 </div>
               </div>
             )}
+
+            <div className="mt-8 rounded-sm border border-dnews-border bg-dnews-card p-5">
+              <NewsletterSubscribe
+                title="Enjoying this article?"
+                description="Subscribe to receive more African stories."
+                source="ARTICLE"
+                buttonText="Subscribe"
+              />
+            </div>
           </div>
         </article>
 
