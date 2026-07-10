@@ -61,6 +61,26 @@ function buildVerificationEmail(verifyUrl: string): string {
 }
 
 export const emailService = {
+  async sendCampaignEmail(email: string, name: string | undefined, subject: string, html: string): Promise<void> {
+    if (config.isProduction && config.resendApiKey) {
+      try {
+        const { Resend } = await import("resend");
+        const resend = new Resend(config.resendApiKey);
+        await resend.emails.send({
+          from: config.emailFrom || "noreply@dnewsafrica.com",
+          to: email,
+          subject,
+          html,
+        });
+        logger.info("CampaignService", "Campaign email sent", { email, subject });
+      } catch (err) {
+        logger.error("CampaignService", "Failed to send campaign email", { email, error: String(err) });
+        throw err;
+      }
+    } else {
+      logger.info("CampaignService", "Campaign email skipped (dev mode)", { email, subject });
+    }
+  },
   async sendVerificationEmail(email: string, token: string): Promise<void> {
     const verifyUrl = `${config.clientUrl}/newsletter/verify?token=${token}`;
 

@@ -55,6 +55,8 @@ model User {
   articles Article[]
   comments Comment[]
   media    Media[]
+  newsletterCampaignsCreated NewsletterCampaign[] @relation("CampaignCreatedBy")
+  newsletterCampaignsUpdated NewsletterCampaign[] @relation("CampaignUpdatedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -179,6 +181,8 @@ model NewsletterSubscriber {
   subscribedAt       DateTime          @default(now())
   unsubscribedAt     DateTime?
 
+  campaignRecipients NewsletterCampaignRecipient[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -196,6 +200,68 @@ model ContactMessage {
   createdAt DateTime @default(now())
 
   @@map("contact_messages")
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+}
+
+enum RecipientStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model NewsletterCampaign {
+  id              String          @id @default(uuid())
+  title           String
+  subject         String
+  slug            String          @unique
+  content         String
+  plainText       String?
+  excerpt         String?
+  featuredImage   String?
+  status          CampaignStatus  @default(DRAFT)
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  totalRecipients Int             @default(0)
+  totalSent       Int             @default(0)
+  totalFailed     Int             @default(0)
+
+  createdById String
+  createdBy   User   @relation("CampaignCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+  updatedBy   User?  @relation("CampaignUpdatedBy", fields: [updatedById], references: [id])
+
+  recipients NewsletterCampaignRecipient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_campaigns")
+}
+
+model NewsletterCampaignRecipient {
+  id           String          @id @default(uuid())
+  status       RecipientStatus @default(PENDING)
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  failedAt     DateTime?
+  errorMessage String?
+
+  campaignId   String
+  campaign     NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  subscriberId String
+  subscriber   NewsletterSubscriber @relation(fields: [subscriberId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("newsletter_campaign_recipients")
 }
 
 model Media {
