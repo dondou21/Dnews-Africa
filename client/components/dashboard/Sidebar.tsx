@@ -68,7 +68,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         }`}
       >
         <div className="flex h-16 items-center justify-between border-b border-dnews-border px-4">
-          <Link href="/dashboard" onClick={onClose}>
+          <Link
+            href="/dashboard"
+            onClick={onClose}
+            className="dark:bg-black dark:px-3 dark:py-1 dark:rounded-sm inline-block"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}

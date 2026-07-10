@@ -25,7 +25,10 @@ export default function Header() {
       <SponsorBanner />
       <div className="mx-auto max-w-[1180px] px-4 py-1 md:py-1.5">
         <div className="flex items-center justify-center">
-          <Link href="/">
+          <Link
+            href="/"
+            className="inline-block dark:bg-black dark:px-3 dark:py-1 dark:rounded-sm"
+          >
             <Image
               src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
               alt="Dnews Africa"

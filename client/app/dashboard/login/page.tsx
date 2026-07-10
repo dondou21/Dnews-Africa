@@ -45,7 +45,10 @@ export default function DashboardLogin() {
       <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-12">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 flex justify-center">
-            <Link href="/">
+            <Link
+              href="/"
+              className="dark:bg-black dark:px-3 dark:py-1 dark:rounded-sm inline-block"
+            >
               <Image
                 src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
                 alt="Dnews Africa"
