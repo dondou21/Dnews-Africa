@@ -4,11 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useCallback } from "react";
 import { Search } from "lucide-react";
+import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
 import SponsorBanner from "@/components/layout/SponsorBanner";
 
 export default function Header() {
+  const { theme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const toggleSearch = useCallback(() => {
     setSearchOpen((prev) => !prev);
@@ -25,7 +27,7 @@ export default function Header() {
         <div className="flex items-center justify-center">
           <Link href="/">
             <Image
-              src="/images/logo0.png"
+              src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
               alt="Dnews Africa"
               width={200}
               height={50}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   LayoutDashboard,
   FileText,
@@ -45,6 +46,7 @@ interface SidebarProps {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const { theme } = useTheme();
 
   const navItems = allNavItems.filter((item) => {
     if (!user) return false;
@@ -69,7 +71,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           <Link href="/dashboard" onClick={onClose}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/logo0.png"
+              src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
               alt="Dnews Africa"
               className="h-auto w-[120px] object-contain"
             />
