@@ -23,6 +23,7 @@ import advertisementsRouter from "./advertisements";
 import dashboardRouter from "./dashboard";
 import workflowRouter from "./workflow";
 import seoRouter from "./seo";
+import layoutsRouter from "./layouts";
 
 const router = Router();
 
@@ -50,6 +51,7 @@ router.use("/advertisers", advertisersRouter);
 router.use("/ad-campaigns", adCampaignsRouter);
 router.use("/advertisements", advertisementsRouter);
 router.use("/editorial", workflowRouter);
+router.use("/layouts", layoutsRouter);
 router.use("/", seoRouter);
 
 export default router;

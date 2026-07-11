@@ -91,6 +91,7 @@ model User {
   articleRevisions           ArticleRevision[]
   notifications              Notification[]
   auditLogs                  ArticleAuditLog[]
+  homepageLayouts            HomePageLayout[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -733,4 +734,51 @@ model SeoSettings {
   updatedAt DateTime @updatedAt
 
   @@map("seo_settings")
+}
+
+enum LayoutStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+model HomePageLayout {
+  id          String        @id @default(uuid())
+  name        String
+  slug        String        @unique
+  status      LayoutStatus  @default(DRAFT)
+  version     Int           @default(1)
+  isDefault   Boolean       @default(false)
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  settings    Json?
+
+  sections HomePageSection[]
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("homepage_layouts")
+}
+
+model HomePageSection {
+  id        String   @id @default(uuid())
+  type      String
+  title     String?
+  subtitle  String?
+  position  Int
+  settings  Json?
+  visible   Boolean  @default(true)
+
+  layoutId String
+  layout   HomePageLayout @relation(fields: [layoutId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("homepage_sections")
 }

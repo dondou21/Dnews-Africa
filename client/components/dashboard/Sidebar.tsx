@@ -31,6 +31,7 @@ import {
   Search as SearchIcon,
   Repeat,
   Globe,
+  Layout,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -53,6 +54,7 @@ const allNavItems: NavItem[] = [
   { href: "/dashboard/editorial/revisions", label: "Revisions", icon: GitBranch, roles: ["Admin", "Editor", "Journalist"] },
   { href: "/dashboard/seo", label: "SEO Dashboard", icon: SearchIcon, roles: ["Admin", "Editor"] },
   { href: "/dashboard/seo/redirects", label: "Redirects", icon: Repeat, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/layouts", label: "Homepage Layouts", icon: Layout, roles: ["Admin", "Editor"] },
   { href: "/dashboard/seo/settings", label: "SEO Settings", icon: Globe, roles: ["Admin"] },
   { href: "/dashboard/categories", label: "Categories", icon: FolderTree, roles: ["Admin", "Editor"] },
   { href: "/dashboard/tags", label: "Tags", icon: Tags, roles: ["Admin", "Editor"] },
