@@ -92,6 +92,7 @@ model User {
   notifications              Notification[]
   auditLogs                  ArticleAuditLog[]
   homepageLayouts            HomePageLayout[]
+  analyticsExports           AnalyticsExport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -743,6 +744,28 @@ enum LayoutStatus {
   ARCHIVED
 }
 
+enum DeviceType {
+  DESKTOP
+  TABLET
+  MOBILE
+  UNKNOWN
+}
+
+enum TrafficSourceType {
+  DIRECT
+  GOOGLE_SEARCH
+  GOOGLE_DISCOVER
+  GOOGLE_NEWS
+  FACEBOOK
+  TWITTER
+  LINKEDIN
+  WHATSAPP
+  NEWSLETTER
+  REFERRAL
+  INTERNAL
+  OTHER
+}
+
 model HomePageLayout {
   id          String        @id @default(uuid())
   name        String
@@ -781,4 +804,235 @@ model HomePageSection {
   updatedAt DateTime @updatedAt
 
   @@map("homepage_sections")
+}
+
+// === ANALYTICS MODELS ===
+
+model VisitorSession {
+  id              String            @id @default(uuid())
+  anonymousId     String
+  startTime       DateTime          @default(now())
+  endTime         DateTime?
+  duration        Int?
+  pageViews       Int               @default(0)
+  isBounced       Boolean           @default(false)
+  isReturning     Boolean           @default(false)
+
+  country         String?
+  region          String?
+  city            String?
+  timezone        String?
+  language        String?
+
+  deviceType      DeviceType        @default(UNKNOWN)
+  browser         String?
+  browserVersion  String?
+  os              String?
+  osVersion       String?
+  deviceModel     String?
+  screenWidth     Int?
+  screenHeight    Int?
+
+  trafficSource   TrafficSourceType @default(DIRECT)
+  referrer        String?
+  referrerUrl     String?
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  utmTerm         String?
+  utmContent      String?
+
+  pageViewsRel    PageView[]
+  events          ReaderEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([anonymousId])
+  @@index([startTime])
+  @@index([trafficSource])
+  @@index([country])
+  @@map("visitor_sessions")
+}
+
+model PageView {
+  id              String            @id @default(uuid())
+  path            String
+  title           String?
+  sessionId       String
+  session         VisitorSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  visitorId       String
+  referrer        String?
+  referrerUrl     String?
+
+  timeOnPage      Int?
+  scrollDepth     Int?
+  isExit          Boolean           @default(false)
+  isBounce        Boolean           @default(false)
+
+  entityType      String?
+  entityId        String?
+
+  country         String?
+  region          String?
+  city            String?
+  language        String?
+
+  deviceType      DeviceType        @default(UNKNOWN)
+  browser         String?
+  os              String?
+
+  trafficSource   TrafficSourceType @default(DIRECT)
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([path])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([sessionId])
+  @@index([visitorId])
+  @@map("page_views")
+}
+
+model ArticleView {
+  id              String            @id @default(uuid())
+  articleId       String
+  title           String            @default("")
+  sessionId       String
+  visitorId       String
+  referrer        String?
+  timeOnPage      Int?
+  scrollDepth     Int?
+  completionRate  Float?
+  isCompleted     Boolean           @default(false)
+  trafficSource   TrafficSourceType @default(DIRECT)
+
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+  @@index([createdAt])
+  @@index([visitorId])
+  @@map("article_views")
+}
+
+model ReaderEvent {
+  id          String         @id @default(uuid())
+  eventType   String
+  eventData   Json?
+  sessionId   String
+  session     VisitorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  visitorId   String
+  pageViewId  String?
+  entityType  String?
+  entityId    String?
+  value       Float?
+
+  createdAt DateTime @default(now())
+
+  @@index([eventType])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("reader_events")
+}
+
+model SearchQuery {
+  id           String   @id @default(uuid())
+  query        String
+  normalized   String
+  resultsCount Int      @default(0)
+  noResults    Boolean  @default(false)
+  sessionId    String
+  visitorId    String
+  source       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([normalized])
+  @@index([createdAt])
+  @@index([noResults])
+  @@map("search_queries")
+}
+
+model DailyStat {
+  id              String   @id @default(uuid())
+  date            DateTime
+  entityType      String?
+  entityId        String?
+
+  pageViews       Int      @default(0)
+  uniqueVisitors  Int      @default(0)
+  sessions        Int      @default(0)
+  avgTimeOnPage   Float?
+  bounceRate      Float?
+  avgScrollDepth  Float?
+
+  directViews     Int      @default(0)
+  googleSearch    Int      @default(0)
+  googleDiscover  Int      @default(0)
+  googleNews      Int      @default(0)
+  socialViews     Int      @default(0)
+  newsletterViews Int      @default(0)
+  referralViews   Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, entityType, entityId])
+  @@index([date])
+  @@index([entityType, entityId])
+  @@map("daily_stats")
+}
+
+model DashboardSnapshot {
+  id               String   @id @default(uuid())
+  snapshotType     String
+  periodStart      DateTime
+  periodEnd        DateTime
+
+  totalPageViews    Int     @default(0)
+  totalVisitors     Int     @default(0)
+  totalSessions     Int     @default(0)
+  activeReaders     Int     @default(0)
+  avgSessionDuration Float?
+  bounceRate        Float?
+  pagesPerSession   Float?
+  returningVisitors Int     @default(0)
+
+  totalArticles    Int      @default(0)
+  totalNewsletters Int      @default(0)
+  totalSubscribers Int      @default(0)
+
+  trafficBreakdown Json?
+  topArticles      Json?
+  topSources       Json?
+  topCountries     Json?
+  topCategories    Json?
+  topAuthors       Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([snapshotType, periodStart])
+  @@map("dashboard_snapshots")
+}
+
+model AnalyticsExport {
+  id          String   @id @default(uuid())
+  exportType  String
+  format      String
+  periodStart DateTime
+  periodEnd   DateTime
+  filters     Json?
+  fileUrl     String?
+  status      String   @default("pending")
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("analytics_exports")
 }

@@ -99,7 +99,7 @@ function AnalyticsContent() {
           <p className="text-sm text-dnews-muted">No campaigns sent yet.</p>
         ) : (
           <div className="space-y-2">
-            {data.campaigns.recent.map((c) => (
+            {data.campaigns.recent.map((c: any) => (
               <Link key={c.id} href={`/dashboard/newsletter/campaigns/${c.id}`} className="flex items-center justify-between rounded-sm border border-dnews-border/50 px-3 py-2 transition-colors hover:bg-dnews-light-gray">
                 <span className="text-sm font-medium text-dnews-dark">{c.title}</span>
                 <div className="flex items-center gap-4 text-xs text-dnews-muted">

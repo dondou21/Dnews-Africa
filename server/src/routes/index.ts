@@ -15,6 +15,7 @@ import campaignsRouter from "./campaigns";
 import templatesRouter from "./templates";
 import automationsRouter from "./automations";
 import trackingRouter from "./tracking";
+import analyticsRouter from "./analytics";
 import reportsRouter from "./reports";
 import settingsRouter from "./settings";
 import advertisersRouter from "./advertisers";
@@ -51,6 +52,7 @@ router.use("/advertisers", advertisersRouter);
 router.use("/ad-campaigns", adCampaignsRouter);
 router.use("/advertisements", advertisementsRouter);
 router.use("/editorial", workflowRouter);
+router.use("/analytics", analyticsRouter);
 router.use("/layouts", layoutsRouter);
 router.use("/", seoRouter);
 
