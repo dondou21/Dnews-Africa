@@ -3,12 +3,12 @@
 import { useEffect, useState, useRef, type FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeft, Upload, Send, Lock, Eye, SearchIcon } from "lucide-react";
-import { get, patch, post, put, uploadFile, SERVER_BASE } from "@/lib/api-client";
+import { ArrowLeft, Send, Lock, SearchIcon } from "lucide-react";
+import { get, patch, post, put } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import LoadingState from "@/components/dashboard/LoadingState";
+import CoverImageUpload from "@/components/dashboard/CoverImageUpload";
 import SeoMetadataForm from "@/components/seo/SeoMetadataForm";
 import type { Article, Category } from "@/types/article";
 import type { SeoMetadata } from "@/types/seo";
@@ -35,8 +35,6 @@ function EditArticleForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [error, setError] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
 
   const [title, setTitle] = useState("");
@@ -291,73 +289,13 @@ function EditArticleForm() {
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
                 Cover Image
               </label>
-              <div className="flex items-start gap-4">
-                <div className="flex-1 space-y-2">
-                  <input
-                    type="url"
-                    value={coverImageUrl}
-                    onChange={(e) => setCoverImageUrl(e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
-                  />
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      setUploading(true);
-                      try {
-                        const result = await uploadFile<{ url: string }>("/media/upload", file);
-                        setCoverImageUrl(result.url);
-                      } catch {
-                        setError("Failed to upload image.");
-                      } finally {
-                        setUploading(false);
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="inline-flex items-center gap-2 rounded-sm border border-dnews-border px-3 py-2 text-xs font-medium text-dnews-gray transition-colors hover:bg-dnews-light-gray disabled:opacity-50"
-                  >
-                    <Upload size={14} />
-                    {uploading ? "Uploading..." : "Upload from computer"}
-                  </button>
-                </div>
-                {coverImageUrl ? (
-                  <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-sm border border-dnews-border bg-dnews-light-gray">
-                    <Image
-                      src={coverImageUrl.startsWith("http") ? coverImageUrl : `${SERVER_BASE}${coverImageUrl}`}
-                      alt="Cover preview"
-                      fill
-                      className="object-cover"
-                      sizes="128px"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                    />
-                  </div>
-                ) : (
-                  <div className="flex h-20 w-32 shrink-0 items-center justify-center rounded-sm border border-dnews-border bg-dnews-light-gray">
-                    <span className="text-xs text-dnews-muted">No image</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
-                Cover Image Alt Text
-              </label>
-              <input
-                type="text"
-                value={coverImageAlt}
-                onChange={(e) => setCoverImageAlt(e.target.value)}
-                placeholder="Describe the image"
-                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+              <CoverImageUpload
+                initialUrl={coverImageUrl}
+                initialAlt={coverImageAlt}
+                onImageChange={(url, alt) => {
+                  setCoverImageUrl(url);
+                  setCoverImageAlt(alt);
+                }}
               />
             </div>
           </div>

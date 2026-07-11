@@ -5,13 +5,13 @@ export const createArticleSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
   summary: z.string().min(1, "Summary is required"),
   content: z.string().min(1, "Content is required"),
-  coverImageUrl: z.string().url("Invalid URL").optional(),
+  coverImageUrl: z.string().optional(),
   coverImageAlt: z.string().optional(),
   categoryId: z.number().int().positive("Category is required"),
   status: z.enum(["IDEA", "DRAFT", "IN_REVIEW", "NEEDS_REVISION", "APPROVED", "SCHEDULED", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "ARCHIVED"]).optional(),
   isFeatured: z.boolean().optional(),
   isTrending: z.boolean().optional(),
-  publishedAt: z.string().datetime().optional(),
+  publishedAt: z.string().optional(),
   tags: z.array(z.string().min(1)).optional(),
 });
 
