@@ -27,11 +27,11 @@ export default function Header() {
             <Image
               src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
               alt="Dnews Africa"
-              width={200}
-              height={50}
+              width={280}
+              height={70}
               priority
-              className="h-auto w-[120px] object-contain sm:w-[150px] md:w-[160px]"
-              sizes="(max-width: 640px) 120px, (max-width: 768px) 160px, 180px"
+              className="h-auto w-[180px] object-contain sm:w-[220px] md:w-[260px]"
+              sizes="(max-width: 640px) 180px, (max-width: 768px) 220px, 260px"
             />
           </Link>
         </div>
