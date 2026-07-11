@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
@@ -9,7 +9,7 @@ import type { NewsletterSubscriber } from "@/types/newsletter";
 
 type VerifyState = "loading" | "success" | "expired" | "invalid" | "already_verified" | "error";
 
-export default function VerifyPage() {
+function VerifyContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [state, setState] = useState<VerifyState>("loading");
@@ -123,5 +123,17 @@ export default function VerifyPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
+        <Loader2 size={48} className="animate-spin text-dnews-accent" />
+      </div>
+    }>
+      <VerifyContent />
+    </Suspense>
   );
 }

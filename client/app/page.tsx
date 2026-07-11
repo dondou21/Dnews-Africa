@@ -1,142 +1,181 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import LeftSidebar from "@/components/home/LeftSidebar";
 import RightSidebar from "@/components/home/RightSidebar";
 import AdSlot from "@/components/home/AdSlot";
 import ArticleListItem from "@/components/home/ArticleListItem";
-import { get } from "@/lib/api-client";
+import { articles, getFeaturedArticle, getTrendingArticles, type Article } from "@/src/data/articles";
 
-interface HomeArticle {
-  id: string;
-  slug: string;
-  title: string;
-  summary: string;
-  content: string;
-  category: { id: number; name: string; slug: string };
-  author: { firstName: string; lastName: string };
-  coverImageUrl: string | null;
-  coverImageAlt: string | null;
-  isFeatured: boolean;
-  isTrending: boolean;
-  publishedAt: string | null;
-  createdAt: string;
+function resolveImageUrl(url: string): string {
+  if (url.startsWith("http")) return url;
+  return url;
+}
+
+function estimateReadTime(content: string): string {
+  const words = content.split(/\s+/).length;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+  return `${minutes} min read`;
+}
+
+function ArticleCard({ article, priority }: { article: Article; priority?: boolean }) {
+  return (
+    <article className="group">
+      <Link href={`/articles/${article.slug}`}>
+        <div className="relative mb-3 aspect-[16/9] w-full overflow-hidden rounded-sm">
+          <Image
+            src={resolveImageUrl(article.imageUrl)}
+            alt={article.imageAlt}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority={priority}
+          />
+        </div>
+        <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
+          {article.category}
+        </span>
+        <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
+          {article.title}
+        </h3>
+        <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
+          {article.excerpt}
+        </p>
+        <div className="mt-2 flex items-center gap-2 text-xs text-dnews-muted">
+          <span className="font-medium text-dnews-dark">By {article.authorName}</span>
+          <span>·</span>
+          <span>{article.publishedAt}</span>
+          <span>·</span>
+          <span>{article.readTime}</span>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+function SectionArticles({ title, articles }: { title: string; articles: Article[] }) {
+  if (articles.length === 0) return null;
+  return (
+    <section>
+      <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-brand-red">
+        {title}
+      </h3>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {articles.map((article) => (
+          <ArticleCard key={article.id} article={article} />
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function Home() {
-  const [featured, setFeatured] = useState<HomeArticle | null>(null);
-  const [latest, setLatest] = useState<HomeArticle[]>([]);
-  const [trending, setTrending] = useState<HomeArticle[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const [featuredData, latestData] = await Promise.all([
-          get<HomeArticle[]>("/articles/featured"),
-          get<HomeArticle[]>("/articles/latest"),
-        ]);
-        setFeatured(featuredData[0] || null);
-        setLatest(latestData.slice(0, 6));
-        setTrending(latestData.filter((a) => a.isTrending).slice(0, 5));
-      } catch {
-        // silently fail
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+  const featured = getFeaturedArticle();
+  const trending = getTrendingArticles();
+  const latest = articles.slice(0, 6);
+  const newsArticles = articles.filter(a => a.category.includes("News") || a.category === "Youth").slice(0, 3);
+  const businessArticles = articles.filter(a => a.category.includes("Business")).slice(0, 3);
+  const sportsArticles = articles.filter(a => a.category.includes("Sports")).slice(0, 3);
+  const entertainmentArticles = articles.filter(a => a.category.includes("Culture") || a.category.includes("Entertainment")).slice(0, 3);
+  const featuredArticles = articles.filter(a => a.isFeatured).slice(0, 2);
 
   return (
-    <div className="mx-auto max-w-[1180px] px-4 py-2 md:py-3">
-      <div className="flex flex-col lg:flex-row lg:gap-6">
-        <aside className="hidden w-full shrink-0 lg:block lg:w-[200px]">
-          <div className="border-r border-dnews-border pr-4">
-            <LeftSidebar />
-          </div>
-        </aside>
-
+    <div className="mx-auto max-w-[1180px] px-4 py-4 md:py-6">
+      <div className="flex flex-col lg:flex-row lg:gap-8">
         <main className="min-w-0 flex-1">
-          {loading ? (
-            <div className="space-y-3">
-              <div className="aspect-[16/9] w-full animate-pulse rounded-sm bg-dnews-border/50" />
-              <div className="h-6 w-3/4 animate-pulse rounded bg-dnews-border/50" />
-              <div className="h-4 w-1/2 animate-pulse rounded bg-dnews-border/50" />
-            </div>
-          ) : featured ? (
-            <article className="group mb-4 border-b border-dnews-border pb-4">
+          {featured && (
+            <article className="group mb-6 border-b border-dnews-border pb-6">
               <Link href={`/articles/${featured.slug}`}>
-                {featured.coverImageUrl && (
-                  <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden">
-                    <Image
-                      src={featured.coverImageUrl}
-                      alt={featured.coverImageAlt || ""}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 1024px) 100vw, 640px"
-                      priority
-                    />
-                  </div>
-                )}
-                <div>
+                <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-sm">
+                  <Image
+                    src={resolveImageUrl(featured.imageUrl)}
+                    alt={featured.imageAlt}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 1024px) 100vw, 780px"
+                    priority
+                  />
+                </div>
+                <div className="max-w-3xl">
                   <span className="mb-2 inline-block rounded bg-dnews-red px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
-                    {featured.category.name}
+                    {featured.category}
                   </span>
-                  <h2 className="font-heading mt-2 text-xl font-bold leading-tight text-dnews-dark md:text-2xl">
+                  <h2 className="font-heading mt-2 text-2xl font-bold leading-tight text-dnews-dark md:text-3xl lg:text-4xl">
                     {featured.title}
                   </h2>
-                  <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
-                    {featured.summary}
+                  <p className="mt-2 line-clamp-3 text-base leading-relaxed text-dnews-gray">
+                    {featured.excerpt}
                   </p>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-dnews-muted">
+                  <div className="mt-3 flex items-center gap-3 text-sm text-dnews-muted">
                     <span className="font-medium text-dnews-dark">
-                      By {featured.author.firstName} {featured.author.lastName}
+                      By {featured.authorName}
                     </span>
                     <span>·</span>
-                    <span>
-                      {featured.publishedAt
-                        ? new Date(featured.publishedAt).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })
-                        : new Date(featured.createdAt).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                    </span>
+                    <span>{featured.publishedAt}</span>
+                    <span>·</span>
+                    <span>{featured.readTime}</span>
                   </div>
                 </div>
               </Link>
             </article>
-          ) : null}
+          )}
 
-          <AdSlot variant="banner" className="mb-4" />
+          {featuredArticles.length > 1 && (
+            <div className="mb-8 grid gap-6 sm:grid-cols-2">
+              {featuredArticles.slice(1).map((article) => (
+                <ArticleCard key={article.id} article={article} priority />
+              ))}
+            </div>
+          )}
+
+          {featuredArticles.length <= 1 && articles.length > 1 && (
+            <div className="mb-8 grid gap-6 sm:grid-cols-2">
+              {articles.slice(1, 3).map((article) => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+          )}
+
+          <div className="space-y-10">
+            <SectionArticles title="Latest News" articles={newsArticles} />
+            <SectionArticles title="Business" articles={businessArticles} />
+            <SectionArticles title="Sports" articles={sportsArticles} />
+            <SectionArticles title="Entertainment" articles={entertainmentArticles} />
+          </div>
+
+          <AdSlot variant="banner" className="my-8" />
 
           <section>
-            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-red">
-              Latest Stories
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-brand-red">
+              More Stories
             </h3>
-            {latest.length === 0 && !loading ? (
-              <p className="text-sm text-dnews-muted">
-                No articles published yet.
-              </p>
+            {latest.length === 0 ? (
+              <p className="text-sm text-dnews-muted">No articles published yet.</p>
             ) : (
               <div className="space-y-4">
                 {latest.map((article) => (
-                  <ArticleListItem key={article.id} article={article} />
+                  <ArticleListItem
+                    key={article.id}
+                    article={{
+                      slug: article.slug,
+                      title: article.title,
+                      summary: article.excerpt,
+                      category: { id: 0, name: article.category, slug: article.category.toLowerCase() },
+                      author: { firstName: article.authorName.split(" ")[0], lastName: article.authorName.split(" ").slice(1).join(" ") },
+                      coverImageUrl: article.imageUrl,
+                      coverImageAlt: article.imageAlt,
+                      publishedAt: article.publishedAt,
+                      createdAt: article.publishedAt,
+                    }}
+                  />
                 ))}
               </div>
             )}
           </section>
         </main>
 
-        <aside className="w-full shrink-0 lg:w-[260px]">
-          <div className="border-t border-dnews-border pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+        <aside className="w-full shrink-0 lg:w-[300px]">
+          <div className="border-t border-dnews-border pt-6 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             <RightSidebar trendingArticles={trending} />
           </div>
         </aside>

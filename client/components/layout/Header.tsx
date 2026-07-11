@@ -7,7 +7,6 @@ import { Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
-import SponsorBanner from "@/components/layout/SponsorBanner";
 
 export default function Header() {
   const { theme } = useTheme();
@@ -22,7 +21,6 @@ export default function Header() {
 
   return (
     <header className="border-b border-dnews-border bg-dnews-card dark:bg-black">
-      <SponsorBanner />
       <div className="mx-auto max-w-[1180px] px-4 py-1 md:py-1.5">
         <div className="flex items-center justify-center">
           <Link href="/">

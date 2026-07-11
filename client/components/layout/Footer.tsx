@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6";
+import { FaYoutube, FaInstagram, FaXTwitter, FaFacebookF } from "react-icons/fa6";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
 
 const socialLinks = [
   { name: "YouTube", href: "#", icon: FaYoutube },
   { name: "Instagram", href: "#", icon: FaInstagram },
-  { name: "Facebook", href: "#", icon: FaFacebookF },
   { name: "X (Twitter)", href: "#", icon: FaXTwitter },
+  { name: "Facebook", href: "#", icon: FaFacebookF },
 ];
 
 export default function Footer() {
@@ -53,38 +53,12 @@ export default function Footer() {
               Sections
             </h4>
             <ul className="space-y-2 text-sm text-dnews-muted">
-              <li>
-                <Link
-                  href="/africa"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Africa News
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/business"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Business
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/sports"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Sport
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/culture"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Culture
-                </Link>
-              </li>
+              <li><Link href="/news" className="transition-colors hover:text-dnews-accent">News</Link></li>
+              <li><Link href="/business" className="transition-colors hover:text-dnews-accent">Business</Link></li>
+              <li><Link href="/sports" className="transition-colors hover:text-dnews-accent">Sports</Link></li>
+              <li><Link href="/featured" className="transition-colors hover:text-dnews-accent">Featured Articles</Link></li>
+              <li><Link href="/entertainment" className="transition-colors hover:text-dnews-accent">Entertainment</Link></li>
+              <li><Link href="/culture" className="transition-colors hover:text-dnews-accent">Culture</Link></li>
             </ul>
           </div>
           <div>
@@ -92,46 +66,11 @@ export default function Footer() {
               More
             </h4>
             <ul className="space-y-2 text-sm text-dnews-muted">
-              <li>
-                <Link
-                  href="/innovation"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Innovation
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/youth"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Youth
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/travel"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Travel
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/lifestyle"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Lifestyle
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/tv"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  DnewsAfrica TV
-                </Link>
-              </li>
+              <li><Link href="/pictorial" className="transition-colors hover:text-dnews-accent">Pictorial</Link></li>
+              <li><Link href="/tv" className="transition-colors hover:text-dnews-accent">DnewsAfrica TV</Link></li>
+              <li><Link href="/innovation" className="transition-colors hover:text-dnews-accent">Innovation</Link></li>
+              <li><Link href="/opinion" className="transition-colors hover:text-dnews-accent">Opinions</Link></li>
+              <li><Link href="/interviews" className="transition-colors hover:text-dnews-accent">Interviews</Link></li>
             </ul>
           </div>
           <div>
@@ -139,38 +78,11 @@ export default function Footer() {
               Company
             </h4>
             <ul className="space-y-2 text-sm text-dnews-muted">
-              <li>
-                <Link
-                  href="/about"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/advertise"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Advertise & Partner
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/privacy"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
+              <li><Link href="/about" className="transition-colors hover:text-dnews-accent">About</Link></li>
+              <li><Link href="/advertise" className="transition-colors hover:text-dnews-accent">Advertise With Us</Link></li>
+              <li><Link href="/partners" className="transition-colors hover:text-dnews-accent">Partner With Us</Link></li>
+              <li><Link href="/contact" className="transition-colors hover:text-dnews-accent">Contact</Link></li>
+              <li><Link href="/privacy" className="transition-colors hover:text-dnews-accent">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>
