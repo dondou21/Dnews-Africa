@@ -12,10 +12,6 @@ export interface DashboardStats {
     newsletterSubscribers: number;
     totalContactMessages: number;
     unreadContactMessages: number;
-    totalComments: number;
-    pendingComments: number;
-    approvedComments: number;
-    rejectedComments: number;
     articlesPublishedToday: number;
     articlesPublishedThisMonth: number;
     featuredArticlesCount: number;
@@ -36,13 +32,6 @@ export interface DashboardStats {
     articlesPublishedToday: number;
     articlesPublishedThisMonth: number;
     featuredArticlesCount: number;
-  };
-  comments: {
-    totalComments: number;
-    pendingComments: number;
-    approvedComments: number;
-    rejectedComments: number;
-    spamComments: number;
   };
   newsletter: {
     totalSubscribers: number;

@@ -5,7 +5,7 @@ export type ApprovalDecision = "APPROVED" | "REJECTED" | "CHANGES_REQUESTED";
 export type AuditAction =
   | "CREATED" | "EDITED" | "SUBMITTED" | "APPROVED" | "REJECTED"
   | "CHANGES_REQUESTED" | "SCHEDULED" | "PUBLISHED" | "ARCHIVED"
-  | "RESTORED" | "COMMENTED" | "ASSIGNED";
+  | "RESTORED" | "ASSIGNED";
 
 export interface ArticleRevision {
   id: string;
@@ -20,20 +20,6 @@ export interface ArticleRevision {
   changedById: string;
   changedBy: ArticleAuthor;
   createdAt: string;
-}
-
-export interface EditorialComment {
-  id: string;
-  articleId: string;
-  comment: string;
-  sectionReference: string | null;
-  resolved: boolean;
-  userId: string;
-  user: ArticleAuthor & { role?: { name: string } };
-  parentId: string | null;
-  replies: EditorialComment[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface EditorialApproval {
@@ -89,7 +75,6 @@ export interface WorkflowArticle extends Article {
 export interface WorkflowArticleResponse {
   article: WorkflowArticle;
   revisions: ArticleRevision[];
-  comments: EditorialComment[];
   approvals: EditorialApproval[];
   auditLogs: ArticleAuditLog[];
 }

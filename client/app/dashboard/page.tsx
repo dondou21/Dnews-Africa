@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
-  MessageSquare,
   Users,
   Mail,
   MessageCircle,
@@ -152,14 +151,6 @@ function DashboardOverviewContent() {
               description="Write and publish a new article"
               href="/dashboard/articles"
               icon={FileText}
-            />
-          )}
-          {["Admin", "Editor", "Moderator"].includes(role) && (
-            <QuickActionCard
-              label="Moderate Comments"
-              description="Review and approve pending comments"
-              href="/dashboard/comments"
-              icon={MessageSquare}
             />
           )}
           {["Admin", "Editor"].includes(role) && (

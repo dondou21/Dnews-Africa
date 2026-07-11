@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft, Send, CheckCircle, XCircle, AlertTriangle, Calendar,
-  Clock, Archive, RotateCcw, MessageSquare, GitBranch, History,
+  Clock, Archive, RotateCcw, GitBranch, History,
   UserCheck, ExternalLink, Edit, ThumbsUp,
 } from "lucide-react";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import LoadingState from "@/components/dashboard/LoadingState";
 import Modal from "@/components/dashboard/Modal";
 import RoleGuard from "@/components/dashboard/RoleGuard";
-import { get, post, patch } from "@/lib/api-client";
+import { get, post } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
-import type { WorkflowArticleResponse, EditorialComment, ArticleRevision, EditorialApproval, ArticleAuditLog } from "@/types/editorial";
+import type { WorkflowArticleResponse, ArticleRevision, EditorialApproval, ArticleAuditLog } from "@/types/editorial";
 import type { Article } from "@/types/article";
 
 export default function ArticleDetailPage() {
@@ -29,9 +29,7 @@ function ArticleDetailContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [activeTab, setActiveTab] = useState<"overview" | "comments" | "revisions" | "approvals" | "audit">("overview");
-  const [commentText, setCommentText] = useState("");
-  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "revisions" | "approvals" | "audit">("overview");
   const [actionLoading, setActionLoading] = useState(false);
   const [actionModal, setActionModal] = useState<{ type: string; title: string; message: string } | null>(null);
   const [actionNotes, setActionNotes] = useState("");
@@ -108,17 +106,6 @@ function ArticleDetailContent() {
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : `Failed to ${action}.`);
     } finally { setActionLoading(false); }
-  };
-
-  const submitComment = async (e: FormEvent) => {
-    e.preventDefault(); if (!commentText.trim()) return;
-    setCommentSubmitting(true);
-    try {
-      await post(`/editorial/articles/${id}/comments`, { comment: commentText });
-      setCommentText("");
-      const refreshed = await get<WorkflowArticleResponse>(`/editorial/articles/${id}/workflow`);
-      setData(refreshed);
-    } catch { setError("Failed to post comment."); } finally { setCommentSubmitting(false); }
   };
 
   if (loading) return <LoadingState variant="card" rows={4} />;
@@ -214,7 +201,6 @@ function ArticleDetailContent() {
         <div className="flex border-b border-dnews-border">
           {[
             { key: "overview", label: "Overview", icon: History },
-            { key: "comments", label: `Comments (${data?.comments?.length ?? 0})`, icon: MessageSquare },
             { key: "revisions", label: `Revisions (${data?.revisions?.length ?? 0})`, icon: GitBranch },
             { key: "approvals", label: `Approvals (${data?.approvals?.length ?? 0})`, icon: CheckCircle },
             { key: "audit", label: "Audit Log", icon: History },
@@ -258,45 +244,6 @@ function ArticleDetailContent() {
               <div className="rounded-sm border border-dnews-border bg-dnews-bg p-4">
                 <p className="text-xs font-medium text-dnews-muted uppercase tracking-wider">Summary</p>
                 <p className="mt-1 text-sm text-dnews-dark">{article.summary}</p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "comments" && (
-            <div className="space-y-4">
-              <form onSubmit={submitComment} className="flex gap-2">
-                <input type="text" value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="Write a comment..." className="flex-1 rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none focus:border-dnews-accent" />
-                <button type="submit" disabled={commentSubmitting || !commentText.trim()} className="rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold text-white disabled:opacity-60">
-                  {commentSubmitting ? "..." : "Send"}
-                </button>
-              </form>
-              <div className="space-y-3">
-                {(!data?.comments || data.comments.length === 0) && (
-                  <p className="py-8 text-center text-sm text-dnews-muted">No comments yet.</p>
-                )}
-                {data?.comments.map((c) => (
-                  <div key={c.id} className={`rounded-sm border p-4 ${c.resolved ? "border-green-200 bg-green-50/50" : "border-dnews-border"}`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-dnews-dark">{c.user.firstName} {c.user.lastName}</span>
-                        {c.user.role && <span className="text-xs text-dnews-muted">({c.user.role.name})</span>}
-                        <span className="text-xs text-dnews-muted">{new Date(c.createdAt).toLocaleString()}</span>
-                      </div>
-                      {c.resolved && <span className="text-xs font-medium text-green-600">Resolved</span>}
-                    </div>
-                    <p className="mt-2 text-sm text-dnews-gray">{c.comment}</p>
-                    {c.sectionReference && <p className="mt-1 text-xs text-dnews-accent">Section: {c.sectionReference}</p>}
-                    {c.replies?.map((r) => (
-                      <div key={r.id} className="ml-6 mt-3 border-l-2 border-dnews-border pl-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-dnews-dark">{r.user.firstName} {r.user.lastName}</span>
-                          <span className="text-xs text-dnews-muted">{new Date(r.createdAt).toLocaleString()}</span>
-                        </div>
-                        <p className="mt-1 text-sm text-dnews-gray">{r.comment}</p>
-                      </div>
-                    ))}
-                  </div>
-                ))}
               </div>
             </div>
           )}

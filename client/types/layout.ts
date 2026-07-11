@@ -2,7 +2,7 @@ export type LayoutStatus = "DRAFT" | "PUBLISHED" | "SCHEDULED" | "ARCHIVED";
 
 export type SectionType =
   | "hero_slider" | "breaking_news" | "top_stories" | "featured_story" | "trending_news"
-  | "latest_news" | "category_block" | "editors_picks" | "most_read" | "most_commented"
+  | "latest_news" | "category_block" | "editors_picks" | "most_read"
   | "opinion" | "business" | "sports" | "innovation" | "culture" | "travel" | "lifestyle"
   | "video_section" | "photo_gallery" | "newsletter_block" | "advertisement_block"
   | "sponsor_block" | "weather_widget" | "social_feed" | "custom_html";
@@ -13,7 +13,7 @@ export interface SectionSettings {
   tag?: string;
   authorId?: string;
   sortOrder?: "latest" | "oldest" | "trending" | "popular" | "random";
-  source?: "latest" | "trending" | "most_read" | "most_commented" | "editors_picks" | "manual" | "category" | "tag" | "author" | "scheduled";
+  source?: "latest" | "trending" | "most_read" | "editors_picks" | "manual" | "category" | "tag" | "author" | "scheduled";
   manualArticleIds?: string[];
   adPlacement?: string;
   adCampaignId?: string;
@@ -101,7 +101,6 @@ export const SECTION_TYPES: { value: string; label: string; group: string }[] = 
   { value: "category_block", label: "Category Block", group: "Content" },
   { value: "editors_picks", label: "Editor's Picks", group: "Featured" },
   { value: "most_read", label: "Most Read", group: "Widgets" },
-  { value: "most_commented", label: "Most Commented", group: "Widgets" },
   { value: "opinion", label: "Opinion", group: "Content" },
   { value: "business", label: "Business", group: "Content" },
   { value: "sports", label: "Sports", group: "Content" },
@@ -129,7 +128,6 @@ export const DEFAULT_SECTION_SETTINGS: Record<string, Partial<SectionSettings>> 
   category_block: { articleCount: 4, layout: "grid", imageSize: "medium", showTitle: true, showExcerpt: true },
   editors_picks: { articleCount: 4, source: "editors_picks", layout: "grid", imageSize: "medium", showTitle: true },
   most_read: { articleCount: 5, source: "most_read", layout: "list", showTitle: true },
-  most_commented: { articleCount: 5, source: "most_commented", layout: "list", showTitle: true },
   opinion: { articleCount: 4, source: "latest", layout: "grid", imageSize: "medium", showTitle: true },
   business: { articleCount: 6, categoryId: undefined, layout: "grid", imageSize: "medium" },
   sports: { articleCount: 6, categoryId: undefined, layout: "grid", imageSize: "medium" },

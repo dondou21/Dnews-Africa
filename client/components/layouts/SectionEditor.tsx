@@ -114,7 +114,6 @@ export default function SectionEditor({ section, onSave, onClose }: SectionEdito
                       <option value="latest">Latest</option>
                       <option value="trending">Trending</option>
                       <option value="most_read">Most Read</option>
-                      <option value="most_commented">Most Commented</option>
                       <option value="editors_picks">Editor&apos;s Picks</option>
                     </select>
                   </div>
