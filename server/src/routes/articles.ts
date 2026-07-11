@@ -15,7 +15,7 @@ router.get("/:slug", articleController.getBySlug);
 router.post("/", authenticate, requireRole("Admin", "Editor", "Journalist"), articleController.create);
 router.post("/:id/submit", authenticate, requireRole("Journalist"), articleController.submitForReview);
 router.patch("/:id", authenticate, requireRole("Admin", "Editor", "Journalist"), articleController.update);
-router.delete("/:id", authenticate, requireRole("Admin", "Journalist"), articleController.delete);
+router.delete("/:id", authenticate, requireRole("Admin", "Editor", "Journalist"), articleController.delete);
 
 router.get("/:id/comments", commentController.getByArticle);
 router.post("/:id/comments", commentController.create);

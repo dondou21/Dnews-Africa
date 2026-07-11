@@ -35,6 +35,7 @@ export default function ArticlesPage() {
 function ArticlesPageContent() {
   const { user } = useAuth();
   const isJournalist = user?.role.name === "Journalist";
+  const isSelfOnly = user?.role.name === "Journalist" || user?.role.name === "Editor";
   const [articles, setArticles] = useState<Article[]>([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
@@ -120,7 +121,7 @@ function ArticlesPageContent() {
         <span className="text-xs text-dnews-gray">{a.category.name}</span>
       ),
     },
-    ...(isJournalist ? [] : [
+    ...(isSelfOnly ? [] : [
       {
         key: "author",
         header: "Author",
@@ -136,7 +137,7 @@ function ArticlesPageContent() {
       header: "Status",
       render: (a) => <StatusBadge status={a.status} />,
     },
-    ...(isJournalist ? [] : [
+    ...(isSelfOnly ? [] : [
       {
         key: "featured",
         header: "Featured",

@@ -8,7 +8,7 @@ export const articleService = {
   },
 
   async getAllAdmin(params: ArticleQueryParams & { status?: string }, user: AuthenticatedUser) {
-    if (user.role.name === "Journalist") {
+    if (user.role.name === "Journalist" || user.role.name === "Editor") {
       return articleRepository.findAllByAuthor(user.id, params);
     }
     return articleRepository.findAllAdmin(params);
@@ -22,11 +22,16 @@ export const articleService = {
     return article;
   },
 
-  async getById(id: string) {
+  async getById(id: string, user?: AuthenticatedUser) {
     const article = await articleRepository.findByIdWithDetails(id);
     if (!article) {
       throw new AppError("Article not found", 404);
     }
+
+    if (user && user.role.name !== "Admin" && article.authorId !== user.id) {
+      throw new AppError("You can only view your own articles", 403);
+    }
+
     return article;
   },
 
@@ -71,10 +76,13 @@ export const articleService = {
       throw new AppError("Article not found", 404);
     }
 
-    if (user.role.name === "Journalist") {
+    if (user.role.name === "Journalist" || user.role.name === "Editor") {
       if (existing.authorId !== user.id) {
         throw new AppError("You can only update your own articles", 403);
       }
+    }
+
+    if (user.role.name === "Journalist") {
       if (existing.status !== "DRAFT") {
         throw new AppError("You can only edit articles in Draft status", 403);
       }

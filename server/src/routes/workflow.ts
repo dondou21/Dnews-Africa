@@ -24,17 +24,17 @@ router.post("/articles/:id/restore", requireRole("Admin", "Editor", "Journalist"
 router.post("/articles/:id/assign", requireRole("Admin", "Editor"), workflowController.assignEditor);
 router.patch("/articles/:id/status", requireRole("Admin", "Editor", "Journalist"), workflowController.changeStatus);
 
-router.get("/articles/:id/workflow", requireRole("Admin", "Editor", "Journalist", "Moderator"), workflowController.getWorkflowData);
+router.get("/articles/:id/workflow", requireRole("Admin", "Editor", "Journalist"), workflowController.getWorkflowData);
 
-router.get("/articles/:id/comments", requireRole("Admin", "Editor", "Journalist", "Moderator"), workflowController.getComments);
+router.get("/articles/:id/comments", requireRole("Admin", "Editor", "Journalist"), workflowController.getComments);
 router.post("/articles/:id/comments", requireRole("Admin", "Editor", "Journalist"), workflowController.createComment);
 router.patch("/comments/:commentId/resolve", requireRole("Admin", "Editor"), workflowController.resolveComment);
 
-router.get("/articles/:id/revisions", requireRole("Admin", "Editor", "Journalist", "Moderator"), workflowController.getRevisions);
-router.get("/articles/:id/revisions/:version", requireRole("Admin", "Editor", "Journalist", "Moderator"), workflowController.getRevision);
+router.get("/articles/:id/revisions", requireRole("Admin", "Editor", "Journalist"), workflowController.getRevisions);
+router.get("/articles/:id/revisions/:version", requireRole("Admin", "Editor", "Journalist"), workflowController.getRevision);
 router.post("/articles/:id/revisions/:version/restore", requireRole("Admin", "Editor", "Journalist"), workflowController.restoreRevision);
 
-router.get("/articles/:id/approvals", requireRole("Admin", "Editor", "Journalist", "Moderator"), workflowController.getApprovals);
-router.get("/articles/:id/audit-log", requireRole("Admin", "Editor", "Journalist", "Moderator"), workflowController.getAuditLog);
+router.get("/articles/:id/approvals", requireRole("Admin", "Editor", "Journalist"), workflowController.getApprovals);
+router.get("/articles/:id/audit-log", requireRole("Admin", "Editor", "Journalist"), workflowController.getAuditLog);
 
 export default router;

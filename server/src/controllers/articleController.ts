@@ -44,7 +44,7 @@ export const articleController = {
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const article = await articleService.getById(id);
+      const article = await articleService.getById(id, req.user);
       res.json({ status: "success", data: article });
     } catch (error) {
       next(error);

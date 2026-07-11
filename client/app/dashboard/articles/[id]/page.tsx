@@ -18,7 +18,7 @@ import type { WorkflowArticleResponse, EditorialComment, ArticleRevision, Editor
 import type { Article } from "@/types/article";
 
 export default function ArticleDetailPage() {
-  return (<RoleGuard roles={["Admin", "Editor", "Journalist", "Moderator"]}><ArticleDetailContent /></RoleGuard>);
+  return (<RoleGuard roles={["Admin", "Editor", "Journalist"]}><ArticleDetailContent /></RoleGuard>);
 }
 
 function ArticleDetailContent() {
@@ -54,7 +54,6 @@ function ArticleDetailContent() {
   const article = data?.article;
   const isJournalist = user?.role.name === "Journalist";
   const isEditor = user?.role.name === "Admin" || user?.role.name === "Editor";
-  const isModerator = user?.role.name === "Moderator";
   const isAuthor = article?.authorId === user?.id;
 
   const canSubmit = isAuthor && (article?.status === "DRAFT" || article?.status === "IDEA");
@@ -154,11 +153,9 @@ function ArticleDetailContent() {
               <ExternalLink size={12} /> View
             </Link>
           )}
-          {!isModerator && (
-            <Link href={`/dashboard/articles/${id}/edit`} className="inline-flex items-center gap-1 rounded-sm border border-dnews-border px-3 py-1.5 text-xs font-medium text-dnews-gray hover:bg-dnews-light-gray">
-              <Edit size={12} /> Edit
-            </Link>
-          )}
+          <Link href={`/dashboard/articles/${id}/edit`} className="inline-flex items-center gap-1 rounded-sm border border-dnews-border px-3 py-1.5 text-xs font-medium text-dnews-gray hover:bg-dnews-light-gray">
+            <Edit size={12} /> Edit
+          </Link>
         </div>
       </div>
 
@@ -267,14 +264,12 @@ function ArticleDetailContent() {
 
           {activeTab === "comments" && (
             <div className="space-y-4">
-              {!isModerator && (
-                <form onSubmit={submitComment} className="flex gap-2">
-                  <input type="text" value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="Write a comment..." className="flex-1 rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none focus:border-dnews-accent" />
-                  <button type="submit" disabled={commentSubmitting || !commentText.trim()} className="rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold text-white disabled:opacity-60">
-                    {commentSubmitting ? "..." : "Send"}
-                  </button>
-                </form>
-              )}
+              <form onSubmit={submitComment} className="flex gap-2">
+                <input type="text" value={commentText} onChange={(e) => setCommentText(e.target.value)} placeholder="Write a comment..." className="flex-1 rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none focus:border-dnews-accent" />
+                <button type="submit" disabled={commentSubmitting || !commentText.trim()} className="rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold text-white disabled:opacity-60">
+                  {commentSubmitting ? "..." : "Send"}
+                </button>
+              </form>
               <div className="space-y-3">
                 {(!data?.comments || data.comments.length === 0) && (
                   <p className="py-8 text-center text-sm text-dnews-muted">No comments yet.</p>
