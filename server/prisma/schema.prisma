@@ -8,11 +8,37 @@ datasource db {
 }
 
 enum ArticleStatus {
+  IDEA
   DRAFT
+  IN_REVIEW
+  NEEDS_REVISION
+  APPROVED
+  SCHEDULED
   PENDING_REVIEW
   PUBLISHED
   REJECTED
   ARCHIVED
+}
+
+enum ApprovalDecision {
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+enum AuditAction {
+  CREATED
+  EDITED
+  SUBMITTED
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+  RESTORED
+  COMMENTED
+  ASSIGNED
 }
 
 enum CommentStatus {
@@ -53,11 +79,18 @@ model User {
   role   Role   @relation(fields: [roleId], references: [id])
 
   articles Article[]
+  assignedArticles Article[] @relation("AssignedEditor")
   comments Comment[]
   media    Media[]
   newsletterCampaignsCreated NewsletterCampaign[] @relation("CampaignCreatedBy")
   newsletterCampaignsUpdated NewsletterCampaign[] @relation("CampaignUpdatedBy")
   newsletterTemplates        NewsletterTemplate[]
+  advertisementsCreated      Advertisement[]
+  editorialComments          EditorialComment[]
+  editorialApprovals         EditorialApproval[]
+  articleRevisions           ArticleRevision[]
+  notifications              Notification[]
+  auditLogs                  ArticleAuditLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -91,6 +124,11 @@ model Article {
   isFeatured     Boolean       @default(false)
   isTrending     Boolean       @default(false)
   publishedAt    DateTime?
+  scheduledAt    DateTime?
+  submittedAt    DateTime?
+  approvedAt     DateTime?
+  archivedAt     DateTime?
+  changeReason   String?
 
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
@@ -98,13 +136,119 @@ model Article {
   authorId String
   author   User     @relation(fields: [authorId], references: [id])
 
-  tags     ArticleTag[]
-  comments Comment[]
+  assignedEditorId String?
+  assignedEditor   User?    @relation("AssignedEditor", fields: [assignedEditorId], references: [id])
+
+  tags              ArticleTag[]
+  comments          Comment[]
+  revisions         ArticleRevision[]
+  editorialComments EditorialComment[]
+  editorialApprovals EditorialApproval[]
+  auditLogs         ArticleAuditLog[]
+  notifications     Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("articles")
+}
+
+model ArticleRevision {
+  id        String   @id @default(uuid())
+  version   Int
+  title     String
+  slug      String
+  summary   String
+  content   String
+  featuredImageId String?
+  changeReason    String?
+
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  changedById String
+  changedBy   User   @relation(fields: [changedById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([articleId, version])
+  @@map("article_revisions")
+}
+
+model EditorialComment {
+  id        String   @id @default(uuid())
+  comment   String
+  sectionReference String?
+  resolved  Boolean  @default(false)
+
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  parentId String?
+  parent   EditorialComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  EditorialComment[] @relation("CommentReplies")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("editorial_comments")
+}
+
+model EditorialApproval {
+  id         String           @id @default(uuid())
+  decision   ApprovalDecision
+  notes      String?
+
+  articleId  String
+  article    Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  reviewerId String
+  reviewer   User    @relation(fields: [reviewerId], references: [id])
+
+  createdAt  DateTime @default(now())
+
+  @@map("editorial_approvals")
+}
+
+model ArticleAuditLog {
+  id        String      @id @default(uuid())
+  action    AuditAction
+  fromStatus ArticleStatus?
+  toStatus   ArticleStatus?
+  description String?
+  metadata   Json?
+
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("article_audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  articleId String?
+  article   Article? @relation(fields: [articleId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
 }
 
 model Tag {
@@ -387,6 +531,128 @@ model NewsletterSettings {
   @@map("newsletter_settings")
 }
 
+enum AdType {
+  BANNER
+  LEADERBOARD
+  SIDEBAR
+  SQUARE
+  RECTANGLE
+  MOBILE_BANNER
+  POPUP
+  INTERSTITIAL
+  SPONSORED_ARTICLE
+  VIDEO
+  NATIVE
+}
+
+enum AdPlacement {
+  HOMEPAGE_HERO
+  HOMEPAGE_SIDEBAR
+  HOMEPAGE_BETWEEN
+  CATEGORY_PAGES
+  ARTICLE_TOP
+  ARTICLE_MIDDLE
+  ARTICLE_BOTTOM
+  FOOTER
+  HEADER
+  NEWSLETTER
+  SEARCH_RESULTS
+  MOBILE_FEED
+}
+
+enum AdStatus {
+  ACTIVE
+  PAUSED
+  EXPIRED
+  ARCHIVED
+}
+
+enum AdRotation {
+  RANDOM
+  PRIORITY
+  WEIGHTED
+  SEQUENTIAL
+}
+
+model Advertiser {
+  id          String   @id @default(uuid())
+  companyName String
+  contactName String?
+  email       String?
+  phone       String?
+  website     String?
+  logoUrl     String?
+  notes       String?
+  status      String   @default("ACTIVE")
+
+  campaigns AdCampaign[]
+  ads       Advertisement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("advertisers")
+}
+
+model AdCampaign {
+  id           String   @id @default(uuid())
+  name         String
+  budget       Float?
+  startDate    DateTime?
+  endDate      DateTime?
+  status       String   @default("ACTIVE")
+  totalAds     Int      @default(0)
+
+  advertiserId String
+  advertiser   Advertiser @relation(fields: [advertiserId], references: [id])
+
+  ads Advertisement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ad_campaigns")
+}
+
+model Advertisement {
+  id           String      @id @default(uuid())
+  title        String
+  type         AdType
+  placement    AdPlacement
+  targetUrl    String
+  buttonText   String?
+  description  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  priority     Int         @default(0)
+  status       AdStatus    @default(ACTIVE)
+  impressions  Int         @default(0)
+  clicks       Int         @default(0)
+  maxImpressions Int?
+  maxClicks    Int?
+  rotation     AdRotation  @default(RANDOM)
+  weight       Int         @default(1)
+
+  imageId String?
+  image   Media?  @relation("AdImage", fields: [imageId], references: [id])
+  videoId String?
+  video   Media?  @relation("AdVideo", fields: [videoId], references: [id])
+
+  advertiserId String
+  advertiser   Advertiser @relation(fields: [advertiserId], references: [id])
+
+  campaignId String?
+  campaign   AdCampaign? @relation(fields: [campaignId], references: [id])
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("advertisements")
+}
+
 model Media {
   id       String    @id @default(uuid())
   url      String
@@ -399,7 +665,72 @@ model Media {
   uploadedById String
   uploadedBy   User   @relation(fields: [uploadedById], references: [id])
 
+  adImages Advertisement[] @relation("AdImage")
+  adVideos Advertisement[] @relation("AdVideo")
+
   createdAt DateTime @default(now())
 
   @@map("media")
+}
+
+model SeoMetadata {
+  id        String   @id @default(uuid())
+  entityType String
+  entityId   String
+
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+  focusKeyword    String?
+  robots          String   @default("index, follow")
+  ogTitle         String?
+  ogDescription   String?
+  ogImageId       String?
+  twitterTitle    String?
+  twitterDescription String?
+  twitterImageId  String?
+  schemaType      String   @default("NewsArticle")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([entityType, entityId])
+  @@map("seo_metadata")
+}
+
+model Redirect {
+  id         String   @id @default(uuid())
+  fromPath   String   @unique
+  toPath     String
+  statusCode Int      @default(301)
+  entityType String?
+  entityId   String?
+  active     Boolean  @default(true)
+  note       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("redirects")
+}
+
+model SeoSettings {
+  id              Int      @id @default(autoincrement())
+  siteTitle       String   @default("Dnews Africa")
+  defaultDescription String @default("Latest African news, stories, and analysis.")
+  defaultImageUrl String?
+  defaultRobots   String   @default("index, follow")
+  organizationName String  @default("Dnews Africa")
+  organizationLogo String?
+  socialFacebook  String?
+  socialTwitter   String?
+  socialInstagram String?
+  socialLinkedin  String?
+  googleNewsPubName String? @default("Dnews Africa")
+  googleNewsPubLogo String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("seo_settings")
 }

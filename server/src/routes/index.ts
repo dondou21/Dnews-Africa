@@ -17,7 +17,12 @@ import automationsRouter from "./automations";
 import trackingRouter from "./tracking";
 import reportsRouter from "./reports";
 import settingsRouter from "./settings";
+import advertisersRouter from "./advertisers";
+import adCampaignsRouter from "./adCampaigns";
+import advertisementsRouter from "./advertisements";
 import dashboardRouter from "./dashboard";
+import workflowRouter from "./workflow";
+import seoRouter from "./seo";
 
 const router = Router();
 
@@ -40,5 +45,11 @@ router.use("/newsletter/automations", automationsRouter);
 router.use("/tracking", trackingRouter);
 router.use("/newsletter/reports", reportsRouter);
 router.use("/newsletter/settings", settingsRouter);
+
+router.use("/advertisers", advertisersRouter);
+router.use("/ad-campaigns", adCampaignsRouter);
+router.use("/advertisements", advertisementsRouter);
+router.use("/editorial", workflowRouter);
+router.use("/", seoRouter);
 
 export default router;
