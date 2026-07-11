@@ -2,8 +2,7 @@ import Link from "next/link";
 
 const navItems = [
   { label: "Home", href: "/" },
-  { label: "Africa", href: "/africa" },
-  { label: "News", href: "/news" },
+  { label: "Africa News", href: "/africa" },
   { label: "Business", href: "/business" },
   { label: "Features", href: "/featured" },
   { label: "Sport", href: "/sports" },

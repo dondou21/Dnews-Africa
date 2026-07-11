@@ -51,12 +51,6 @@ export default function Header() {
               <Search size={16} />
             </button>
             <ThemeToggle />
-            <a
-              href="#newsletter"
-              className="inline-flex h-7 items-center justify-center rounded bg-dnews-accent px-2.5 text-[10px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
-            >
-              Subscribe
-            </a>
           </div>
         </div>
 
@@ -69,12 +63,6 @@ export default function Header() {
             <Search size={16} />
           </button>
           <ThemeToggle />
-          <a
-            href="#newsletter"
-            className="inline-flex h-7 items-center justify-center rounded bg-dnews-accent px-2.5 text-[10px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
-          >
-            Subscribe
-          </a>
         </div>
       </div>
 

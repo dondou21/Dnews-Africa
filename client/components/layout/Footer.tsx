@@ -58,15 +58,7 @@ export default function Footer() {
                   href="/africa"
                   className="transition-colors hover:text-dnews-accent"
                 >
-                  Africa
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/news"
-                  className="transition-colors hover:text-dnews-accent"
-                >
-                  News
+                  Africa News
                 </Link>
               </li>
               <li>
