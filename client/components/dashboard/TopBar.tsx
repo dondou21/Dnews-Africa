@@ -7,10 +7,9 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface TopBarProps {
   onMenuClick: () => void;
-  title?: string;
 }
 
-export default function TopBar({ onMenuClick, title = "Dashboard" }: TopBarProps) {
+export default function TopBar({ onMenuClick }: TopBarProps) {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -35,6 +34,8 @@ export default function TopBar({ onMenuClick, title = "Dashboard" }: TopBarProps
 
   const roleName = user?.role.name ?? "Administrator";
 
+  const dashboardTitle = user ? `${user.role.name} Dashboard` : "Dashboard";
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-dnews-border bg-dnews-card px-4 lg:px-6">
       <button
@@ -46,7 +47,7 @@ export default function TopBar({ onMenuClick, title = "Dashboard" }: TopBarProps
       </button>
 
       <div className="flex-1">
-        <h1 className="font-heading text-lg font-bold text-dnews-dark">{title}</h1>
+        <h1 className="font-heading text-lg font-bold text-dnews-dark">{dashboardTitle}</h1>
       </div>
 
       <button

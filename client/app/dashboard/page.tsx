@@ -31,6 +31,7 @@ export default function DashboardOverview() {
 function DashboardOverviewContent() {
   const { user } = useAuth();
   const role = user?.role.name ?? "";
+  const firstName = user?.firstName ?? "";
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,7 +52,7 @@ function DashboardOverviewContent() {
       <div className="space-y-6">
         <div>
           <h2 className="font-heading text-xl font-bold text-dnews-dark">
-            Welcome to Dnews Africa Dashboard
+            Welcome{firstName ? `, ${firstName}` : ""}
           </h2>
           <p className="mt-1 text-sm text-dnews-muted">
             Overview of your news platform at a glance.
@@ -127,7 +128,7 @@ function DashboardOverviewContent() {
     <div className="space-y-6">
       <div>
         <h2 className="font-heading text-xl font-bold text-dnews-dark">
-          Welcome to Dnews Africa Dashboard
+          Welcome{firstName ? `, ${firstName}` : ""}
         </h2>
         <p className="mt-1 text-sm text-dnews-muted">
           Overview of your news platform at a glance.
