@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
 import {
   LayoutDashboard,
   FileText,
@@ -17,17 +16,11 @@ import {
   MessageSquare,
   Settings,
   X,
-  File,
-  Clock,
   BarChart3,
   Megaphone,
   Newspaper,
   Building2,
   PenTool,
-  CheckSquare,
-  Calendar,
-  Archive,
-  GitBranch,
   Search as SearchIcon,
   Repeat,
   Globe,
@@ -47,12 +40,6 @@ const allNavItems: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, roles: ["Admin", "Editor", "Journalist", "Moderator"] },
   { href: "/dashboard/articles", label: "Articles", icon: FileText, roles: ["Admin", "Editor", "Journalist"] },
   { href: "/dashboard/editorial", label: "Editorial", icon: PenTool, roles: ["Admin", "Editor", "Journalist"] },
-  { href: "/dashboard/editorial/drafts", label: "My Drafts", icon: FileText, roles: ["Admin", "Editor", "Journalist"] },
-  { href: "/dashboard/editorial/review", label: "Pending Reviews", icon: CheckSquare, roles: ["Admin", "Editor"] },
-  { href: "/dashboard/editorial/scheduled", label: "Scheduled", icon: Calendar, roles: ["Admin", "Editor"] },
-  { href: "/dashboard/editorial/published", label: "Published", icon: FileText, roles: ["Admin", "Editor", "Journalist"] },
-  { href: "/dashboard/editorial/archived", label: "Archived", icon: Archive, roles: ["Admin", "Editor", "Journalist"] },
-  { href: "/dashboard/editorial/revisions", label: "Revisions", icon: GitBranch, roles: ["Admin", "Editor", "Journalist"] },
   { href: "/dashboard/seo", label: "SEO Dashboard", icon: SearchIcon, roles: ["Admin", "Editor"] },
   { href: "/dashboard/seo/redirects", label: "Redirects", icon: Repeat, roles: ["Admin", "Editor"] },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, roles: ["Admin", "Editor", "Journalist"] },
@@ -69,13 +56,11 @@ const allNavItems: NavItem[] = [
   { href: "/dashboard/roles", label: "Roles", icon: ShieldCheck, roles: ["Admin"] },
   { href: "/dashboard/newsletter", label: "Subscribers", icon: Mail, roles: ["Admin"] },
   { href: "/dashboard/newsletter/campaigns", label: "Campaigns", icon: Send, roles: ["Admin", "Editor"] },
-  { href: "/dashboard/newsletter/templates", label: "Templates", icon: File, roles: ["Admin", "Editor"] },
-  { href: "/dashboard/newsletter/automation", label: "Automation", icon: Clock, roles: ["Admin"] },
   { href: "/dashboard/advertisements", label: "Ad Dashboard", icon: Megaphone, roles: ["Admin"] },
   { href: "/dashboard/advertisements/ads", label: "Advertisements", icon: Newspaper, roles: ["Admin", "Editor", "Moderator"] },
   { href: "/dashboard/advertisements/campaigns", label: "Ad Campaigns", icon: Send, roles: ["Admin"] },
   { href: "/dashboard/advertisements/advertisers", label: "Advertisers", icon: Building2, roles: ["Admin"] },
-  { href: "/dashboard/newsletter/analytics", label: "Analytics", icon: BarChart3, roles: ["Admin"] },
+
   { href: "/dashboard/messages", label: "Messages", icon: MessageCircle, roles: ["Admin", "Editor"] },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, roles: ["Admin", "Editor", "Journalist", "Moderator"] },
 ];
@@ -88,7 +73,6 @@ interface SidebarProps {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const { theme } = useTheme();
 
   const navItems = allNavItems.filter((item) => {
     if (!user) return false;
@@ -105,11 +89,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-dnews-border bg-dnews-card transition-transform duration-300 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-60 flex-col border-r border-dnews-border bg-dnews-card transition-transform duration-300 lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-dnews-border px-4">
+        <div className="flex shrink-0 h-16 items-center justify-between border-b border-dnews-border px-4">
           <Link
             href="/dashboard"
             onClick={onClose}
@@ -117,7 +101,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
+              src="/images/logo0.png"
               alt="Dnews Africa"
               className="h-auto w-[120px] object-contain"
             />
@@ -131,7 +115,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4">
+        <nav className="flex-1 overflow-y-auto py-4 min-h-0">
           <ul className="space-y-1 px-3">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -160,7 +144,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </ul>
         </nav>
 
-        <div className="border-t border-dnews-border p-4">
+        <div className="shrink-0 border-t border-dnews-border p-4">
           <Link
             href="/"
             className="flex items-center gap-2 text-xs text-dnews-muted transition-colors hover:text-dnews-accent"

@@ -4,11 +4,9 @@ import { useState, FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardLogin() {
-  const { theme } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +48,7 @@ export default function DashboardLogin() {
               className="dark:bg-black dark:px-3 dark:py-1 dark:rounded-sm inline-block"
             >
               <Image
-                src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
+                src="/images/logo0.png"
                 alt="Dnews Africa"
                 width={320}
                 height={80}

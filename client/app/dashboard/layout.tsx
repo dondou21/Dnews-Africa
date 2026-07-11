@@ -37,9 +37,9 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col lg:ml-60">
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 bg-dnews-bg p-4 lg:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-dnews-bg p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );
