@@ -30,6 +30,7 @@ export const dashboardService = {
         pendingReviewArticles: overview.pendingReviewArticles,
         rejectedArticles: overview.rejectedArticles,
         archivedArticles: overview.archivedArticles,
+        scheduledArticles: overview.scheduledArticles,
         articlesPublishedToday: overview.articlesPublishedToday,
         articlesPublishedThisMonth: articleStats.articlesPublishedThisMonth,
         featuredArticlesCount: articleStats.featuredArticlesCount,

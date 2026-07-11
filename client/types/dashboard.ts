@@ -6,6 +6,7 @@ export interface DashboardStats {
     pendingReviewArticles: number;
     rejectedArticles: number;
     archivedArticles: number;
+    scheduledArticles: number;
     totalCategories: number;
     totalUsers: number;
     totalMediaFiles: number;

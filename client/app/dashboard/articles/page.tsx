@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Plus, Search, ExternalLink, Edit, Trash2, Send, Eye } from "lucide-react";
+import { Plus, Search, ExternalLink, Edit, Trash2, Send, Eye, Clock } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Pagination from "@/components/dashboard/Pagination";
@@ -36,6 +36,7 @@ function ArticlesPageContent() {
   const { user } = useAuth();
   const isJournalist = user?.role.name === "Journalist";
   const isSelfOnly = user?.role.name === "Journalist" || user?.role.name === "Editor";
+  const [now, setNow] = useState(Date.now());
   const [articles, setArticles] = useState<Article[]>([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
@@ -71,6 +72,11 @@ function ArticlesPageContent() {
   useEffect(() => {
     fetchArticles();
   }, [fetchArticles]);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,14 +159,34 @@ function ArticlesPageContent() {
     ] as Column<Article>[]),
     {
       key: "publishedAt",
-      header: "Published",
-      render: (a) => (
-        <span className="text-xs text-dnews-gray">
-          {a.publishedAt
-            ? new Date(a.publishedAt).toLocaleDateString()
-            : "—"}
-        </span>
-      ),
+      header: "Published / Scheduled",
+      render: (a) => {
+        if (a.scheduledAt) {
+          const remaining = new Date(a.scheduledAt).getTime() - now;
+          const hours = Math.floor(remaining / 3600000);
+          const minutes = Math.floor((remaining % 3600000) / 60000);
+          return (
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xs text-dnews-gray">
+                {new Date(a.scheduledAt).toLocaleDateString()}
+              </span>
+              {remaining > 0 && (
+                <span className="inline-flex items-center gap-1 text-xs text-purple-600">
+                  <Clock size={10} />
+                  {hours > 0 ? `${hours}h ` : ""}{minutes}m
+                </span>
+              )}
+            </div>
+          );
+        }
+        return (
+          <span className="text-xs text-dnews-gray">
+            {a.publishedAt
+              ? new Date(a.publishedAt).toLocaleDateString()
+              : "—"}
+          </span>
+        );
+      },
     },
     {
       key: "actions",

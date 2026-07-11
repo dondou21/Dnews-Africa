@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Upload, Send, Lock, Eye, SearchIcon } from "lucide-react";
-import { get, patch, post, put, uploadFile } from "@/lib/api-client";
+import { get, patch, post, put, uploadFile, SERVER_BASE } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import LoadingState from "@/components/dashboard/LoadingState";
@@ -329,15 +329,20 @@ function EditArticleForm() {
                     {uploading ? "Uploading..." : "Upload from computer"}
                   </button>
                 </div>
-                {coverImageUrl && (
-                  <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-sm border border-dnews-border">
+                {coverImageUrl ? (
+                  <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-sm border border-dnews-border bg-dnews-light-gray">
                     <Image
-                      src={coverImageUrl}
+                      src={coverImageUrl.startsWith("http") ? coverImageUrl : `${SERVER_BASE}${coverImageUrl}`}
                       alt="Cover preview"
                       fill
                       className="object-cover"
                       sizes="128px"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                     />
+                  </div>
+                ) : (
+                  <div className="flex h-20 w-32 shrink-0 items-center justify-center rounded-sm border border-dnews-border bg-dnews-light-gray">
+                    <span className="text-xs text-dnews-muted">No image</span>
                   </div>
                 )}
               </div>

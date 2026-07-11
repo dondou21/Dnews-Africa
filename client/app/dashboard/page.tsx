@@ -11,6 +11,7 @@ import {
   FileWarning,
   SendHorizonal,
   CheckCircle2,
+  Calendar,
 } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";
@@ -95,6 +96,11 @@ function DashboardOverviewContent() {
       label: "Published Articles",
       value: stats.overview.publishedArticles,
       icon: CheckCircle2,
+    },
+    {
+      label: "Scheduled",
+      value: stats.overview.scheduledArticles,
+      icon: Calendar,
     },
     {
       label: "Categories",
