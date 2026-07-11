@@ -4,12 +4,14 @@ import { useEffect, useState, useRef, type FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Upload, Send, Lock } from "lucide-react";
-import { get, patch, post, uploadFile } from "@/lib/api-client";
+import { ArrowLeft, Upload, Send, Lock, Eye, SearchIcon } from "lucide-react";
+import { get, patch, post, put, uploadFile } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import LoadingState from "@/components/dashboard/LoadingState";
+import SeoMetadataForm from "@/components/seo/SeoMetadataForm";
 import type { Article, Category } from "@/types/article";
+import type { SeoMetadata } from "@/types/seo";
 
 export default function EditArticlePage() {
   return (
@@ -45,8 +47,12 @@ function EditArticleForm() {
   const [coverImageAlt, setCoverImageAlt] = useState("");
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [tagsInput, setTagsInput] = useState("");
-  const [status, setStatus] = useState<"DRAFT" | "PUBLISHED" | "PENDING_REVIEW" | "ARCHIVED">("DRAFT");
+  const [status, setStatus] = useState<string>("DRAFT");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [seoMetadata, setSeoMetadata] = useState<Partial<SeoMetadata>>({});
+  const [seoLoading, setSeoLoading] = useState(false);
+  const [seoSaving, setSeoSaving] = useState(false);
+  const [showSeo, setShowSeo] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -71,6 +77,10 @@ function EditArticleForm() {
         setTagsInput(
           articleData.tags.map((t) => t.tag.name).join(", ")
         );
+
+        get<SeoMetadata>(`/articles/${id}/seo`).then((seo) => {
+          setSeoMetadata(seo ?? {});
+        }).catch(() => {});
       } catch {
         setError("Failed to load article.");
         setCategoriesLoading(false);
@@ -127,7 +137,7 @@ function EditArticleForm() {
     setError("");
     setSubmittingReview(true);
     try {
-      await post(`/articles/${id}/submit`, {});
+      await post(`/editorial/articles/${id}/submit`, {});
       router.push("/dashboard/articles");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to submit for review.";
@@ -199,12 +209,12 @@ function EditArticleForm() {
         </div>
       )}
 
-      {isJournalist && article && article.status !== "DRAFT" && (
+      {isJournalist && article && article.status !== "DRAFT" && article.status !== "IDEA" && article.status !== "NEEDS_REVISION" && (
         <div className="rounded-sm border border-dnews-accent/30 bg-dnews-accent/5 px-4 py-3">
           <div className="flex items-center gap-2">
             <Lock size={14} className="text-dnews-accent" />
             <p className="text-xs font-medium text-dnews-accent">
-              This article has been submitted for review and is locked for editing.
+              This article is in {article.status.replace(/_/g, " ").toLowerCase()} status and is locked for editing.
             </p>
           </div>
         </div>
@@ -420,7 +430,7 @@ function EditArticleForm() {
                     value="DRAFT"
                     checked={status === "DRAFT"}
                     onChange={() => setStatus("DRAFT")}
-                    disabled={!(!isJournalist || article?.status === "DRAFT")}
+                    disabled={isJournalist && article?.status !== "DRAFT" && article?.status !== "IDEA" && article?.status !== "NEEDS_REVISION"}
                     className="accent-dnews-accent"
                   />
                   <span className="text-sm text-dnews-dark">Draft</span>
@@ -434,7 +444,6 @@ function EditArticleForm() {
                         value="PUBLISHED"
                         checked={status === "PUBLISHED"}
                         onChange={() => setStatus("PUBLISHED")}
-                        disabled={!(!isJournalist || article?.status === "DRAFT")}
                         className="accent-dnews-accent"
                       />
                       <span className="text-sm text-dnews-dark">Published</span>
@@ -446,7 +455,6 @@ function EditArticleForm() {
                         value="ARCHIVED"
                         checked={status === "ARCHIVED"}
                         onChange={() => setStatus("ARCHIVED")}
-                        disabled={!(!isJournalist || article?.status === "DRAFT")}
                         className="accent-dnews-accent"
                       />
                       <span className="text-sm text-dnews-dark">Archived</span>
@@ -468,6 +476,38 @@ function EditArticleForm() {
               </label>
             )}
           </div>
+        </div>
+
+        <div className="rounded-sm border border-dnews-border bg-dnews-card overflow-hidden">
+          <button type="button" onClick={() => setShowSeo(!showSeo)} className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-dnews-light-gray">
+            <div className="flex items-center gap-2">
+              <SearchIcon size={16} className="text-dnews-accent" />
+              <h3 className="font-heading text-base font-semibold text-dnews-dark">SEO & Social Metadata</h3>
+            </div>
+            <span className={`text-xs text-dnews-muted transition-transform ${showSeo ? "rotate-180" : ""}`}>▼</span>
+          </button>
+          {showSeo && (
+            <div className="border-t border-dnews-border p-6">
+              <SeoMetadataForm
+                metadata={seoMetadata}
+                articleTitle={title}
+                articleContent={content}
+                articleSlug={slug}
+                coverImageUrl={coverImageUrl}
+                onSave={async (data) => {
+                  setSeoSaving(true);
+                  try {
+                    await put(`/articles/${id}/seo`, data);
+                    setSeoMetadata((prev) => ({ ...prev, ...data }));
+                  } catch (err: unknown) {
+                    setError(err instanceof Error ? err.message : "Failed to save SEO.");
+                  } finally { setSeoSaving(false); }
+                }}
+                saving={seoSaving}
+                readOnly={isJournalist}
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-end gap-3">

@@ -8,7 +8,7 @@ export const createArticleSchema = z.object({
   coverImageUrl: z.string().url("Invalid URL").optional(),
   coverImageAlt: z.string().optional(),
   categoryId: z.number().int().positive("Category is required"),
-  status: z.enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "ARCHIVED"]).optional(),
+  status: z.enum(["IDEA", "DRAFT", "IN_REVIEW", "NEEDS_REVISION", "APPROVED", "SCHEDULED", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "ARCHIVED"]).optional(),
   isFeatured: z.boolean().optional(),
   isTrending: z.boolean().optional(),
   publishedAt: z.string().datetime().optional(),

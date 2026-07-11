@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Plus, Search, ExternalLink, Edit, Trash2, Send } from "lucide-react";
+import { Plus, Search, ExternalLink, Edit, Trash2, Send, Eye } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Pagination from "@/components/dashboard/Pagination";
@@ -15,8 +15,12 @@ import type { Article, ArticlesResponse } from "@/types/article";
 const statusFilters = [
   { label: "All", value: "ALL" },
   { label: "Draft", value: "DRAFT" },
+  { label: "Idea", value: "IDEA" },
+  { label: "In Review", value: "IN_REVIEW" },
+  { label: "Needs Revision", value: "NEEDS_REVISION" },
+  { label: "Approved", value: "APPROVED" },
+  { label: "Scheduled", value: "SCHEDULED" },
   { label: "Published", value: "PUBLISHED" },
-  { label: "Pending Review", value: "PENDING_REVIEW" },
   { label: "Archived", value: "ARCHIVED" },
 ];
 
@@ -94,7 +98,7 @@ function ArticlesPageContent() {
 
   const handleSubmitForReview = async (article: Article) => {
     try {
-      await post(`/articles/${article.id}/submit`, {});
+      await post(`/editorial/articles/${article.id}/submit`, {});
       fetchArticles();
     } catch {
       setError("Failed to submit article for review.");
@@ -163,6 +167,13 @@ function ArticlesPageContent() {
       className: "text-right",
       render: (a) => (
         <div className="flex items-center justify-end gap-1">
+          <Link
+            href={`/dashboard/articles/${a.id}`}
+            className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+            title="View details"
+          >
+            <Eye size={14} />
+          </Link>
           {a.status === "PUBLISHED" && (
             <Link
               href={`/articles/${a.slug}`}
@@ -173,7 +184,7 @@ function ArticlesPageContent() {
               <ExternalLink size={14} />
             </Link>
           )}
-          {(!isJournalist || a.status === "DRAFT") && (
+          {(!isJournalist || a.status === "DRAFT" || a.status === "IDEA") && (
             <Link
               href={`/dashboard/articles/${a.id}/edit`}
               className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
@@ -182,7 +193,7 @@ function ArticlesPageContent() {
               <Edit size={14} />
             </Link>
           )}
-          {isJournalist && a.status === "DRAFT" && (
+          {(isJournalist && (a.status === "DRAFT" || a.status === "IDEA")) && (
             <button
               onClick={() => handleSubmitForReview(a)}
               className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
@@ -191,7 +202,7 @@ function ArticlesPageContent() {
               <Send size={14} />
             </button>
           )}
-          {(!isJournalist || a.status === "DRAFT") && (
+          {(!isJournalist || a.status === "DRAFT" || a.status === "IDEA") && (
             <button
               onClick={() => setDeleteTarget(a)}
               className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-red"

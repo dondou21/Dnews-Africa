@@ -20,7 +20,7 @@ export interface ArticleTag {
   };
 }
 
-export type ArticleStatus = "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
+export type ArticleStatus = "IDEA" | "DRAFT" | "IN_REVIEW" | "NEEDS_REVISION" | "APPROVED" | "SCHEDULED" | "PENDING_REVIEW" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
 
 export interface Article {
   id: string;
@@ -34,10 +34,17 @@ export interface Article {
   isFeatured: boolean;
   isTrending: boolean;
   publishedAt: string | null;
+  scheduledAt: string | null;
+  submittedAt: string | null;
+  approvedAt: string | null;
+  archivedAt: string | null;
+  changeReason: string | null;
   categoryId: number;
   category: ArticleCategory;
   authorId: string;
   author: ArticleAuthor;
+  assignedEditorId: string | null;
+  assignedEditor?: ArticleAuthor | null;
   tags: ArticleTag[];
   createdAt: string;
   updatedAt: string;
