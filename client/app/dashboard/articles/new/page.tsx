@@ -35,6 +35,7 @@ function NewArticleForm() {
   const [content, setContent] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [coverImageAlt, setCoverImageAlt] = useState("");
+  const [featuredImageId, setFeaturedImageId] = useState("");
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [tagsInput, setTagsInput] = useState("");
   const [status, setStatus] = useState<"DRAFT" | "PUBLISHED">("DRAFT");
@@ -91,6 +92,7 @@ function NewArticleForm() {
         content,
         coverImageUrl: coverImageUrl || undefined,
         coverImageAlt: coverImageAlt || undefined,
+        featuredImageId: featuredImageId || undefined,
         categoryId: Number(categoryId),
         status,
         isFeatured,
@@ -205,9 +207,10 @@ function NewArticleForm() {
               <CoverImageUpload
                 initialUrl={coverImageUrl}
                 initialAlt={coverImageAlt}
-                onImageChange={(url, alt) => {
+                onImageChange={(url, alt, mediaId) => {
                   setCoverImageUrl(url);
                   setCoverImageAlt(alt);
+                  if (mediaId) setFeaturedImageId(mediaId);
                 }}
               />
             </div>

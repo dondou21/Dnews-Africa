@@ -114,47 +114,6 @@ model Category {
   @@map("categories")
 }
 
-model Article {
-  id             String        @id @default(uuid())
-  title          String
-  slug           String        @unique
-  summary        String
-  content        String
-  coverImageUrl  String?
-  coverImageAlt  String?
-  status         ArticleStatus @default(DRAFT)
-  isFeatured     Boolean       @default(false)
-  isTrending     Boolean       @default(false)
-  publishedAt    DateTime?
-  scheduledAt    DateTime?
-  submittedAt    DateTime?
-  approvedAt     DateTime?
-  archivedAt     DateTime?
-  changeReason   String?
-
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
-
-  authorId String
-  author   User     @relation(fields: [authorId], references: [id])
-
-  assignedEditorId String?
-  assignedEditor   User?    @relation("AssignedEditor", fields: [assignedEditorId], references: [id])
-
-  tags              ArticleTag[]
-  comments          Comment[]
-  revisions         ArticleRevision[]
-  editorialComments EditorialComment[]
-  editorialApprovals EditorialApproval[]
-  auditLogs         ArticleAuditLog[]
-  notifications     Notification[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("articles")
-}
-
 model ArticleRevision {
   id        String   @id @default(uuid())
   version   Int
@@ -664,15 +623,65 @@ model Media {
   height   Int?
   fileSize Int?
 
+  originalName   String?
+  filename       String?
+  mimeType       String?
+  extension      String?
+  storageProvider String  @default("local")
+
   uploadedById String
   uploadedBy   User   @relation(fields: [uploadedById], references: [id])
 
-  adImages Advertisement[] @relation("AdImage")
-  adVideos Advertisement[] @relation("AdVideo")
+  adImages     Advertisement[] @relation("AdImage")
+  adVideos     Advertisement[] @relation("AdVideo")
+  articles     Article[]       @relation("FeaturedImage")
 
   createdAt DateTime @default(now())
 
   @@map("media")
+}
+
+model Article {
+  id             String        @id @default(uuid())
+  title          String
+  slug           String        @unique
+  summary        String
+  content        String
+  coverImageUrl  String?
+  coverImageAlt  String?
+  featuredImageId String?
+  featuredImage  Media?        @relation("FeaturedImage", fields: [featuredImageId], references: [id])
+  status         ArticleStatus @default(DRAFT)
+  isFeatured     Boolean       @default(false)
+  isTrending     Boolean       @default(false)
+  publishedAt    DateTime?
+  scheduledAt    DateTime?
+  submittedAt    DateTime?
+  approvedAt     DateTime?
+  archivedAt     DateTime?
+  changeReason   String?
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  authorId String
+  author   User     @relation(fields: [authorId], references: [id])
+
+  assignedEditorId String?
+  assignedEditor   User?    @relation("AssignedEditor", fields: [assignedEditorId], references: [id])
+
+  tags              ArticleTag[]
+  comments          Comment[]
+  revisions         ArticleRevision[]
+  editorialComments EditorialComment[]
+  editorialApprovals EditorialApproval[]
+  auditLogs         ArticleAuditLog[]
+  notifications     Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("articles")
 }
 
 model SeoMetadata {

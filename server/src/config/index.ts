@@ -14,4 +14,7 @@ export const config = {
   clientUrl: process.env.CLIENT_URL || "http://localhost:3000",
   resendApiKey: process.env.RESEND_API_KEY || "",
   emailFrom: process.env.EMAIL_FROM || "noreply@dnewsafrica.com",
+  apiUrl: process.env.API_URL || `http://localhost:${process.env.PORT || 4000}`,
+  mediaBaseUrl: process.env.MEDIA_BASE_URL || `http://localhost:${process.env.PORT || 4000}/uploads`,
+  uploadDir: process.env.UPLOAD_DIR || path.resolve(__dirname, "../../uploads"),
 };

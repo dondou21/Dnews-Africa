@@ -11,6 +11,7 @@ interface ArticleItem {
   summary: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
+  featuredImage?: { url: string; alt: string | null } | null;
   publishedAt: string | null;
   createdAt: string;
   category: { id: number; name: string; slug: string };

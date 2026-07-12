@@ -6,11 +6,7 @@ import RightSidebar from "@/components/home/RightSidebar";
 import AdSlot from "@/components/home/AdSlot";
 import ArticleListItem from "@/components/home/ArticleListItem";
 import { articles, getFeaturedArticle, getTrendingArticles, type Article } from "@/src/data/articles";
-
-function resolveImageUrl(url: string): string {
-  if (url.startsWith("http")) return url;
-  return url;
-}
+import { FALLBACK_IMAGE } from "@/lib/image";
 
 function estimateReadTime(content: string): string {
   const words = content.split(/\s+/).length;
@@ -22,14 +18,18 @@ function ArticleCard({ article, priority }: { article: Article; priority?: boole
   return (
     <article className="group">
       <Link href={`/articles/${article.slug}`}>
-        <div className="relative mb-3 aspect-[16/9] w-full overflow-hidden rounded-sm">
+        <div className="relative mb-3 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
           <Image
-            src={resolveImageUrl(article.imageUrl)}
+            src={article.imageUrl || FALLBACK_IMAGE}
             alt={article.imageAlt}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, 50vw"
             priority={priority}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = FALLBACK_IMAGE;
+            }}
           />
         </div>
         <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
@@ -86,14 +86,18 @@ export default function Home() {
           {featured && (
             <article className="group mb-6 border-b border-dnews-border pb-6">
               <Link href={`/articles/${featured.slug}`}>
-                <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-sm">
+                <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
                   <Image
-                    src={resolveImageUrl(featured.imageUrl)}
+                    src={featured.imageUrl || FALLBACK_IMAGE}
                     alt={featured.imageAlt}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 1024px) 100vw, 780px"
                     priority
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = FALLBACK_IMAGE;
+                    }}
                   />
                 </div>
                 <div className="max-w-3xl">
@@ -155,13 +159,13 @@ export default function Home() {
               <div className="space-y-4">
                 {latest.map((article) => (
                   <ArticleListItem
-                    key={article.id}
+                    key={article.slug}
                     article={{
                       slug: article.slug,
                       title: article.title,
                       summary: article.excerpt,
                       category: { id: 0, name: article.category, slug: article.category.toLowerCase() },
-                      author: { firstName: article.authorName.split(" ")[0], lastName: article.authorName.split(" ").slice(1).join(" ") },
+                      author: { firstName: article.authorName.split(" ")[0], lastName: article.authorName.split(" ").slice(1).join(" ") || "" },
                       coverImageUrl: article.imageUrl,
                       coverImageAlt: article.imageAlt,
                       publishedAt: article.publishedAt,

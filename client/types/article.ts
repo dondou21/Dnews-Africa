@@ -20,6 +20,12 @@ export interface ArticleTag {
   };
 }
 
+export interface FeaturedImage {
+  id: string;
+  url: string;
+  alt: string | null;
+}
+
 export type ArticleStatus = "IDEA" | "DRAFT" | "IN_REVIEW" | "NEEDS_REVISION" | "APPROVED" | "SCHEDULED" | "PENDING_REVIEW" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
 
 export interface Article {
@@ -30,6 +36,7 @@ export interface Article {
   content: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
+  featuredImage: FeaturedImage | null;
   status: ArticleStatus;
   isFeatured: boolean;
   isTrending: boolean;
@@ -85,6 +92,7 @@ export interface CreateArticleInput {
   content: string;
   coverImageUrl?: string;
   coverImageAlt?: string;
+  featuredImageId?: string;
   categoryId: number;
   status?: ArticleStatus;
   isFeatured?: boolean;

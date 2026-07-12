@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { resolveImageUrl, getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
 
 interface ArticleItem {
   id: string;
@@ -8,6 +9,7 @@ interface ArticleItem {
   summary: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
+  featuredImage?: { url: string; alt: string | null } | null;
   publishedAt: string | null;
   createdAt: string;
   category: { id: number; name: string; slug: string };
@@ -15,20 +17,25 @@ interface ArticleItem {
 }
 
 export default function ArticleCard({ article }: { article: ArticleItem }) {
+  const imgSrc = getFeaturedImageUrl(article.featuredImage, article.coverImageUrl);
+  const imgAlt = article.featuredImage?.alt || article.coverImageAlt || article.title;
+
   return (
     <article className="group overflow-hidden rounded-sm border border-dnews-border bg-dnews-card transition-shadow hover:shadow-md">
       <Link href={`/articles/${article.slug}`}>
-        <div className="relative aspect-[16/9] w-full overflow-hidden">
-          {article.coverImageUrl && (
-            <Image
-              src={article.coverImageUrl}
-              alt={article.coverImageAlt || article.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              loading="lazy"
-            />
-          )}
+        <div className="relative aspect-[16/9] w-full overflow-hidden bg-dnews-light-gray">
+          <Image
+            src={imgSrc}
+            alt={imgAlt}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            loading="lazy"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = FALLBACK_IMAGE;
+            }}
+          />
         </div>
       </Link>
       <div className="p-4">

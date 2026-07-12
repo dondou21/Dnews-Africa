@@ -8,6 +8,11 @@ export const mediaRepository = {
     fileSize?: number;
     width?: number;
     height?: number;
+    originalName?: string;
+    filename?: string;
+    mimeType?: string;
+    extension?: string;
+    storageProvider?: string;
     uploadedById: string;
   }) =>
     prisma.media.create({
@@ -18,6 +23,11 @@ export const mediaRepository = {
         fileSize: data.fileSize,
         width: data.width,
         height: data.height,
+        originalName: data.originalName,
+        filename: data.filename,
+        mimeType: data.mimeType,
+        extension: data.extension,
+        storageProvider: data.storageProvider || "local",
         uploadedById: data.uploadedById,
       },
     }),

@@ -12,7 +12,8 @@ import {
 import Modal from "@/components/dashboard/Modal";
 import EmptyState from "@/components/dashboard/EmptyState";
 import LoadingState from "@/components/dashboard/LoadingState";
-import { get, del, uploadFile, SERVER_BASE } from "@/lib/api-client";
+import { get, del, uploadFile } from "@/lib/api-client";
+import { resolveImageUrl } from "@/lib/image";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { MediaItem } from "@/types/media";
 
@@ -110,7 +111,7 @@ function MediaPageContent() {
   };
 
   const handleCopyUrl = (url: string) => {
-    const fullUrl = `${SERVER_BASE}${url}`;
+    const fullUrl = resolveImageUrl(url);
     navigator.clipboard.writeText(fullUrl).then(() => {
       setSuccess("URL copied to clipboard.");
     });
@@ -209,7 +210,7 @@ function MediaPageContent() {
               <div className="relative aspect-video w-full overflow-hidden bg-dnews-light-gray">
                 {isImage(item) ? (
                   <img
-                    src={`${SERVER_BASE}${item.url}`}
+                    src={resolveImageUrl(item.url)}
                     alt={item.alt || ""}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
@@ -248,7 +249,7 @@ function MediaPageContent() {
                     Copy URL
                   </button>
                   <a
-                    href={`${SERVER_BASE}${item.url}`}
+                    href={resolveImageUrl(item.url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"

@@ -1,5 +1,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-export const SERVER_BASE = API_BASE.replace(/\/api\/?$/, "");
+export const SERVER_BASE = process.env.NEXT_PUBLIC_MEDIA_BASE_URL
+  ? process.env.NEXT_PUBLIC_MEDIA_BASE_URL.replace(/\/uploads\/?$/, "")
+  : API_BASE.replace(/\/api\/?$/, "");
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;

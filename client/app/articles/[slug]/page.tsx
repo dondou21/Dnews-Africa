@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { get } from "@/lib/api-client";
-import { SERVER_BASE } from "@/lib/api-client";
+import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
 import AdSlot from "@/components/home/AdSlot";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
 
@@ -18,6 +18,7 @@ interface ArticleDetail {
   content: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
+  featuredImage: { url: string; alt: string | null } | null;
   status: string;
   isFeatured: boolean;
   isTrending: boolean;
@@ -50,12 +51,6 @@ export default function ArticlePage() {
     }
     load();
   }, [slug]);
-
-  function resolveImageUrl(url: string | null): string {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    return `${SERVER_BASE}${url}`;
-  }
 
   if (loading) {
     return (
@@ -90,25 +85,28 @@ export default function ArticlePage() {
     );
   }
 
-  const imgUrl = resolveImageUrl(article.coverImageUrl);
+  const imgUrl = getFeaturedImageUrl(article.featuredImage, article.coverImageUrl);
+  const imgAlt = article.featuredImage?.alt || article.coverImageAlt || article.title;
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
       <div className="flex flex-col gap-8 lg:flex-row">
         <article className="min-w-0 flex-1">
           <div className="mx-auto max-w-[720px]">
-            {imgUrl && (
-              <div className="relative mb-6 aspect-[16/9] w-full overflow-hidden rounded-sm">
-                <Image
-                  src={imgUrl}
-                  alt={article.coverImageAlt || article.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 720px) 100vw, 720px"
-                  priority
-                />
-              </div>
-            )}
+            <div className="relative mb-6 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
+              <Image
+                src={imgUrl}
+                alt={imgAlt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 720px) 100vw, 720px"
+                priority
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = FALLBACK_IMAGE;
+                }}
+              />
+            </div>
 
             <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
               {article.category.name}

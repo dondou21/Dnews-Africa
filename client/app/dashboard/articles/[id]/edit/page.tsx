@@ -43,6 +43,7 @@ function EditArticleForm() {
   const [content, setContent] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [coverImageAlt, setCoverImageAlt] = useState("");
+  const [featuredImageId, setFeaturedImageId] = useState("");
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [tagsInput, setTagsInput] = useState("");
   const [status, setStatus] = useState<string>("DRAFT");
@@ -118,6 +119,7 @@ function EditArticleForm() {
         content,
         coverImageUrl: coverImageUrl || undefined,
         coverImageAlt: coverImageAlt || undefined,
+        featuredImageId: featuredImageId || undefined,
         categoryId: Number(categoryId),
         status: isJournalist ? "DRAFT" : status,
         isFeatured,
@@ -292,9 +294,10 @@ function EditArticleForm() {
               <CoverImageUpload
                 initialUrl={coverImageUrl}
                 initialAlt={coverImageAlt}
-                onImageChange={(url, alt) => {
+                onImageChange={(url, alt, mediaId) => {
                   setCoverImageUrl(url);
                   setCoverImageAlt(alt);
+                  if (mediaId) setFeaturedImageId(mediaId);
                 }}
               />
             </div>

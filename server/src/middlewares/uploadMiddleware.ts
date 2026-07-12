@@ -1,15 +1,25 @@
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "./errorHandler";
+import { config } from "../config";
+
+const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+
+if (!fs.existsSync(config.uploadDir)) {
+  fs.mkdirSync(config.uploadDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, path.resolve(__dirname, "../../uploads"));
+    cb(null, config.uploadDir);
   },
   filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
+    const ext = path.extname(file.originalname).toLowerCase();
+    const timestamp = Date.now();
+    const random = Math.round(Math.random() * 1e9);
+    cb(null, `${timestamp}-${random}${ext}`);
   },
 });
 
@@ -18,9 +28,8 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  const allowed = [".jpg", ".jpeg", ".png", ".webp"];
   const ext = path.extname(file.originalname).toLowerCase();
-  if (!allowed.includes(ext)) {
+  if (!ALLOWED_EXTENSIONS.has(ext)) {
     return cb(new AppError("Only .jpg, .jpeg, .png, and .webp files are allowed", 400));
   }
   cb(null, true);

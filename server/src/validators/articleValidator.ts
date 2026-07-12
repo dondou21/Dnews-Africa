@@ -7,6 +7,7 @@ export const createArticleSchema = z.object({
   content: z.string().min(1, "Content is required"),
   coverImageUrl: z.string().optional(),
   coverImageAlt: z.string().optional(),
+  featuredImageId: z.string().uuid().optional(),
   categoryId: z.number().int().positive("Category is required"),
   status: z.enum(["IDEA", "DRAFT", "IN_REVIEW", "NEEDS_REVISION", "APPROVED", "SCHEDULED", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "ARCHIVED"]).optional(),
   isFeatured: z.boolean().optional(),

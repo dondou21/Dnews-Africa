@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
 
 interface ArticleItem {
   slug: string;
@@ -9,6 +10,7 @@ interface ArticleItem {
   author: { firstName: string; lastName: string };
   coverImageUrl: string | null;
   coverImageAlt: string | null;
+  featuredImage?: { url: string; alt: string | null } | null;
   publishedAt: string | null;
   createdAt: string;
 }
@@ -26,20 +28,27 @@ export default function ArticleListItem({ article }: { article: ArticleItem }) {
       ? "text-dnews-red"
       : "text-dnews-accent";
 
+  const imgSrc = getFeaturedImageUrl(article.featuredImage, article.coverImageUrl);
+  const imgAlt = article.featuredImage?.alt || article.coverImageAlt || "";
+
   return (
     <article className="flex gap-4 border-b border-dnews-border pb-4">
       <Link
         href={`/articles/${article.slug}`}
-        className="relative h-20 w-24 shrink-0 overflow-hidden"
+        className="relative h-20 w-24 shrink-0 overflow-hidden rounded-sm bg-dnews-light-gray"
       >
-        {article.coverImageUrl && (
+        {imgSrc && (
           <Image
-            src={article.coverImageUrl}
-            alt={article.coverImageAlt || ""}
+            src={imgSrc}
+            alt={imgAlt}
             fill
             className="object-cover transition-transform duration-300 hover:scale-110"
             sizes="96px"
             loading="lazy"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = "none";
+            }}
           />
         )}
       </Link>

@@ -11,6 +11,9 @@ const articleInclude = {
       avatarUrl: true,
     },
   },
+  featuredImage: {
+    select: { id: true, url: true, alt: true },
+  },
   tags: {
     include: {
       tag: { select: { id: true, name: true, slug: true } },

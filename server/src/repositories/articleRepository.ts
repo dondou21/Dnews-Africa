@@ -11,6 +11,9 @@ const articleInclude = {
       avatarUrl: true,
     },
   },
+  featuredImage: {
+    select: { id: true, url: true, alt: true },
+  },
   tags: {
     include: {
       tag: { select: { id: true, name: true, slug: true } },
@@ -34,6 +37,7 @@ export interface CreateArticleInput {
   content: string;
   coverImageUrl?: string;
   coverImageAlt?: string;
+  featuredImageId?: string;
   categoryId: number;
   authorId?: string;
   status?: string;
@@ -50,6 +54,7 @@ export interface UpdateArticleInput {
   content?: string;
   coverImageUrl?: string;
   coverImageAlt?: string;
+  featuredImageId?: string;
   categoryId?: number;
   authorId?: string;
   status?: string;
@@ -285,6 +290,7 @@ export const articleRepository = {
         content: articleFields.content,
         coverImageUrl: articleFields.coverImageUrl,
         coverImageAlt: articleFields.coverImageAlt,
+        featuredImageId: articleFields.featuredImageId,
         categoryId: articleFields.categoryId,
         authorId: articleFields.authorId!,
         status: articleFields.status as any,

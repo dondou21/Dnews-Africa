@@ -1,17 +1,30 @@
 import { articleRepository, ArticleQueryParams, CreateArticleInput, UpdateArticleInput } from "../repositories/articleRepository";
 import { AppError } from "../middlewares/errorHandler";
 import { AuthenticatedUser } from "../types/express";
+import { formatArticle, formatArticleList } from "../utils/formatArticle";
+import prisma from "../utils/prisma";
+import { cleanupOrphanedMedia } from "../utils/mediaCleanup";
 
 export const articleService = {
   async getAll(params: ArticleQueryParams) {
-    return articleRepository.findAllPublished(params);
+    const result = await articleRepository.findAllPublished(params);
+    return {
+      ...result,
+      articles: formatArticleList(result.articles),
+    };
   },
 
   async getAllAdmin(params: ArticleQueryParams & { status?: string }, user: AuthenticatedUser) {
+    let result;
     if (user.role.name === "Journalist" || user.role.name === "Editor") {
-      return articleRepository.findAllByAuthor(user.id, params);
+      result = await articleRepository.findAllByAuthor(user.id, params);
+    } else {
+      result = await articleRepository.findAllAdmin(params);
     }
-    return articleRepository.findAllAdmin(params);
+    return {
+      ...result,
+      articles: formatArticleList(result.articles),
+    };
   },
 
   async getBySlug(slug: string) {
@@ -19,7 +32,7 @@ export const articleService = {
     if (!article) {
       throw new AppError("Article not found", 404);
     }
-    return article;
+    return formatArticle(article);
   },
 
   async getById(id: string, user?: AuthenticatedUser) {
@@ -32,15 +45,17 @@ export const articleService = {
       throw new AppError("You can only view your own articles", 403);
     }
 
-    return article;
+    return formatArticle(article);
   },
 
   async getFeatured() {
-    return articleRepository.findFeatured();
+    const articles = await articleRepository.findFeatured();
+    return formatArticleList(articles);
   },
 
   async getLatest() {
-    return articleRepository.findLatest();
+    const articles = await articleRepository.findLatest();
+    return formatArticleList(articles);
   },
 
   async create(data: CreateArticleInput, user: AuthenticatedUser) {
@@ -50,7 +65,8 @@ export const articleService = {
       createData.status = "DRAFT";
     }
 
-    return articleRepository.create(createData);
+    const article = await articleRepository.create(createData);
+    return formatArticle(article);
   },
 
   async submitForReview(id: string, user: AuthenticatedUser) {
@@ -67,7 +83,8 @@ export const articleService = {
       throw new AppError("Only draft articles can be submitted for review", 400);
     }
 
-    return articleRepository.update(id, { status: "PENDING_REVIEW" });
+    const article = await articleRepository.update(id, { status: "PENDING_REVIEW" });
+    return formatArticle(article);
   },
 
   async update(id: string, data: UpdateArticleInput, user: AuthenticatedUser) {
@@ -99,7 +116,8 @@ export const articleService = {
       throw new AppError("Only editors and admins can archive articles", 403);
     }
 
-    return articleRepository.update(id, data);
+    const article = await articleRepository.update(id, data);
+    return formatArticle(article);
   },
 
   async delete(id: string, user: AuthenticatedUser) {
@@ -117,6 +135,16 @@ export const articleService = {
       }
     }
 
-    return articleRepository.delete(id);
+    const featuredImageId = existing.featuredImageId;
+
+    await articleRepository.delete(id);
+
+    if (featuredImageId) {
+      try {
+        await cleanupOrphanedMedia(featuredImageId);
+      } catch (err) {
+        console.error("Failed to clean up orphaned media:", err);
+      }
+    }
   },
 };

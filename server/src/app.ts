@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import path from "path";
 import { config } from "./config";
 import routes from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -18,7 +17,16 @@ app.use(morgan(config.isProduction ? "combined" : "dev"));
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
-app.use("/uploads", express.static(path.resolve(__dirname, "../uploads")));
+app.use("/uploads", express.static(config.uploadDir, {
+  maxAge: config.isProduction ? "1d" : "0",
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg") || filePath.endsWith(".png") || filePath.endsWith(".webp")) {
+      res.setHeader("Cache-Control", config.isProduction ? "public, max-age=86400" : "public, max-age=0, must-revalidate");
+    }
+  },
+}));
 
 app.use("/api/docs", docsRouter);
 app.use("/api", globalLimiter, routes);

@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Upload, X, AlertCircle, Check, ImageIcon } from "lucide-react";
-import { uploadFile, SERVER_BASE } from "@/lib/api-client";
+import { uploadFile } from "@/lib/api-client";
+import { resolveImageUrl } from "@/lib/image";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -17,6 +18,7 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string>(initialUrl ?? "");
+  const [mediaId, setMediaId] = useState<string>("");
   const [alt, setAlt] = useState(initialAlt ?? "");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -55,11 +57,12 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
 
     setUploading(true);
     try {
-      const result = await uploadFile<{ id: string; url: string }>("/media/upload", file);
+      const result = await uploadFile<{ id: string; url: string; alt?: string }>("/media/upload", file);
 
       if (result.url) {
         setUploadedUrl(result.url);
-        onImageChange(result.url, alt, result.id);
+        setMediaId(result.id);
+        onImageChange(result.url, alt || result.alt || "", result.id);
       }
     } catch {
       setError("Upload failed. Please try again.");
@@ -75,6 +78,7 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
     if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
     setPreview(null);
     setUploadedUrl("");
+    setMediaId("");
     setFileName("");
     setDimensions(null);
     setError("");
@@ -87,7 +91,11 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
     inputRef.current?.click();
   }, []);
 
-  const displaySrc = preview?.startsWith("blob:") ? preview : (uploadedUrl ? (uploadedUrl.startsWith("http") ? uploadedUrl : `${SERVER_BASE}${uploadedUrl}`) : null);
+  const displaySrc = preview?.startsWith("blob:")
+    ? preview
+    : uploadedUrl
+      ? resolveImageUrl(uploadedUrl)
+      : null;
 
   return (
     <div>
@@ -180,7 +188,7 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
             value={alt}
             onChange={(e) => {
               setAlt(e.target.value);
-              onImageChange(uploadedUrl, e.target.value);
+              onImageChange(uploadedUrl, e.target.value, mediaId || undefined);
             }}
             placeholder="Describe the image for accessibility"
             className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
