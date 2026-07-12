@@ -1,3 +1,4 @@
+import path from "path";
 import { getMediaPublicUrl } from "../services/mediaService";
 
 interface FeaturedImageRef {
@@ -35,23 +36,24 @@ interface ArticleRaw {
   [key: string]: unknown;
 }
 
+function resolveMediaUrl(url: string): string {
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return getMediaPublicUrl(path.basename(url));
+}
+
 export function formatArticle<T extends ArticleRaw>(article: T) {
   let featuredImage: { id: string; url: string; alt: string | null } | null = null;
 
   if (article.featuredImage) {
     featuredImage = {
       id: article.featuredImage.id,
-      url: article.featuredImage.url.startsWith("http")
-        ? article.featuredImage.url
-        : getMediaPublicUrl(article.featuredImage.url.replace("/uploads/", "")),
+      url: resolveMediaUrl(article.featuredImage.url),
       alt: article.featuredImage.alt || article.coverImageAlt || null,
     };
   } else if (article.coverImageUrl) {
     featuredImage = {
       id: "",
-      url: article.coverImageUrl.startsWith("http")
-        ? article.coverImageUrl
-        : getMediaPublicUrl(article.coverImageUrl.replace("/uploads/", "")),
+      url: resolveMediaUrl(article.coverImageUrl),
       alt: article.coverImageAlt || null,
     };
   }
