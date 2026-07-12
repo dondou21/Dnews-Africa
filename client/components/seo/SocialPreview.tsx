@@ -1,5 +1,7 @@
 "use client";
 
+import { resolveImageUrl } from "@/lib/image";
+
 interface SocialPreviewProps {
   title?: string;
   description?: string;
@@ -20,7 +22,7 @@ export default function SocialPreview({ title, description, imageUrl, url }: Soc
       <div className="overflow-hidden rounded-sm border border-dnews-border">
         {imageUrl ? (
           <div className="aspect-[1.91/1] w-full bg-dnews-light-gray">
-            <img src={imageUrl} alt="Preview" className="h-full w-full object-cover" />
+            <img src={resolveImageUrl(imageUrl)} alt="Preview" className="h-full w-full object-cover" />
           </div>
         ) : (
           <div className="flex aspect-[1.91/1] w-full items-center justify-center bg-gradient-to-br from-dnews-accent to-blue-800">
@@ -44,7 +46,7 @@ export default function SocialPreview({ title, description, imageUrl, url }: Soc
         <div className="p-3">
           {imageUrl && (
             <div className="mb-2 aspect-[2/1] w-full overflow-hidden rounded-sm">
-              <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+              <img src={resolveImageUrl(imageUrl)} alt="" className="h-full w-full object-cover" />
             </div>
           )}
           <p className="text-sm font-medium text-dnews-dark">{displayTitle}</p>

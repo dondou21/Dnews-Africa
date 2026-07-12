@@ -1,6 +1,7 @@
 "use client";
 
 import Modal from "@/components/dashboard/Modal";
+import { resolveImageUrl } from "@/lib/image";
 import type { Campaign } from "@/types/campaign";
 
 interface CampaignPreviewProps {
@@ -22,7 +23,7 @@ export default function CampaignPreview({ campaign, onClose }: CampaignPreviewPr
         {campaign.featuredImage && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={campaign.featuredImage}
+            src={resolveImageUrl(campaign.featuredImage)}
             alt=""
             className="w-full rounded-sm object-cover max-h-48"
           />

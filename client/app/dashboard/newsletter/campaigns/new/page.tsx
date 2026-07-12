@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Upload, Eye } from "lucide-react";
 import { post, uploadFile } from "@/lib/api-client";
+import { resolveImageUrl } from "@/lib/image";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import CampaignPreview from "@/components/newsletter/CampaignPreview";
 import { useAuth } from "@/contexts/AuthContext";
@@ -235,7 +236,7 @@ function NewCampaignForm() {
             {featuredImage && (
               <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-sm border border-dnews-border">
                 <Image
-                  src={featuredImage}
+                  src={resolveImageUrl(featuredImage)}
                   alt="Preview"
                   fill
                   className="object-cover"

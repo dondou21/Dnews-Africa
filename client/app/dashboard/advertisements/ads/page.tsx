@@ -9,6 +9,7 @@ import Pagination from "@/components/dashboard/Pagination";
 import Modal from "@/components/dashboard/Modal";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import { get, patch, del } from "@/lib/api-client";
+import { resolveImageUrl } from "@/lib/image";
 import type { Advertisement, AdvertisementsResponse } from "@/types/advertisement";
 
 const statusFilters = [
@@ -136,7 +137,7 @@ function AdsListContent() {
           <div className="space-y-4">
             {previewTarget.image?.url && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={previewTarget.image.url} alt={previewTarget.image.alt || ""} className="w-full rounded-sm object-cover max-h-48" />
+              <img src={resolveImageUrl(previewTarget.image.url)} alt={previewTarget.image.alt || ""} className="w-full rounded-sm object-cover max-h-48" />
             )}
             <p className="text-sm text-dnews-dark">{previewTarget.description || "No description."}</p>
             <div className="grid grid-cols-2 gap-3 text-xs">
