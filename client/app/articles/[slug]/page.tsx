@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { get } from "@/lib/api-client";
 import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import AdSlot from "@/components/home/AdSlot";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
 
@@ -90,6 +91,7 @@ export default function ArticlePage() {
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
+      <Breadcrumbs articleTitle={article.title} categoryName={article.category.name} />
       <div className="flex flex-col gap-8 lg:flex-row">
         <article className="min-w-0 flex-1">
           <div className="mx-auto max-w-[720px]">
