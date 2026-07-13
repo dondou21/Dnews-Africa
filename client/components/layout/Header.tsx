@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useCallback } from "react";
-import { Search } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
@@ -41,6 +41,14 @@ export default function Header() {
             Independent news media across the continent and the world
           </p>
           <div className="hidden items-center gap-2 md:flex">
+            <Link
+              href="/#newsletter"
+              className="inline-flex items-center gap-1.5 rounded-sm bg-dnews-accent px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
+              aria-label="Subscribe to newsletter"
+            >
+              <Bell size={13} />
+              Subscribe
+            </Link>
             <button
               onClick={toggleSearch}
               className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
@@ -53,6 +61,14 @@ export default function Header() {
         </div>
 
         <div className="mt-1 flex items-center justify-center gap-2 md:hidden">
+          <Link
+            href="/#newsletter"
+            className="inline-flex items-center gap-1 rounded-sm bg-dnews-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
+            aria-label="Subscribe to newsletter"
+          >
+            <Bell size={12} />
+            Subscribe
+          </Link>
           <button
             onClick={toggleSearch}
             className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
