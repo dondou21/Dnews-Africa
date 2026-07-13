@@ -8,6 +8,7 @@ import AdSlot from "@/components/home/AdSlot";
 import ArticleListItem from "@/components/home/ArticleListItem";
 import { get } from "@/lib/api-client";
 import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import CategoryNav from "@/components/home/CategoryNav";
 import { articles as fallbackArticles, getFeaturedArticle, getTrendingArticles, type Article as MockArticle } from "@/src/data/articles";
 
 interface ArticleItem {
@@ -246,6 +247,8 @@ export default function Home() {
               ))}
             </div>
           )}
+
+          <CategoryNav />
 
           <div className="space-y-10">
             {newsArticles.length > 0 && (
