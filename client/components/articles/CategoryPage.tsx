@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { get } from "@/lib/api-client";
 import ArticleCard from "./ArticleCard";
 
@@ -18,6 +19,10 @@ interface ArticleItem {
   author: { id: string; firstName: string; lastName: string };
 }
 
+interface ApiResponse {
+  articles: ArticleItem[];
+}
+
 interface CategoryPageProps {
   title: string;
   description: string;
@@ -30,6 +35,7 @@ export default function CategoryPage({
   categorySlug,
 }: CategoryPageProps) {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
+  const [latestArticles, setLatestArticles] = useState<ArticleItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,13 +46,17 @@ export default function CategoryPage({
           const articles = await get<ArticleItem[]>("/articles/featured");
           setArticles(articles);
         } else {
-          const res = await get<{ articles: ArticleItem[] }>(
-            `/articles?category=${categorySlug}&limit=20`
-          );
-          setArticles(res.articles);
+          const [catRes, latestRes] = await Promise.all([
+            get<ApiResponse>(`/articles?category=${categorySlug}&limit=20`),
+            get<ApiResponse>("/articles?limit=4").catch(() => null),
+          ]);
+          setArticles(catRes.articles);
+          if (latestRes) {
+            setLatestArticles(latestRes.articles);
+          }
         }
       } catch {
-        // silently fail
+        setArticles([]);
       } finally {
         setLoading(false);
       }
@@ -80,11 +90,44 @@ export default function CategoryPage({
           ))}
         </div>
       ) : (
-        <div className="rounded border border-dnews-border p-8 text-center">
-          <p className="text-dnews-muted">
-            No articles in this category yet. Check back soon for updates.
-          </p>
+        <div className="rounded-sm border border-dnews-border bg-dnews-card p-10 text-center">
+          <div className="mx-auto max-w-sm">
+            <div className="mb-4 text-4xl">&#128196;</div>
+            <h2 className="font-heading text-xl font-bold text-dnews-dark">
+              No articles available
+            </h2>
+            <p className="mt-2 text-sm text-dnews-muted">
+              There are currently no published articles in this category. Please check back later.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/"
+                className="rounded-sm bg-dnews-accent px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
+              >
+                Back to Home
+              </Link>
+              <Link
+                href="/news"
+                className="rounded-sm border border-dnews-border px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+              >
+                Browse All News
+              </Link>
+            </div>
+          </div>
         </div>
+      )}
+
+      {!loading && articles.length === 0 && latestArticles.length > 0 && (
+        <section className="mt-10">
+          <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-brand-red">
+            Latest Articles
+          </h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {latestArticles.map((article) => (
+              <ArticleCard key={article.id} article={article} />
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );
