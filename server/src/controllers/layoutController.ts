@@ -1,92 +1,77 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { layoutService } from "../services/layoutService";
 import { AppError } from "../middlewares/errorHandler";
 import { createLayoutSchema, updateLayoutSchema, duplicateLayoutSchema } from "../validators/layoutValidator";
+import { asyncHandler } from "../middlewares/asyncHandler";
+
+const parsePagination = (query: Record<string, unknown>) => ({
+  page: parseInt(query.page as string) || 1,
+  limit: parseInt(query.limit as string) || 20,
+  search: query.search as string,
+  status: query.status as string,
+});
 
 export const layoutController = {
-  async getAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
-      const search = req.query.search as string;
-      const status = req.query.status as string;
-      const result = await layoutService.getAll(page, limit, search, status);
-      res.json({ status: "success", data: result });
-    } catch (error) { next(error); }
-  },
+  getAll: asyncHandler(async (req: Request, res: Response) => {
+    const { page, limit, search, status } = parsePagination(req.query);
+    const result = await layoutService.getAll(page, limit, search, status);
+    res.json({ status: "success", data: result });
+  }),
 
-  async getById(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const layout = await layoutService.getById(id);
-      res.json({ status: "success", data: layout });
-    } catch (error) { next(error); }
-  },
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const layout = await layoutService.getById(id);
+    res.json({ status: "success", data: layout });
+  }),
 
-  async getBySlug(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { slug } = req.params;
-      const layout = await layoutService.getBySlug(slug);
-      res.json({ status: "success", data: layout });
-    } catch (error) { next(error); }
-  },
+  getBySlug: asyncHandler(async (req: Request, res: Response) => {
+    const { slug } = req.params;
+    const layout = await layoutService.getBySlug(slug);
+    res.json({ status: "success", data: layout });
+  }),
 
-  async getPublished(req: Request, res: Response, next: NextFunction) {
-    try {
-      const layout = await layoutService.getPublished();
-      res.json({ status: "success", data: layout });
-    } catch (error) { next(error); }
-  },
+  getPublished: asyncHandler(async (_req: Request, res: Response) => {
+    const layout = await layoutService.getPublished();
+    res.json({ status: "success", data: layout });
+  }),
 
-  async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const parsed = createLayoutSchema.parse(req.body);
-      const layout = await layoutService.create(parsed as any, req.user!);
-      res.status(201).json({ status: "success", data: layout });
-    } catch (error) { next(error); }
-  },
+  create: asyncHandler(async (req: Request, res: Response) => {
+    const parsed = createLayoutSchema.parse(req.body);
+    const layout = await layoutService.create(parsed, req.user!);
+    res.status(201).json({ status: "success", data: layout });
+  }),
 
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const parsed = updateLayoutSchema.parse(req.body);
-      const layout = await layoutService.update(id, parsed, req.user!);
-      res.json({ status: "success", data: layout });
-    } catch (error) { next(error); }
-  },
+  update: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const parsed = updateLayoutSchema.parse(req.body);
+    const layout = await layoutService.update(id, parsed, req.user!);
+    res.json({ status: "success", data: layout });
+  }),
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      await layoutService.delete(id);
-      res.json({ status: "success", data: null });
-    } catch (error) { next(error); }
-  },
+  delete: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    await layoutService.delete(id);
+    res.json({ status: "success", data: null });
+  }),
 
-  async publish(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const layout = await layoutService.publish(id);
-      res.json({ status: "success", data: layout });
-    } catch (error) { next(error); }
-  },
+  publish: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const layout = await layoutService.publish(id);
+    res.json({ status: "success", data: layout });
+  }),
 
-  async duplicate(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const parsed = duplicateLayoutSchema.parse(req.body);
-      const layout = await layoutService.duplicate(id, parsed, req.user!);
-      res.status(201).json({ status: "success", data: layout });
-    } catch (error) { next(error); }
-  },
+  duplicate: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const parsed = duplicateLayoutSchema.parse(req.body);
+    const layout = await layoutService.duplicate(id, parsed, req.user!);
+    res.status(201).json({ status: "success", data: layout });
+  }),
 
-  async saveSections(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const { sections } = req.body;
-      if (!Array.isArray(sections)) throw new AppError("Sections must be an array", 400);
-      const layout = await layoutService.saveSections(id, sections);
-      res.json({ status: "success", data: layout });
-    } catch (error) { next(error); }
-  },
+  saveSections: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { sections } = req.body;
+    if (!Array.isArray(sections)) throw new AppError("Sections must be an array", 400);
+    const layout = await layoutService.saveSections(id, sections);
+    res.json({ status: "success", data: layout });
+  }),
 };

@@ -135,7 +135,7 @@ export const seoService = {
     const readabilityScore = Math.min(10, Math.round((contentLen / 500) * 5) + 5);
     details.readability = { score: Math.min(10, readabilityScore), max: 10, message: "Content readability" };
 
-    const slug = (data as any).slug || "";
+    const slug = (data as Record<string, unknown>).slug as string || "";
     if (slug) {
       const slugWords = slug.split("-").length;
       if (slugWords < 2) {

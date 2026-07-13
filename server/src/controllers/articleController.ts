@@ -1,132 +1,80 @@
-import { Request, Response, NextFunction } from "express";
+import { z } from "zod";
+import { Request, Response } from "express";
 import { articleService } from "../services/articleService";
 import { createArticleSchema, updateArticleSchema, articleQuerySchema } from "../validators/articleValidator";
 import { AppError, ZodValidationError } from "../middlewares/errorHandler";
+import { asyncHandler } from "../middlewares/asyncHandler";
+
+function parseZod(schema: z.ZodSchema, data: unknown) {
+  const parsed = schema.safeParse(data);
+  if (!parsed.success) {
+    const errors = parsed.error.errors.map((e) => ({
+      path: e.path.join("."),
+      message: e.message,
+    }));
+    throw new ZodValidationError(errors);
+  }
+  return parsed.data;
+}
 
 export const articleController = {
-  async getAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const parsed = articleQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        throw new AppError("Invalid query parameters", 400);
-      }
-      const result = await articleService.getAll(parsed.data);
-      res.json({ status: "success", data: result });
-    } catch (error) {
-      next(error);
-    }
-  },
+  getAll: asyncHandler(async (req: Request, res: Response) => {
+    const parsed = parseZod(articleQuerySchema, req.query);
+    const result = await articleService.getAll(parsed);
+    res.json({ status: "success", data: result });
+  }),
 
-  async getAllAdmin(req: Request, res: Response, next: NextFunction) {
-    try {
-      const parsed = articleQuerySchema.safeParse(req.query);
-      if (!parsed.success) {
-        throw new AppError("Invalid query parameters", 400);
-      }
-      const status = req.query.status as string | undefined;
-      const result = await articleService.getAllAdmin({ ...parsed.data, status }, req.user!);
-      res.json({ status: "success", data: result });
-    } catch (error) {
-      next(error);
-    }
-  },
+  getAllAdmin: asyncHandler(async (req: Request, res: Response) => {
+    const parsed = parseZod(articleQuerySchema, req.query);
+    const status = req.query.status as string | undefined;
+    const result = await articleService.getAllAdmin({ ...parsed, status }, req.user!);
+    res.json({ status: "success", data: result });
+  }),
 
-  async getBySlug(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { slug } = req.params;
-      const article = await articleService.getBySlug(slug);
-      res.json({ status: "success", data: article });
-    } catch (error) {
-      next(error);
-    }
-  },
+  getBySlug: asyncHandler(async (req: Request, res: Response) => {
+    const { slug } = req.params;
+    const article = await articleService.getBySlug(slug);
+    res.json({ status: "success", data: article });
+  }),
 
-  async getById(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const article = await articleService.getById(id, req.user);
-      res.json({ status: "success", data: article });
-    } catch (error) {
-      next(error);
-    }
-  },
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const article = await articleService.getById(id, req.user);
+    res.json({ status: "success", data: article });
+  }),
 
-  async getFeatured(_req: Request, res: Response, next: NextFunction) {
-    try {
-      const articles = await articleService.getFeatured();
-      res.json({ status: "success", data: articles });
-    } catch (error) {
-      next(error);
-    }
-  },
+  getFeatured: asyncHandler(async (_req: Request, res: Response) => {
+    const articles = await articleService.getFeatured();
+    res.json({ status: "success", data: articles });
+  }),
 
-  async getLatest(_req: Request, res: Response, next: NextFunction) {
-    try {
-      const articles = await articleService.getLatest();
-      res.json({ status: "success", data: articles });
-    } catch (error) {
-      next(error);
-    }
-  },
+  getLatest: asyncHandler(async (_req: Request, res: Response) => {
+    const articles = await articleService.getLatest();
+    res.json({ status: "success", data: articles });
+  }),
 
-  async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      console.log("[POST /api/articles] body:", JSON.stringify(req.body, null, 2));
-      const parsed = createArticleSchema.safeParse(req.body);
-      if (!parsed.success) {
-        const errors = parsed.error.errors.map((e) => ({
-          path: e.path.join("."),
-          message: e.message,
-        }));
-        console.log("[POST /api/articles] Zod errors:", JSON.stringify(errors, null, 2));
-        throw new ZodValidationError(errors);
-      }
-      console.log("[POST /api/articles] parsed data:", JSON.stringify(parsed.data, null, 2));
-      const article = await articleService.create(parsed.data, req.user!);
-      res.status(201).json({ status: "success", data: article });
-    } catch (error) {
-      next(error);
-    }
-  },
+  create: asyncHandler(async (req: Request, res: Response) => {
+    const parsed = parseZod(createArticleSchema, req.body);
+    const article = await articleService.create(parsed, req.user!);
+    res.status(201).json({ status: "success", data: article });
+  }),
 
-  async submitForReview(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const article = await articleService.submitForReview(id, req.user!);
-      res.json({ status: "success", data: article });
-    } catch (error) {
-      next(error);
-    }
-  },
+  submitForReview: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const article = await articleService.submitForReview(id, req.user!);
+    res.json({ status: "success", data: article });
+  }),
 
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      console.log(`[PATCH /api/articles/${id}] body:`, JSON.stringify(req.body, null, 2));
-      const parsed = updateArticleSchema.safeParse(req.body);
-      if (!parsed.success) {
-        const errors = parsed.error.errors.map((e) => ({
-          path: e.path.join("."),
-          message: e.message,
-        }));
-        console.log(`[PATCH /api/articles/${id}] Zod errors:`, JSON.stringify(errors, null, 2));
-        throw new ZodValidationError(errors);
-      }
-      console.log(`[PATCH /api/articles/${id}] parsed data:`, JSON.stringify(parsed.data, null, 2));
-      const article = await articleService.update(id, parsed.data, req.user!);
-      res.json({ status: "success", data: article });
-    } catch (error) {
-      next(error);
-    }
-  },
+  update: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const parsed = parseZod(updateArticleSchema, req.body);
+    const article = await articleService.update(id, parsed, req.user!);
+    res.json({ status: "success", data: article });
+  }),
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      await articleService.delete(id, req.user!);
-      res.json({ status: "success", data: null });
-    } catch (error) {
-      next(error);
-    }
-  },
+  delete: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    await articleService.delete(id, req.user!);
+    res.json({ status: "success", data: null });
+  }),
 };

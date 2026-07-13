@@ -1,5 +1,5 @@
 import prisma from "../utils/prisma";
-import type { ApprovalDecision, AuditAction, ArticleStatus } from "@prisma/client";
+import type { ApprovalDecision, AuditAction, ArticleStatus, Prisma } from "@prisma/client";
 
 const revisionInclude = {
   changedBy: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
@@ -113,7 +113,7 @@ export const workflowRepository = {
     description?: string;
     metadata?: any;
   }) {
-    return prisma.articleAuditLog.create({ data: data as any, include: auditLogInclude });
+    return prisma.articleAuditLog.create({ data: data as unknown as Prisma.ArticleAuditLogCreateInput, include: auditLogInclude });
   },
 
   async getAuditLogs(articleId: string) {

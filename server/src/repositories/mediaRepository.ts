@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 
 export const mediaRepository = {
@@ -19,7 +20,7 @@ export const mediaRepository = {
       data: {
         url: data.url,
         alt: data.alt,
-        type: data.type as any,
+        type: data.type as $Enums.MediaType,
         fileSize: data.fileSize,
         width: data.width,
         height: data.height,

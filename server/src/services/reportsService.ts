@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../utils/prisma";
 import { analyticsRepository } from "../repositories/analyticsRepository";
 
@@ -65,7 +66,7 @@ export const reportsService = {
       data: {
         exportType: data.exportType, format: data.format,
         periodStart: new Date(data.periodStart), periodEnd: new Date(data.periodEnd),
-        filters: (data.filters ?? {}) as any, status: "processing", createdById: data.userId,
+        filters: (data.filters ?? {}) as Prisma.JsonObject, status: "processing", createdById: data.userId,
       },
     });
 

@@ -1,97 +1,82 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { advertisementService } from "../services/advertisementService";
 import { createAdSchema, updateAdSchema } from "../validators/advertisementValidator";
 import { AppError } from "../middlewares/errorHandler";
+import { asyncHandler } from "../middlewares/asyncHandler";
 
 export const advertisementController = {
-  async getAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const result = await advertisementService.getAll(req.query as any);
-      res.json({ status: "success", data: result });
-    } catch (error) { next(error); }
-  },
+  getAll: asyncHandler(async (req: Request, res: Response) => {
+    const result = await advertisementService.getAll(req.query as unknown as { page?: number; limit?: number; search?: string; status?: string; placement?: string; type?: string; advertiserId?: string; campaignId?: string });
+    res.json({ status: "success", data: result });
+  }),
 
-  async getById(req: Request, res: Response, next: NextFunction) {
-    try {
-      const ad = await advertisementService.getById(req.params.id);
-      res.json({ status: "success", data: ad });
-    } catch (error) { next(error); }
-  },
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const ad = await advertisementService.getById(req.params.id);
+    res.json({ status: "success", data: ad });
+  }),
 
-  async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const parsed = createAdSchema.safeParse(req.body);
-      if (!parsed.success) throw new AppError(parsed.error.errors[0].message, 400);
-      const ad = await advertisementService.create(parsed.data, req.user!);
-      res.status(201).json({ status: "success", data: ad });
-    } catch (error) { next(error); }
-  },
+  create: asyncHandler(async (req: Request, res: Response) => {
+    const parsed = createAdSchema.safeParse(req.body);
+    if (!parsed.success) throw new AppError(parsed.error.errors[0].message, 400);
+    const ad = await advertisementService.create(parsed.data, req.user!);
+    res.status(201).json({ status: "success", data: ad });
+  }),
 
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const parsed = updateAdSchema.safeParse(req.body);
-      if (!parsed.success) throw new AppError(parsed.error.errors[0].message, 400);
-      const ad = await advertisementService.update(req.params.id, parsed.data, req.user!);
-      res.json({ status: "success", data: ad });
-    } catch (error) { next(error); }
-  },
+  update: asyncHandler(async (req: Request, res: Response) => {
+    const parsed = updateAdSchema.safeParse(req.body);
+    if (!parsed.success) throw new AppError(parsed.error.errors[0].message, 400);
+    const ad = await advertisementService.update(req.params.id, parsed.data, req.user!);
+    res.json({ status: "success", data: ad });
+  }),
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      await advertisementService.delete(req.params.id);
-      res.json({ status: "success", data: null });
-    } catch (error) { next(error); }
-  },
+  delete: asyncHandler(async (req: Request, res: Response) => {
+    await advertisementService.delete(req.params.id);
+    res.json({ status: "success", data: null });
+  }),
 
-  async getByPlacement(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { placement } = req.params;
-      const limit = req.query.limit ? Number(req.query.limit) : 1;
-      const ads = await advertisementService.getByPlacement(placement, limit);
-      res.json({ status: "success", data: ads });
-    } catch (error) { next(error); }
-  },
+  getByPlacement: asyncHandler(async (req: Request, res: Response) => {
+    const { placement } = req.params;
+    const limit = req.query.limit ? Number(req.query.limit) : 1;
+    const ads = await advertisementService.getByPlacement(placement, limit);
+    res.json({ status: "success", data: ads });
+  }),
 
-  async trackImpression(req: Request, res: Response) {
+  trackImpression: asyncHandler(async (req: Request, res: Response) => {
     await advertisementService.trackImpression(req.params.id);
     res.json({ status: "success" });
-  },
+  }),
 
-  async trackClick(req: Request, res: Response) {
+  trackClick: asyncHandler(async (req: Request, res: Response) => {
     await advertisementService.trackClick(req.params.id);
     const ad = await advertisementService.getById(req.params.id);
     res.redirect(301, ad.targetUrl);
-  },
+  }),
 
-  async getStats(_req: Request, res: Response, next: NextFunction) {
-    try {
-      const stats = await advertisementService.getStats();
-      res.json({ status: "success", data: stats });
-    } catch (error) { next(error); }
-  },
+  getStats: asyncHandler(async (_req: Request, res: Response) => {
+    const stats = await advertisementService.getStats();
+    res.json({ status: "success", data: stats });
+  }),
 
-  async publicServe(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { placement } = req.params;
-      const limit = req.query.limit ? Number(req.query.limit) : 1;
-      const ads = await advertisementService.getByPlacement(placement, limit);
+  publicServe: asyncHandler(async (req: Request, res: Response) => {
+    const { placement } = req.params;
+    const limit = req.query.limit ? Number(req.query.limit) : 1;
+    const ads = await advertisementService.getByPlacement(placement, limit);
 
-      const result = await Promise.all(ads.map(async (ad) => {
-        await advertisementService.trackImpression(ad.id);
-        return {
-          id: ad.id,
-          title: ad.title,
-          type: ad.type,
-          placement: ad.placement,
-          targetUrl: ad.targetUrl,
-          imageUrl: ad.image?.url || null,
-          imageAlt: ad.image?.alt || null,
-          buttonText: ad.buttonText,
-          description: ad.description,
-        };
-      }));
+    const result = await Promise.all(ads.map(async (ad) => {
+      await advertisementService.trackImpression(ad.id);
+      return {
+        id: ad.id,
+        title: ad.title,
+        type: ad.type,
+        placement: ad.placement,
+        targetUrl: ad.targetUrl,
+        imageUrl: ad.image?.url || null,
+        imageAlt: ad.image?.alt || null,
+        buttonText: ad.buttonText,
+        description: ad.description,
+      };
+    }));
 
-      res.json({ status: "success", data: result });
-    } catch (error) { next(error); }
-  },
+    res.json({ status: "success", data: result });
+  }),
 };

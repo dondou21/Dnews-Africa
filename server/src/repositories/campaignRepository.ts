@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import type { Prisma } from "@prisma/client";
 
@@ -20,7 +21,7 @@ export const campaignRepository = {
     const where: Prisma.NewsletterCampaignWhereInput = {};
 
     if (params.status && params.status !== "ALL") {
-      where.status = params.status as any;
+      where.status = params.status as $Enums.CampaignStatus;
     }
 
     if (params.search) {

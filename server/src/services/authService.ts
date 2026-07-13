@@ -4,11 +4,7 @@ import prisma from "../utils/prisma";
 import { config } from "../config";
 import { userRepository } from "../repositories/userRepository";
 import { AppError } from "../middlewares/errorHandler";
-
-function stripPassword(user: any) {
-  const { passwordHash, ...rest } = user;
-  return rest;
-}
+import { stripPassword } from "../utils/userUtils";
 
 export const authService = {
   async register(data: { firstName: string; lastName: string; email: string; password: string }) {
@@ -49,7 +45,7 @@ export const authService = {
     const token = jwt.sign(
       { userId: user.id, roleId: user.roleId, roleName: user.role.name },
       config.jwtSecret,
-      { expiresIn: config.jwtExpiresIn as any }
+      { expiresIn: config.jwtExpiresIn as jwt.SignOptions["expiresIn"] }
     );
 
     const { passwordHash: _, ...userWithoutPassword } = user;

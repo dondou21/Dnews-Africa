@@ -54,10 +54,11 @@ export const layoutService = {
       await layoutRepository.update(id, data);
     }
 
-    const { sections, ...layoutFields } = data as any;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { sections, ...layoutFields } = data as Record<string, unknown>;
     let layout = await layoutRepository.update(id, layoutFields);
     if (sections) {
-      layout = (await layoutRepository.saveSections(id, sections))!;
+      layout = (await layoutRepository.saveSections(id, sections as any[]))!;
     }
     return layout;
   },
@@ -80,7 +81,7 @@ export const layoutService = {
     if (!existing) throw new AppError("Layout not found", 404);
     const layout = await layoutRepository.create({
       name: data.name, slug: data.slug,
-      status: "DRAFT", settings: existing.settings as any,
+      status: "DRAFT", settings: existing.settings,
       createdById: user.id,
     });
     if (existing.sections.length > 0) {

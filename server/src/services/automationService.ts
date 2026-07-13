@@ -1,8 +1,10 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import { automationRepository } from "../repositories/automationRepository";
 import { campaignService } from "./campaignService";
 import { AppError } from "../middlewares/errorHandler";
 import { logger } from "../utils/logger";
+import type { AuthenticatedUser } from "../types/express";
 
 function computeNextRun(frequency: string, sendDay: number | null | undefined, sendTime: string, timezone: string): Date {
   const now = new Date();
@@ -51,7 +53,7 @@ export const automationService = {
 
     const automation = await automationRepository.create({
       name: data.name,
-      frequency: data.frequency as any,
+      frequency: data.frequency as $Enums.AutomationFrequency,
       sendDay: data.sendDay ?? null,
       sendTime: data.sendTime,
       timezone: data.timezone || "UTC",
@@ -177,7 +179,7 @@ export const automationService = {
         content,
         status: "DRAFT",
       },
-      { id: "system", role: { name: "Admin" } } as any
+      { id: "system", role: { name: "Admin" } } as AuthenticatedUser
     );
 
     const nextRun = computeNextRun(automation.frequency, automation.sendDay ?? null, automation.sendTime, automation.timezone);

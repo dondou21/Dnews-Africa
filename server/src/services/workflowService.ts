@@ -1,3 +1,4 @@
+import { Prisma, $Enums } from "@prisma/client";
 import { workflowRepository } from "../repositories/workflowRepository";
 import { articleRepository } from "../repositories/articleRepository";
 import { notificationService } from "./notificationService";
@@ -39,7 +40,7 @@ async function createRevisionSnapshot(articleId: string, changedById: string, ch
   });
 }
 
-function getAuditAction(from: ArticleStatus, to: ArticleStatus): string {
+function getAuditAction(from: $Enums.ArticleStatus, to: $Enums.ArticleStatus): $Enums.AuditAction {
   if (from === "DRAFT" && to === "IN_REVIEW") return "SUBMITTED";
   if (to === "APPROVED") return "APPROVED";
   if (to === "REJECTED") return "REJECTED";
@@ -47,7 +48,7 @@ function getAuditAction(from: ArticleStatus, to: ArticleStatus): string {
   if (to === "PUBLISHED") return "PUBLISHED";
   if (to === "SCHEDULED") return "SCHEDULED";
   if (to === "ARCHIVED") return "ARCHIVED";
-  if (from === ("" as any)) return "CREATED";
+  if (from === "" as $Enums.ArticleStatus) return "CREATED";
   return "EDITED";
 }
 
@@ -80,6 +81,7 @@ export const workflowService = {
       const updated = await tx.article.update({
         where: { id: articleId },
         data: { status: "IN_REVIEW", submittedAt: new Date(), changeReason: changeReason ?? null },
+        include: { author: { select: { id: true, firstName: true, lastName: true } } },
       });
 
       const latestVersion = await workflowRepository.getLatestVersion(articleId);
@@ -120,7 +122,7 @@ export const workflowService = {
       return updated;
     });
 
-    await notificationService.notifyArticleSubmitted(result as any);
+    await notificationService.notifyArticleSubmitted(result);
     return result;
   },
 
@@ -453,7 +455,7 @@ export const workflowService = {
     return prisma.$transaction(async (tx) => {
       const updated = await tx.article.update({
         where: { id: articleId },
-        data: updateData as any,
+        data: updateData as Prisma.ArticleUpdateInput,
       });
 
       if (toStatus === "IN_REVIEW" || toStatus === "APPROVED" || toStatus === "NEEDS_REVISION" || toStatus === "REJECTED") {
@@ -475,7 +477,7 @@ export const workflowService = {
       await tx.articleAuditLog.create({
         data: {
           articleId, userId: user.id,
-          action: auditAction as any,
+          action: auditAction as $Enums.AuditAction,
           fromStatus: currentStatus, toStatus,
           description: options?.notes ?? undefined,
         },
@@ -487,7 +489,7 @@ export const workflowService = {
           include: { author: { select: { id: true, firstName: true, lastName: true } } },
         });
         if (articleWithAuthor) {
-          await notificationService.notifyArticleSubmitted(articleWithAuthor as any);
+          await notificationService.notifyArticleSubmitted(articleWithAuthor);
         }
       }
       if (toStatus === "NEEDS_REVISION") {

@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import type { Prisma } from "@prisma/client";
 
@@ -15,7 +16,7 @@ export const layoutRepository = {
         { slug: { contains: params.search, mode: "insensitive" } },
       ];
     }
-    if (params.status && params.status !== "ALL") where.status = params.status as any;
+    if (params.status && params.status !== "ALL") where.status = params.status as $Enums.LayoutStatus;
 
     const skip = (params.page - 1) * params.limit;
     const [layouts, total] = await Promise.all([
@@ -50,7 +51,7 @@ export const layoutRepository = {
     return prisma.homePageLayout.create({
       data: {
         name: data.name, slug: data.slug,
-        status: (data.status as any) ?? "DRAFT",
+        status: (data.status as $Enums.LayoutStatus) ?? "DRAFT",
         isDefault: data.isDefault ?? false,
         scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
         settings: data.settings ?? {},
@@ -61,8 +62,8 @@ export const layoutRepository = {
   },
 
   async update(id: string, data: Record<string, unknown>) {
-    if (data.scheduledAt && typeof data.scheduledAt === "string") {
-      (data as any).scheduledAt = new Date(data.scheduledAt);
+    if (typeof data.scheduledAt === "string") {
+      data.scheduledAt = new Date(data.scheduledAt);
     }
     if (data.isDefault === true) {
       await prisma.homePageLayout.updateMany({
@@ -70,7 +71,7 @@ export const layoutRepository = {
         data: { isDefault: false },
       });
     }
-    return prisma.homePageLayout.update({ where: { id }, data: data as any, include: layoutInclude });
+    return prisma.homePageLayout.update({ where: { id }, data: data as Prisma.HomePageLayoutUpdateInput, include: layoutInclude });
   },
 
   async delete(id: string) {

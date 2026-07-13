@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import { campaignRepository } from "../repositories/campaignRepository";
 import { newsletterRepository } from "../repositories/newsletterRepository";
 import { emailService } from "./emailService";
@@ -76,7 +77,7 @@ export const campaignService = {
       plainText: data.plainText || null,
       excerpt: data.excerpt || null,
       featuredImage: data.featuredImage || null,
-      status: (data.status as any) || "DRAFT",
+      status: (data.status as $Enums.CampaignStatus) || "DRAFT",
       createdBy: { connect: { id: user.id } },
     });
 

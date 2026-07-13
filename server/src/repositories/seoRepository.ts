@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import type { Prisma } from "@prisma/client";
 
@@ -11,8 +12,8 @@ export const seoRepository = {
   async upsertSeo(entityType: string, entityId: string, data: Record<string, unknown>) {
     return prisma.seoMetadata.upsert({
       where: { entityType_entityId: { entityType, entityId } },
-      create: { entityType, entityId, ...data } as any,
-      update: data as any,
+      create: { entityType, entityId, ...data } as Prisma.SeoMetadataCreateInput,
+      update: data as Prisma.SeoMetadataUpdateInput,
     });
   },
 
@@ -46,7 +47,7 @@ export const seoRepository = {
   },
 
   async updateRedirect(id: string, data: Record<string, unknown>) {
-    return prisma.redirect.update({ where: { id }, data: data as any });
+    return prisma.redirect.update({ where: { id }, data: data as Prisma.RedirectUpdateInput });
   },
 
   async deleteRedirect(id: string) {
@@ -68,9 +69,9 @@ export const seoRepository = {
   async updateSeoSettings(data: Record<string, unknown>) {
     const settings = await prisma.seoSettings.findFirst({ orderBy: { id: "asc" } });
     if (!settings) {
-      return prisma.seoSettings.create({ data: data as any });
+      return prisma.seoSettings.create({ data: data as Prisma.SeoSettingsCreateInput });
     }
-    return prisma.seoSettings.update({ where: { id: settings.id }, data: data as any });
+    return prisma.seoSettings.update({ where: { id: settings.id }, data: data as Prisma.SeoSettingsUpdateInput });
   },
 
   async getSeoReport() {

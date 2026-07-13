@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { Prisma, $Enums } from "@prisma/client";
 import { workflowService } from "../services/workflowService";
 import { workflowRepository } from "../repositories/workflowRepository";
 import { AppError } from "../middlewares/errorHandler";
@@ -224,8 +225,8 @@ export const workflowController = {
 
   async getEditorialArticles(req: Request, res: Response, next: NextFunction) {
     try {
-      const { status, authorId, categoryId, assignedEditorId, search, page = "1", limit = "20" } = req.query;
-      const where: Record<string, unknown> = {};
+      const { status, authorId, categoryId, assignedEditorId, search, page = "1", limit = "20" } = req.query as Record<string, string | undefined>;
+      const where: Prisma.ArticleWhereInput = {};
 
       if (search) {
         where.OR = [
@@ -233,7 +234,7 @@ export const workflowController = {
           { summary: { contains: search, mode: "insensitive" } },
         ];
       }
-      if (status && status !== "ALL") where.status = status;
+      if (status && status !== "ALL") where.status = status as $Enums.ArticleStatus;
       if (authorId) where.authorId = authorId;
       if (categoryId) where.categoryId = parseInt(categoryId as string);
       if (assignedEditorId) where.assignedEditorId = assignedEditorId;
@@ -248,7 +249,7 @@ export const workflowController = {
 
       const [articles, total] = await Promise.all([
         prisma.article.findMany({
-          where: where as any,
+          where,
           orderBy: { updatedAt: "desc" },
           skip,
           take: limitNum,
@@ -258,7 +259,7 @@ export const workflowController = {
             assignedEditor: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
           },
         }),
-        prisma.article.count({ where: where as any }),
+        prisma.article.count({ where }),
       ]);
 
       res.json({

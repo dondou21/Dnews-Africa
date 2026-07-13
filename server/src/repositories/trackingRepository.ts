@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 
 export const trackingRepository = {
@@ -27,7 +28,7 @@ export const trackingRepository = {
         isReturning: previousSessions > 0,
         country: data.country, region: data.region, city: data.city,
         timezone: data.timezone, language: data.language,
-        deviceType: (data.deviceType as any) ?? "UNKNOWN",
+        deviceType: (data.deviceType as $Enums.DeviceType) ?? "UNKNOWN",
         browser: data.browser, browserVersion: data.browserVersion,
         os: data.os, osVersion: data.osVersion, deviceModel: data.deviceModel,
         screenWidth: data.screenWidth, screenHeight: data.screenHeight,
@@ -56,9 +57,9 @@ export const trackingRepository = {
         entityType: data.entityType, entityId: data.entityId,
         timeOnPage: data.timeOnPage, scrollDepth: data.scrollDepth,
         country: data.country, region: data.region, city: data.city,
-        language: data.language, deviceType: (data.deviceType as any) ?? "UNKNOWN",
+        language: data.language, deviceType: (data.deviceType as $Enums.DeviceType) ?? "UNKNOWN",
         browser: data.browser, os: data.os,
-        trafficSource: (data.trafficSource as any) ?? "DIRECT",
+        trafficSource: (data.trafficSource as $Enums.TrafficSourceType) ?? "DIRECT",
         utmSource: data.utmSource, utmMedium: data.utmMedium, utmCampaign: data.utmCampaign,
       },
     });
@@ -69,7 +70,7 @@ export const trackingRepository = {
     referrer?: string; timeOnPage?: number; scrollDepth?: number;
     completionRate?: number; isCompleted?: boolean; trafficSource?: string;
   }) {
-    return prisma.articleView.create({ data: { ...data, trafficSource: (data.trafficSource as any) ?? "DIRECT" } });
+    return prisma.articleView.create({ data: { ...data, trafficSource: (data.trafficSource as $Enums.TrafficSourceType) ?? "DIRECT" } });
   },
 
   async createEvent(data: {

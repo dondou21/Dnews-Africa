@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import crypto from "crypto";
 import { newsletterRepository } from "../repositories/newsletterRepository";
 import { emailService } from "./emailService";
@@ -32,7 +33,7 @@ export const newsletterService = {
         verified: false,
         verificationToken,
         verificationExpires,
-        source: (data.source as any) || existing.source,
+        source: (data.source as $Enums.NewsletterSource) || existing.source,
         subscribedAt: new Date(),
         unsubscribedAt: null,
       });
@@ -44,7 +45,7 @@ export const newsletterService = {
         verified: false,
         verificationToken,
         verificationExpires,
-        source: data.source as any || null,
+        source: data.source as $Enums.NewsletterSource || null,
       });
     }
 
@@ -157,11 +158,11 @@ export const newsletterService = {
     if (data.name !== undefined) updateData.name = data.name;
 
     if (data.status) {
-      const validStatuses = ["ACTIVE", "PENDING", "BLOCKED", "UNSUBSCRIBED"];
-      if (!validStatuses.includes(data.status)) {
+      const validStatuses: $Enums.NewsletterStatus[] = ["ACTIVE", "PENDING", "BLOCKED", "UNSUBSCRIBED"];
+      if (!validStatuses.includes(data.status as $Enums.NewsletterStatus)) {
         throw new AppError("Invalid status value", 400);
       }
-      updateData.status = data.status as any;
+      updateData.status = data.status as $Enums.NewsletterStatus;
       if (data.status === "UNSUBSCRIBED") {
         updateData.unsubscribedAt = new Date();
       }

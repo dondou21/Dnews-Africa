@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import { advertisementRepository } from "../repositories/advertisementRepository";
 import { AppError } from "../middlewares/errorHandler";
 import { logger } from "../utils/logger";
@@ -31,8 +32,8 @@ export const advertisementService = {
   }, user: AuthenticatedUser) {
     const ad = await advertisementRepository.create({
       title: data.title,
-      type: data.type as any,
-      placement: data.placement as any,
+      type: data.type as $Enums.AdType,
+      placement: data.placement as $Enums.AdPlacement,
       targetUrl: data.targetUrl,
       advertiser: { connect: { id: data.advertiserId } },
       campaign: data.campaignId ? { connect: { id: data.campaignId } } : undefined,
@@ -45,7 +46,7 @@ export const advertisementService = {
       priority: data.priority || 0,
       maxImpressions: data.maxImpressions || null,
       maxClicks: data.maxClicks || null,
-      rotation: (data.rotation as any) || "RANDOM",
+      rotation: (data.rotation as $Enums.AdRotation) || "RANDOM",
       weight: data.weight || 1,
       createdBy: { connect: { id: user.id } },
     });

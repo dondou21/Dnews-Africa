@@ -28,7 +28,7 @@ export const aggregationService = {
       ),
     ]);
 
-    const uniqueVisitors = Number((visitorsRaw[0] as any)?.cnt ?? 0);
+    const uniqueVisitors = Number(visitorsRaw[0]?.cnt ?? 0);
     const bounceRate = sessions > 0 ? bouncedCount / sessions : 0;
 
     await prisma.dailyStat.upsert({

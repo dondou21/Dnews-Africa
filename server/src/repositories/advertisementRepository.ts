@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import type { Prisma } from "@prisma/client";
 
@@ -12,9 +13,9 @@ export const advertisementRepository = {
         { description: { contains: params.search, mode: "insensitive" } },
       ];
     }
-    if (params.status && params.status !== "ALL") where.status = params.status as any;
-    if (params.placement && params.placement !== "ALL") where.placement = params.placement as any;
-    if (params.type && params.type !== "ALL") where.type = params.type as any;
+    if (params.status && params.status !== "ALL") where.status = params.status as $Enums.AdStatus;
+    if (params.placement && params.placement !== "ALL") where.placement = params.placement as $Enums.AdPlacement;
+    if (params.type && params.type !== "ALL") where.type = params.type as $Enums.AdType;
     if (params.advertiserId) where.advertiserId = params.advertiserId;
     if (params.campaignId) where.campaignId = params.campaignId;
 
@@ -68,7 +69,7 @@ export const advertisementRepository = {
     prisma.advertisement.findMany({
       where: {
         status: "ACTIVE",
-        placement: placement as any,
+        placement: placement as $Enums.AdPlacement,
         AND: [
           { OR: [{ startDate: null }, { startDate: { lte: new Date() } }] },
           { OR: [{ endDate: null }, { endDate: { gte: new Date() } }] },

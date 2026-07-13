@@ -11,7 +11,7 @@ export function generateToken(user: {
   return jwt.sign(
     { userId: user.id, roleId: user.roleId, roleName: user.role.name },
     config.jwtSecret,
-    { expiresIn: config.jwtExpiresIn as any }
+    { expiresIn: config.jwtExpiresIn as jwt.SignOptions["expiresIn"] }
   );
 }
 

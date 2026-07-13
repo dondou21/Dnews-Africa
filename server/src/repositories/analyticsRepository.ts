@@ -34,7 +34,7 @@ export const analyticsRepository = {
       prisma.visitorSession.count({ where: { isReturning: true, ...whereSessions } }),
     ]);
 
-    const uniqueVisitors = Number((uniqueVisitorsCount[0] as any)?.cnt ?? 0);
+    const uniqueVisitors = Number(uniqueVisitorsCount[0]?.cnt ?? 0);
     const avgSessionDuration = avgDuration._avg?.duration ?? 0;
     const bounceRate = totalSessions > 0 ? (bouncedCount / totalSessions) * 100 : 0;
     const pagesPerSession = totalSessions > 0 ? totalViews / totalSessions : 0;
@@ -302,7 +302,7 @@ export const analyticsRepository = {
     return {
       activeReaders,
       todayPageViews: todayViews,
-      todayVisitors: Number((todayVisitorsRaw[0] as any)?.cnt ?? 0),
+      todayVisitors: Number(todayVisitorsRaw[0]?.cnt ?? 0),
       activePages: activePagesRaw.map((p) => ({ path: p.path, title: p.title, activeUsers: Number(p.cnt) })),
     };
   },

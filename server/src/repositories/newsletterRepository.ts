@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import type { Prisma } from "@prisma/client";
 
@@ -24,11 +25,11 @@ export const newsletterRepository = {
     const where: Prisma.NewsletterSubscriberWhereInput = {};
 
     if (params.status && params.status !== "ALL") {
-      where.status = params.status as any;
+      where.status = params.status as $Enums.NewsletterStatus;
     }
 
     if (params.source && params.source !== "ALL") {
-      where.source = params.source as any;
+      where.source = params.source as $Enums.NewsletterSource;
     }
 
     if (params.search) {

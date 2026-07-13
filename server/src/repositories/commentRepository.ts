@@ -1,3 +1,4 @@
+import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 
 const commentInclude = {
@@ -63,7 +64,7 @@ export const commentRepository = {
   updateStatus: (id: string, status: string) =>
     prisma.comment.update({
       where: { id },
-      data: { status: status as any },
+      data: { status: status as $Enums.CommentStatus },
       include: commentInclude,
     }),
 

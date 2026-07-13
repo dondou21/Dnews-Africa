@@ -3,11 +3,7 @@ import prisma from "../utils/prisma";
 import { userRepository } from "../repositories/userRepository";
 import { AppError } from "../middlewares/errorHandler";
 import { AuthenticatedUser } from "../types/express";
-
-function stripPassword(user: any) {
-  const { passwordHash, ...rest } = user;
-  return rest;
-}
+import { stripPassword } from "../utils/userUtils";
 
 export const userService = {
   async getAll() {

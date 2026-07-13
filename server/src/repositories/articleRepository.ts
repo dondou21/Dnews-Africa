@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 
 const articleInclude = {
@@ -151,7 +151,7 @@ export const articleRepository = {
     const where: Prisma.ArticleWhereInput = {};
 
     if (params.status && params.status !== "ALL") {
-      where.status = params.status as any;
+      where.status = params.status as $Enums.ArticleStatus;
     }
 
     if (params.search) {
@@ -209,7 +209,7 @@ export const articleRepository = {
     const where: Prisma.ArticleWhereInput = { authorId };
 
     if (params.status && params.status !== "ALL") {
-      where.status = params.status as any;
+      where.status = params.status as $Enums.ArticleStatus;
     }
 
     if (params.search) {
@@ -293,7 +293,7 @@ export const articleRepository = {
         featuredImageId: articleFields.featuredImageId,
         categoryId: articleFields.categoryId,
         authorId: articleFields.authorId!,
-        status: articleFields.status as any,
+        status: articleFields.status as $Enums.ArticleStatus,
         isFeatured: articleFields.isFeatured,
         isTrending: articleFields.isTrending,
         publishedAt,
@@ -329,9 +329,9 @@ export const articleRepository = {
     return prisma.article.update({
       where: { id },
       data: {
-        ...articleFields,
+        ...articleFields as Prisma.ArticleUpdateInput,
         publishedAt,
-      } as any,
+      },
       include: articleInclude,
     });
   },
