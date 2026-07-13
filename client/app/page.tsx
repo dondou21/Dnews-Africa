@@ -8,7 +8,7 @@ import AdSlot from "@/components/home/AdSlot";
 import ArticleListItem from "@/components/home/ArticleListItem";
 import { get } from "@/lib/api-client";
 import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
-import CategoryNav from "@/components/home/CategoryNav";
+import SectionHeader from "@/components/home/SectionHeader";
 import { articles as fallbackArticles, getFeaturedArticle, getTrendingArticles, type Article as MockArticle } from "@/src/data/articles";
 
 interface ArticleItem {
@@ -248,8 +248,6 @@ export default function Home() {
             </div>
           )}
 
-          <CategoryNav />
-
           <div className="space-y-10">
             {newsArticles.length > 0 && (
               <SectionArticles title="Latest News" articles={newsArticles} />
@@ -268,9 +266,7 @@ export default function Home() {
           <AdSlot variant="banner" className="my-8" />
 
           <section>
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-brand-red">
-              More Stories
-            </h3>
+            <SectionHeader title="More Stories" />
             {latest.length === 0 ? (
               <p className="text-sm text-dnews-muted">No articles published yet.</p>
             ) : (
@@ -350,9 +346,7 @@ function SectionArticles({ title, articles }: { title: string; articles: Article
   if (articles.length === 0) return null;
   return (
     <section>
-      <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-brand-red">
-        {title}
-      </h3>
+      <SectionHeader title={title} />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {articles.map((article) => (
           <FeaturedCard key={article.id} article={article} />
