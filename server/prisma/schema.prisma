@@ -105,6 +105,10 @@ model Category {
   name        String    @unique
   slug        String    @unique
   description String?
+  parentId    Int?
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
 
   articles Article[]
 

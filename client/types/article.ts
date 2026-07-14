@@ -2,6 +2,17 @@ export interface ArticleCategory {
   id: number;
   name: string;
   slug: string;
+  description?: string | null;
+  parentId?: number | null;
+  parent?: Pick<ArticleCategory, "id" | "name" | "slug"> | null;
+  children?: Pick<ArticleCategory, "id" | "name" | "slug" | "description">[];
+}
+
+export interface CategoryTreeNode {
+  id: number;
+  name: string;
+  slug: string;
+  children: Pick<ArticleCategory, "id" | "name" | "slug" | "description">[];
 }
 
 export interface ArticleAuthor {
@@ -71,7 +82,10 @@ export type Category = ArticleCategory;
 
 export interface CategoryWithCount extends Category {
   description: string | null;
-  _count: { articles: number };
+  parentId: number | null;
+  parent: Pick<ArticleCategory, "id" | "name" | "slug"> | null;
+  children: Pick<ArticleCategory, "id" | "name" | "slug" | "description">[];
+  _count: { articles: number; children: number };
   createdAt: string;
   updatedAt: string;
 }
