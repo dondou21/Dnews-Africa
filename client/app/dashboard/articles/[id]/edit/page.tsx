@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import LoadingState from "@/components/dashboard/LoadingState";
 import CoverImageUpload from "@/components/dashboard/CoverImageUpload";
+import CategorySelect from "@/components/dashboard/CategorySelect";
 import SeoMetadataForm from "@/components/seo/SeoMetadataForm";
 import type { Article, Category } from "@/types/article";
 import type { SeoMetadata } from "@/types/seo";
@@ -48,6 +49,8 @@ function EditArticleForm() {
   const [tagsInput, setTagsInput] = useState("");
   const [status, setStatus] = useState<string>("DRAFT");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState("");
   const [seoMetadata, setSeoMetadata] = useState<Partial<SeoMetadata>>({});
   const [seoLoading, setSeoLoading] = useState(false);
   const [seoSaving, setSeoSaving] = useState(false);
@@ -73,6 +76,10 @@ function EditArticleForm() {
         setCategoryId(articleData.categoryId);
         setStatus(articleData.status as any);
         setIsFeatured(articleData.isFeatured);
+        if (articleData.scheduledAt) {
+          setScheduleEnabled(true);
+          setScheduledAt(new Date(articleData.scheduledAt).toISOString().slice(0, 16));
+        }
         setTagsInput(
           articleData.tags.map((t) => t.tag.name).join(", ")
         );
@@ -112,6 +119,7 @@ function EditArticleForm() {
       : undefined;
 
     try {
+      const finalStatus = scheduleEnabled ? "SCHEDULED" : isJournalist ? "DRAFT" : status;
       await patch(`/articles/${id}`, {
         title,
         slug,
@@ -121,9 +129,10 @@ function EditArticleForm() {
         coverImageAlt: coverImageAlt || undefined,
         featuredImageId: featuredImageId || undefined,
         categoryId: Number(categoryId),
-        status: isJournalist ? "DRAFT" : status,
+        status: finalStatus,
         isFeatured,
         tags,
+        scheduledAt: scheduleEnabled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
       });
       router.push("/dashboard/articles");
     } catch (err: unknown) {
@@ -314,25 +323,13 @@ function EditArticleForm() {
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
                 Category <span className="text-dnews-red">*</span>
               </label>
-              <select
+              <CategorySelect
+                categories={categories}
+                loading={categoriesLoading}
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : "")}
+                onChange={(id) => setCategoryId(id)}
                 required
-                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
-              >
-                <option value="">
-                  {categoriesLoading
-                    ? "Loading categories..."
-                    : categories.length === 0
-                      ? "No categories available"
-                      : "Select category"}
-                </option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              />
               {!categoriesLoading && categories.length === 0 && (
                 <p className="mt-1 text-xs text-dnews-red">
                   No categories found. Create one in Categories first.
@@ -374,8 +371,8 @@ function EditArticleForm() {
                     type="radio"
                     name="status"
                     value="DRAFT"
-                    checked={status === "DRAFT"}
-                    onChange={() => setStatus("DRAFT")}
+                    checked={status === "DRAFT" && !scheduleEnabled}
+                    onChange={() => { setStatus("DRAFT"); setScheduleEnabled(false); }}
                     disabled={isJournalist && article?.status !== "DRAFT" && article?.status !== "IDEA" && article?.status !== "NEEDS_REVISION"}
                     className="accent-dnews-accent"
                   />
@@ -389,7 +386,7 @@ function EditArticleForm() {
                         name="status"
                         value="PUBLISHED"
                         checked={status === "PUBLISHED"}
-                        onChange={() => setStatus("PUBLISHED")}
+                        onChange={() => { setStatus("PUBLISHED"); setScheduleEnabled(false); }}
                         className="accent-dnews-accent"
                       />
                       <span className="text-sm text-dnews-dark">Published</span>
@@ -400,7 +397,7 @@ function EditArticleForm() {
                         name="status"
                         value="ARCHIVED"
                         checked={status === "ARCHIVED"}
-                        onChange={() => setStatus("ARCHIVED")}
+                        onChange={() => { setStatus("ARCHIVED"); setScheduleEnabled(false); }}
                         className="accent-dnews-accent"
                       />
                       <span className="text-sm text-dnews-dark">Archived</span>
@@ -411,17 +408,49 @@ function EditArticleForm() {
             </div>
 
             {!isJournalist && (
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isFeatured}
-                  onChange={(e) => setIsFeatured(e.target.checked)}
-                  className="h-4 w-4 accent-dnews-accent"
-                />
-                <span className="text-sm text-dnews-dark">Featured article</span>
-              </label>
+              <>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={scheduleEnabled}
+                    onChange={(e) => {
+                      setScheduleEnabled(e.target.checked);
+                      if (e.target.checked) setStatus("DRAFT");
+                    }}
+                    className="h-4 w-4 accent-dnews-accent"
+                  />
+                  <span className="text-sm text-dnews-dark">Schedule for later</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isFeatured}
+                    onChange={(e) => setIsFeatured(e.target.checked)}
+                    className="h-4 w-4 accent-dnews-accent"
+                  />
+                  <span className="text-sm text-dnews-dark">Featured article</span>
+                </label>
+              </>
             )}
           </div>
+
+          {scheduleEnabled && (
+            <div className="mt-4 border-t border-dnews-border pt-4">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+                Schedule Date & Time <span className="text-dnews-red">*</span>
+              </label>
+              <input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
+              />
+              <p className="mt-1 text-xs text-dnews-muted">
+                The article will be automatically published at this date and time.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="rounded-sm border border-dnews-border bg-dnews-card overflow-hidden">

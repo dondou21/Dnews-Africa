@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   LayoutDashboard,
   FileText,
@@ -12,6 +13,8 @@ import {
   SendHorizonal,
   CheckCircle2,
   Calendar,
+  Clock,
+  ExternalLink,
 } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";
@@ -20,6 +23,7 @@ import { get } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { DashboardStats } from "@/types/dashboard";
+import type { Article } from "@/types/article";
 
 export default function DashboardOverview() {
   return (
@@ -34,14 +38,33 @@ function DashboardOverviewContent() {
   const role = user?.role.name ?? "";
   const firstName = user?.firstName ?? "";
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [scheduledArticles, setScheduledArticles] = useState<Article[]>([]);
+  const [scheduledLoading, setScheduledLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     get<DashboardStats>("/dashboard")
       .then(setStats)
       .catch(() => setError("Failed to load dashboard statistics."))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (["Admin", "Editor"].includes(role)) {
+      get<{ articles: Article[] }>("/articles/admin/all?status=SCHEDULED&limit=10")
+        .then((res) => setScheduledArticles(res.articles || []))
+        .catch(() => {})
+        .finally(() => setScheduledLoading(false));
+    } else {
+      setScheduledLoading(false);
+    }
+  }, [role]);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(id);
   }, []);
 
   if (loading) {
@@ -81,26 +104,31 @@ function DashboardOverviewContent() {
       label: "Total Articles",
       value: stats.overview.totalArticles,
       icon: FileText,
+      href: "/dashboard/articles",
     },
     {
       label: "Draft Articles",
       value: stats.overview.draftArticles,
       icon: FileWarning,
+      href: "/dashboard/articles?status=DRAFT",
     },
     {
       label: "Pending Review",
       value: stats.overview.pendingReviewArticles,
       icon: SendHorizonal,
+      href: "/dashboard/articles?status=PENDING_REVIEW",
     },
     {
       label: "Published Articles",
       value: stats.overview.publishedArticles,
       icon: CheckCircle2,
+      href: "/dashboard/articles?status=PUBLISHED",
     },
     {
       label: "Scheduled",
       value: stats.overview.scheduledArticles,
       icon: Calendar,
+      href: "/dashboard/articles?status=SCHEDULED",
     },
     {
       label: "Categories",
@@ -146,6 +174,48 @@ function DashboardOverviewContent() {
           <StatsCard key={card.label} {...card} />
         ))}
       </div>
+
+      {["Admin", "Editor"].includes(role) && !scheduledLoading && scheduledArticles.length > 0 && (
+        <div>
+          <h3 className="mb-4 font-heading text-lg font-semibold text-dnews-dark">
+            Upcoming Scheduled Articles
+          </h3>
+          <div className="mb-8 space-y-2">
+            {scheduledArticles.map((article) => {
+              const remaining = article.scheduledAt ? new Date(article.scheduledAt).getTime() - now : 0;
+              const hours = Math.floor(remaining / 3600000);
+              const minutes = Math.floor((remaining % 3600000) / 60000);
+              const days = Math.floor(hours / 24);
+              const displayHours = hours % 24;
+              return (
+                <Link
+                  key={article.id}
+                  href={`/dashboard/articles/${article.id}`}
+                  className="flex items-center justify-between rounded-sm border border-dnews-border bg-dnews-card px-4 py-3 transition-colors hover:bg-dnews-light-gray"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Calendar size={16} className="shrink-0 text-purple-500" />
+                    <span className="truncate text-sm font-medium text-dnews-dark">
+                      {article.title}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    {remaining > 0 ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-purple-600">
+                        <Clock size={12} />
+                        {days > 0 ? `${days}d ` : ""}{displayHours}h {minutes}m
+                      </span>
+                    ) : (
+                      <span className="text-xs text-dnews-red">Overdue</span>
+                    )}
+                    <ExternalLink size={14} className="text-dnews-muted" />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="mt-8">
         <h3 className="mb-4 font-heading text-lg font-semibold text-dnews-dark">

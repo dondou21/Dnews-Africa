@@ -8,6 +8,7 @@ import { get, post } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import CoverImageUpload from "@/components/dashboard/CoverImageUpload";
+import CategorySelect from "@/components/dashboard/CategorySelect";
 import type { Category } from "@/types/article";
 
 
@@ -38,8 +39,10 @@ function NewArticleForm() {
   const [featuredImageId, setFeaturedImageId] = useState("");
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [tagsInput, setTagsInput] = useState("");
-  const [status, setStatus] = useState<"DRAFT" | "PUBLISHED">("DRAFT");
+  const [status, setStatus] = useState<"DRAFT" | "PUBLISHED" | "SCHEDULED">("DRAFT");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState("");
 
   useEffect(() => {
     setCategoriesLoading(true);
@@ -85,6 +88,7 @@ function NewArticleForm() {
       : undefined;
 
     try {
+      const finalStatus = scheduleEnabled ? "SCHEDULED" : status;
       await post("/articles", {
         title,
         slug,
@@ -94,9 +98,10 @@ function NewArticleForm() {
         coverImageAlt: coverImageAlt || undefined,
         featuredImageId: featuredImageId || undefined,
         categoryId: Number(categoryId),
-        status,
+        status: finalStatus,
         isFeatured,
         tags,
+        scheduledAt: scheduleEnabled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
       });
       router.push(`/dashboard/articles`);
     } catch (err: unknown) {
@@ -227,25 +232,13 @@ function NewArticleForm() {
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
                 Category <span className="text-dnews-red">*</span>
               </label>
-              <select
+              <CategorySelect
+                categories={categories}
+                loading={categoriesLoading}
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : "")}
+                onChange={(id) => setCategoryId(id)}
                 required
-                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
-              >
-                <option value="">
-                  {categoriesLoading
-                    ? "Loading categories..."
-                    : categories.length === 0
-                      ? "No categories available"
-                      : "Select category"}
-                </option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              />
               {!categoriesLoading && categories.length === 0 && (
                 <p className="mt-1 text-xs text-dnews-red">
                   No categories found. Create one in Categories first.
@@ -287,8 +280,8 @@ function NewArticleForm() {
                     type="radio"
                     name="status"
                     value="DRAFT"
-                    checked={status === "DRAFT"}
-                    onChange={() => setStatus("DRAFT")}
+                    checked={status === "DRAFT" && !scheduleEnabled}
+                    onChange={() => { setStatus("DRAFT"); setScheduleEnabled(false); }}
                     className="accent-dnews-accent"
                   />
                   <span className="text-sm text-dnews-dark">Draft</span>
@@ -300,7 +293,7 @@ function NewArticleForm() {
                       name="status"
                       value="PUBLISHED"
                       checked={status === "PUBLISHED"}
-                      onChange={() => setStatus("PUBLISHED")}
+                      onChange={() => { setStatus("PUBLISHED"); setScheduleEnabled(false); }}
                       className="accent-dnews-accent"
                     />
                     <span className="text-sm text-dnews-dark">Published</span>
@@ -310,17 +303,49 @@ function NewArticleForm() {
             </div>
 
             {!isJournalist && (
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isFeatured}
-                  onChange={(e) => setIsFeatured(e.target.checked)}
-                  className="h-4 w-4 accent-dnews-accent"
-                />
-                <span className="text-sm text-dnews-dark">Featured article</span>
-              </label>
+              <>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={scheduleEnabled}
+                    onChange={(e) => {
+                      setScheduleEnabled(e.target.checked);
+                      if (e.target.checked) setStatus("DRAFT");
+                    }}
+                    className="h-4 w-4 accent-dnews-accent"
+                  />
+                  <span className="text-sm text-dnews-dark">Schedule for later</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isFeatured}
+                    onChange={(e) => setIsFeatured(e.target.checked)}
+                    className="h-4 w-4 accent-dnews-accent"
+                  />
+                  <span className="text-sm text-dnews-dark">Featured article</span>
+                </label>
+              </>
             )}
           </div>
+
+          {scheduleEnabled && (
+            <div className="mt-4 border-t border-dnews-border pt-4">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+                Schedule Date & Time <span className="text-dnews-red">*</span>
+              </label>
+              <input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
+              />
+              <p className="mt-1 text-xs text-dnews-muted">
+                The article will be automatically published at this date and time.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-end gap-3">
