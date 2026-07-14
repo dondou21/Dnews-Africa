@@ -96,14 +96,14 @@ export const articleRepository = {
       ];
     }
 
-    const orderBy: Prisma.ArticleOrderByWithRelationInput =
+    const orderBy: Prisma.ArticleOrderByWithRelationInput[] =
       params.sort === "oldest"
-        ? { publishedAt: "asc" }
+        ? [{ publishedAt: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }]
         : params.sort === "title_asc"
-          ? { title: "asc" }
+          ? [{ title: "asc" }]
           : params.sort === "title_desc"
-            ? { title: "desc" }
-            : { publishedAt: "desc" };
+            ? [{ title: "desc" }]
+            : [{ publishedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }];
 
     const skip = (params.page - 1) * params.limit;
 
@@ -161,14 +161,14 @@ export const articleRepository = {
       ];
     }
 
-    const orderBy: Prisma.ArticleOrderByWithRelationInput =
+    const orderBy: Prisma.ArticleOrderByWithRelationInput[] =
       params.sort === "oldest"
-        ? { createdAt: "asc" as const }
+        ? [{ createdAt: "asc" }, { publishedAt: { sort: "asc", nulls: "last" } }]
         : params.sort === "title_asc"
-          ? { title: "asc" as const }
+          ? [{ title: "asc" }]
           : params.sort === "title_desc"
-            ? { title: "desc" as const }
-            : { createdAt: "desc" as const };
+            ? [{ title: "desc" }]
+            : [{ createdAt: "desc" }, { publishedAt: { sort: "desc", nulls: "last" } }];
 
     const skip = (params.page - 1) * params.limit;
 
@@ -219,14 +219,14 @@ export const articleRepository = {
       ];
     }
 
-    const orderBy: Prisma.ArticleOrderByWithRelationInput =
+    const orderBy: Prisma.ArticleOrderByWithRelationInput[] =
       params.sort === "oldest"
-        ? { createdAt: "asc" as const }
+        ? [{ createdAt: "asc" }, { publishedAt: { sort: "asc", nulls: "last" } }]
         : params.sort === "title_asc"
-          ? { title: "asc" as const }
+          ? [{ title: "asc" }]
           : params.sort === "title_desc"
-            ? { title: "desc" as const }
-            : { createdAt: "desc" as const };
+            ? [{ title: "desc" }]
+            : [{ createdAt: "desc" }, { publishedAt: { sort: "desc", nulls: "last" } }];
 
     const skip = (params.page - 1) * params.limit;
 
@@ -313,6 +313,8 @@ export const articleRepository = {
     let publishedAt: Date | undefined;
     if (articleFields.publishedAt) {
       publishedAt = new Date(articleFields.publishedAt);
+    } else if (articleFields.status === "PUBLISHED") {
+      publishedAt = new Date();
     }
 
     if (tags) {
