@@ -44,6 +44,12 @@ function formatDate(dateStr: string | null): string {
   }
 }
 
+function estimateReadingTime(text: string): number {
+  const wordsPerMinute = 200;
+  const words = text.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / wordsPerMinute));
+}
+
 function buildCategorySlugMap(categories: CategoryWithCount[]): Record<string, Set<string>> {
   const map: Record<string, Set<string>> = {};
   const childrenByParent: Record<number, string[]> = {};
@@ -199,6 +205,19 @@ function mockToArticleItem(a: MockArticle): ArticleItem {
 
 export default function Home() {
   const data = useApiArticles();
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  const carouselArticles = data.heroFeatured
+    ? [data.heroFeatured, ...data.featuredCards].filter(Boolean).slice(0, 5)
+    : [];
+
+  useEffect(() => {
+    if (carouselArticles.length < 2) return;
+    const id = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % carouselArticles.length);
+    }, 6000);
+    return () => clearInterval(id);
+  }, [carouselArticles.length]);
 
   if (data.loading) {
     return (
@@ -236,48 +255,78 @@ export default function Home() {
     <div className="mx-auto max-w-[1180px] px-4 py-4 md:py-6">
       <div className="flex flex-col lg:flex-row lg:gap-8">
         <main className="min-w-0 flex-1">
-          {heroFeatured && (
-            <article className="group mb-6 border-b border-dnews-border pb-6">
-              <Link href={`/articles/${heroFeatured.slug}`}>
-                <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-                  <Image
-                    src={getFeaturedImageUrl(heroFeatured.featuredImage, heroFeatured.coverImageUrl)}
-                    alt={heroFeatured.featuredImage?.alt || heroFeatured.coverImageAlt || heroFeatured.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 1024px) 100vw, 780px"
-                    priority
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = FALLBACK_IMAGE;
-                    }}
-                  />
+          {carouselArticles.length > 0 && (
+            <section className="mb-6 border-b border-dnews-border pb-6">
+              <div className="relative overflow-hidden rounded-sm">
+                {carouselArticles.map((article, idx) => (
+                  <article
+                    key={article.slug}
+                    className={`transition-opacity duration-700 ${idx === heroIndex ? "opacity-100 relative" : "opacity-0 absolute inset-0 pointer-events-none"}`}
+                  >
+                    <Link href={`/articles/${article.slug}`}>
+                      <div className="relative aspect-[16/9] w-full overflow-hidden bg-dnews-light-gray">
+                        <Image
+                          src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
+                          alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 1024px) 100vw, 780px"
+                          priority={idx === 0}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = FALLBACK_IMAGE;
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                          <span className="mb-2 inline-block rounded bg-dnews-red px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
+                            {article.category?.name || ""}
+                          </span>
+                          <h2 className="font-heading mt-2 text-xl font-bold leading-tight text-white md:text-2xl lg:text-3xl">
+                            {article.title}
+                          </h2>
+                          <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-white/80 max-w-2xl">
+                            {article.summary}
+                          </p>
+                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/60">
+                            <span className="font-medium text-white/80">
+                              By {article.author?.firstName || ""} {article.author?.lastName || ""}
+                            </span>
+                            <span>·</span>
+                            <span>{formatDate(article.publishedAt)}</span>
+                            <span>·</span>
+                            <span>{estimateReadingTime(article.summary + " " + (article as any).content || "")} min read</span>
+                          </div>
+                          <span className="mt-3 inline-block rounded-sm border border-white/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white hover:text-dnews-dark">
+                            Read More
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </article>
+                ))}
+              </div>
+
+              {carouselArticles.length > 1 && (
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  {carouselArticles.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setHeroIndex(idx)}
+                      className={`h-2 rounded-full transition-all ${
+                        idx === heroIndex ? "w-8 bg-dnews-red" : "w-2 bg-dnews-border hover:bg-dnews-muted"
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
                 </div>
-                <div className="max-w-3xl">
-                  <span className="mb-2 inline-block rounded bg-dnews-red px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
-                    {heroFeatured.category?.name || ""}
-                  </span>
-                  <h2 className="font-heading mt-2 text-2xl font-bold leading-tight text-dnews-dark md:text-3xl lg:text-4xl">
-                    {heroFeatured.title}
-                  </h2>
-                  <p className="mt-2 line-clamp-3 text-base leading-relaxed text-dnews-gray">
-                    {heroFeatured.summary}
-                  </p>
-                  <div className="mt-3 flex items-center gap-3 text-sm text-dnews-muted">
-                    <span className="font-medium text-dnews-dark">
-                      By {heroFeatured.author?.firstName || ""} {heroFeatured.author?.lastName || ""}
-                    </span>
-                    <span>·</span>
-                    <span>{formatDate(heroFeatured.publishedAt)}</span>
-                  </div>
-                </div>
-              </Link>
-            </article>
+              )}
+            </section>
           )}
 
-          {featuredCards.length > 0 && (
+          {carouselArticles.length > 0 && featuredCards.length > 0 && (
             <div className="mb-8 grid gap-6 sm:grid-cols-2">
-              {featuredCards.map((article) => (
+              {featuredCards.filter((a) => !carouselArticles.some((c) => c.slug === a.slug)).slice(0, 2).map((article) => (
                 <FeaturedCard key={article.id} article={article} />
               ))}
             </div>
