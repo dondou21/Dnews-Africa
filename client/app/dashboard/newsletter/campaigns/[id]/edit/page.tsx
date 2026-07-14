@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, type FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/shared/AppImage";
 import { ArrowLeft, Upload, Eye } from "lucide-react";
 import { get, patch, uploadFile } from "@/lib/api-client";
 import { resolveImageUrl } from "@/lib/image";

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/shared/AppImage";
 import RightSidebar from "@/components/home/RightSidebar";
 import AdSlot from "@/components/home/AdSlot";
 import ArticleListItem from "@/components/home/ArticleListItem";
@@ -10,6 +10,7 @@ import { get } from "@/lib/api-client";
 import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
 import SectionHeader from "@/components/home/SectionHeader";
 import { articles as fallbackArticles, getFeaturedArticle, getTrendingArticles, type Article as MockArticle } from "@/src/data/articles";
+import type { CategoryWithCount } from "@/types/article";
 
 interface ArticleItem {
   id: string;
@@ -43,53 +44,95 @@ function formatDate(dateStr: string | null): string {
   }
 }
 
+function buildCategorySlugMap(categories: CategoryWithCount[]): Record<string, Set<string>> {
+  const map: Record<string, Set<string>> = {};
+  const childrenByParent: Record<number, string[]> = {};
+  const slugById: Record<number, string> = {};
+
+  for (const cat of categories) {
+    slugById[cat.id] = cat.slug;
+    if (cat.parentId != null) {
+      if (!childrenByParent[cat.parentId]) childrenByParent[cat.parentId] = [];
+      childrenByParent[cat.parentId].push(cat.slug);
+    }
+  }
+
+  function getAllDescendants(slug: string, visited: Set<string> = new Set()): Set<string> {
+    if (visited.has(slug)) return visited;
+    visited.add(slug);
+    const cat = categories.find((c) => c.slug === slug);
+    if (cat) {
+      const childSlugs = childrenByParent[cat.id] || [];
+      for (const childSlug of childSlugs) {
+        getAllDescendants(childSlug, visited);
+      }
+    }
+    return visited;
+  }
+
+  for (const cat of categories) {
+    if (cat.parentId == null) {
+      map[cat.slug] = getAllDescendants(cat.slug);
+    }
+  }
+
+  return map;
+}
+
 function useApiArticles() {
   const [allArticles, setAllArticles] = useState<ArticleItem[]>([]);
   const [featuredArticles, setFeaturedArticles] = useState<ArticleItem[]>([]);
   const [trending, setTrending] = useState<ArticleItem[]>([]);
+  const [categorySlugMap, setCategorySlugMap] = useState<Record<string, Set<string>>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       try {
-        const [allRes, featuredRes] = await Promise.all([
+        const [allRes, featuredRes, cats] = await Promise.all([
           get<ApiResponse>("/articles?limit=30"),
           get<ArticleItem[]>("/articles/featured"),
+          get<CategoryWithCount[]>("/categories"),
         ]);
+        if (cancelled) return;
         setAllArticles(allRes.articles || []);
         setFeaturedArticles(featuredRes || []);
+        setCategorySlugMap(buildCategorySlugMap(cats));
         const latest = allRes.articles || [];
         setTrending(latest.filter((a) => a.isFeatured || a.featuredImage).slice(0, 5));
       } catch {
-        setAllArticles([]);
-        setFeaturedArticles([]);
+        if (!cancelled) {
+          console.error("Failed to fetch homepage articles");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     load();
+    return () => { cancelled = true; };
   }, []);
+
+  function articlesInSection(sectionSlugs: string[]): ArticleItem[] {
+    const allowed = new Set(sectionSlugs);
+    for (const slug of sectionSlugs) {
+      const descendants = categorySlugMap[slug];
+      if (descendants) {
+        for (const d of descendants) allowed.add(d);
+      }
+    }
+    return allArticles.filter((a) => allowed.has(a.category?.slug)).slice(0, 3);
+  }
 
   const latest = allArticles.slice(0, 6);
   const heroFeatured = featuredArticles.length > 0 ? featuredArticles[0] : null;
   const featuredCards = featuredArticles.slice(1, 3);
   const fallback = fallbackArticles;
 
-  const newsArticles = allArticles.filter((a) =>
-    ["top-stories", "news", "youth"].includes(a.category?.slug)
-  ).slice(0, 3);
-
-  const businessArticles = allArticles.filter((a) =>
-    a.category?.slug === "business"
-  ).slice(0, 3);
-
-  const sportsArticles = allArticles.filter((a) =>
-    a.category?.slug === "sports"
-  ).slice(0, 3);
-
-  const entertainmentArticles = allArticles.filter((a) =>
-    ["culture", "entertainment", "lifestyle"].includes(a.category?.slug)
-  ).slice(0, 3);
+  const newsArticles = articlesInSection(["top-stories", "youth"]);
+  const businessArticles = articlesInSection(["business"]);
+  const sportsArticles = articlesInSection(["sports"]);
+  const entertainmentArticles = articlesInSection(["culture", "lifestyle", "entertainment"]);
 
   if (!loading && allArticles.length === 0) {
     return {

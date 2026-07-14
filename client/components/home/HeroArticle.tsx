@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/shared/AppImage";
 import Link from "next/link";
 import { FALLBACK_IMAGE } from "@/lib/image";
 import type { Article } from "@/src/data/articles";
