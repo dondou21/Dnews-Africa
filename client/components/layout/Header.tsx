@@ -41,6 +41,13 @@ export default function Header() {
             Independent news media across the continent and the world
           </p>
           <div className="hidden items-center gap-2 md:flex">
+            <button
+              onClick={toggleSearch}
+              className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
+              aria-label="Open search"
+            >
+              <Search size={16} />
+            </button>
             <Link
               href="/#newsletter"
               className="inline-flex items-center gap-1.5 rounded-sm bg-dnews-accent px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
@@ -49,18 +56,18 @@ export default function Header() {
               <Bell size={13} />
               Subscribe
             </Link>
-            <button
-              onClick={toggleSearch}
-              className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
-              aria-label="Open search"
-            >
-              <Search size={16} />
-            </button>
             <ThemeToggle />
           </div>
         </div>
 
         <div className="mt-1 flex items-center justify-center gap-2 md:hidden">
+          <button
+            onClick={toggleSearch}
+            className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
+            aria-label="Open search"
+          >
+            <Search size={16} />
+          </button>
           <Link
             href="/#newsletter"
             className="inline-flex items-center gap-1 rounded-sm bg-dnews-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
@@ -69,13 +76,6 @@ export default function Header() {
             <Bell size={12} />
             Subscribe
           </Link>
-          <button
-            onClick={toggleSearch}
-            className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
-            aria-label="Open search"
-          >
-            <Search size={16} />
-          </button>
           <ThemeToggle />
         </div>
       </div>

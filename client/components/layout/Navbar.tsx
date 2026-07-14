@@ -33,6 +33,16 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    label: "Politics",
+    href: "/politics",
+    children: [
+      { label: "Elections", href: "/politics/elections" },
+      { label: "Policy", href: "/politics/policy" },
+      { label: "Governance", href: "/politics/governance" },
+      { label: "Diplomacy", href: "/politics/diplomacy" },
+    ],
+  },
+  {
     label: "Business",
     href: "/business",
     children: [
