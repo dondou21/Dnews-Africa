@@ -184,74 +184,84 @@ function parseArticles(text: string): ParsedArticle[] {
   const articles: ParsedArticle[] = [];
   let current: ParsedArticle | null = null;
   let contentLines: string[] = [];
-  let inArticle = false;
+  let tocMode = false;
+  let tocCount = 0;
 
-  const articleStarts = [
-    /^\d+\.\s+/, /^##\s+\d+\./, /^\d+\)\s+/
-  ];
+  function finishArticle() {
+    if (!current) return;
+    current.content = contentLines.join("\n\n").trim();
+    if (current.content && current.content.length > 50) articles.push(current);
+    current = null;
+    contentLines = [];
+  }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
-    const isPageMarker = /^--\s*\d+\s+of\s+\d+\s*--$/.test(line);
-    if (isPageMarker) continue;
+    // Skip page markers entirely
+    if (/^--\s*\d+\s+of\s+\d+\s*--$/.test(line)) continue;
 
-    const isTOC = /^Table of Contents/i.test(line);
-    if (isTOC) {
-      inArticle = false;
-      if (current) {
-        current.content = contentLines.join("\n\n").trim();
-        if (current.content) articles.push(current);
-        current = null;
-        contentLines = [];
-      }
+    // Detect Table of Contents
+    if (/^Table of Contents/i.test(line)) {
+      tocMode = true;
+      finishArticle();
       continue;
     }
 
-    const isTOCEntry = /^\d+\.\s+[A-Z]/.test(line) && !inArticle;
-    if (isTOCEntry) continue;
+    // Detect article start: "N. Title"
+    const articleMatch = line.match(/^(\d+)\.\s+(.+)/);
 
-    const articleMatch = line.match(/^(?:##\s*)?(\d+)\.\s+(.+)/);
     if (articleMatch) {
-      if (current) {
-        current.content = contentLines.join("\n\n").trim();
-        if (current.content && current.content.length > 50) articles.push(current);
+      const num = parseInt(articleMatch[1], 10);
+
+      // In TOC mode: count entries and skip them.
+      // TOC has exactly 12 entries. After seeing all 12, the next "N." is actual content.
+      if (tocMode) {
+        tocCount++;
+        // After 12 TOC entries, the next numbered line starts actual articles
+        if (num === 1 && tocCount > 12) {
+          tocMode = false;
+        } else {
+          continue;
+        }
       }
+
+      // Save previous article before starting a new one
+      finishArticle();
+
       current = {
-        index: parseInt(articleMatch[1], 10),
+        index: num,
         title: articleMatch[2].trim(),
         authorName: "",
         content: "",
       };
       contentLines = [];
-      inArticle = true;
+      continue;
+    }
 
-      const byMatch = lines[i + 1]?.trim().match(/^By\s+(.+)/i);
+    if (current && !current.authorName) {
+      // Still looking for the byline — this line might be:
+      //   1) A title continuation
+      //   2) A blank line or page marker (already skipped above)
+      //   3) The "By Author" line itself
+      const byMatch = line.match(/^By\s+(.+)/i);
       if (byMatch) {
         current.authorName = byMatch[1].trim();
-        i++;
-      } else {
-        const nextLine = lines[i + 1]?.trim();
-        if (nextLine && /^By\s+/i.test(nextLine)) {
-          current.authorName = nextLine.replace(/^By\s+/i, "").trim();
-          i++;
-        }
+      } else if (line) {
+        current.title += " " + line;
       }
       continue;
     }
 
-    if (inArticle && current) {
-      if (line.length > 0 || contentLines.length > 0) {
+    // Regular content (author already found)
+    if (current) {
+      if (line || contentLines.length > 0) {
         contentLines.push(line);
       }
     }
   }
 
-  if (current) {
-    current.content = contentLines.join("\n\n").trim();
-    if (current.content && current.content.length > 50) articles.push(current);
-  }
-
+  finishArticle();
   return articles;
 }
 
