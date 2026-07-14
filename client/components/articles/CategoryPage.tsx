@@ -90,25 +90,30 @@ export default function CategoryPage({
           ))}
         </div>
       ) : (
-        <div className="rounded-sm border border-dnews-border bg-dnews-card p-10 text-center">
-          <div className="mx-auto max-w-sm">
-            <div className="mb-4 text-4xl">&#128196;</div>
-            <h2 className="font-heading text-xl font-bold text-dnews-dark">
-              No articles available
+        <div className="rounded-sm border border-dnews-border bg-dnews-card p-12 text-center">
+          <div className="mx-auto max-w-md">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-dnews-light-gray">
+              <svg className="h-8 w-8 text-dnews-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+              </svg>
+            </div>
+            <h2 className="font-heading text-2xl font-bold text-dnews-dark">
+              No published articles yet
             </h2>
-            <p className="mt-2 text-sm text-dnews-muted">
-              There are currently no published articles in this category. Please check back later.
+            <p className="mt-3 text-sm leading-relaxed text-dnews-muted">
+              There are currently no published articles in <strong className="text-dnews-dark">{title}</strong>.
+              Our team is working on bringing you the latest stories. Please check back later.
             </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/"
-                className="rounded-sm bg-dnews-accent px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
+                className="rounded-sm bg-dnews-accent px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
               >
                 Back to Home
               </Link>
               <Link
                 href="/news"
-                className="rounded-sm border border-dnews-border px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+                className="rounded-sm border border-dnews-border px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-dnews-gray transition-colors hover:bg-dnews-light-gray"
               >
                 Browse All News
               </Link>
