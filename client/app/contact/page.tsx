@@ -18,7 +18,7 @@ export default function ContactPage() {
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
       <div className="mb-10">
-        <h1 className="font-heading text-3xl font-bold text-brand-red md:text-4xl">
+        <h1 className="font-heading text-3xl font-bold text-dnews-accent md:text-4xl">
           Contact Us
         </h1>
         <p className="mt-2 text-sm text-dnews-gray">
@@ -28,7 +28,7 @@ export default function ContactPage() {
 
       <div className="grid gap-10 lg:grid-cols-2">
         <section>
-          <h2 className="font-heading text-xl font-semibold text-brand-red">
+          <h2 className="font-heading text-xl font-semibold text-dnews-accent">
             Get in Touch
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-dnews-gray">
@@ -42,7 +42,7 @@ export default function ContactPage() {
           </a>
 
           <div className="mt-6">
-            <h3 className="font-heading text-lg font-semibold text-brand-red">
+            <h3 className="font-heading text-lg font-semibold text-dnews-accent">
               Follow Us
             </h3>
             <div className="mt-3 flex flex-wrap gap-3">
@@ -64,7 +64,7 @@ export default function ContactPage() {
         </section>
 
         <section>
-          <h2 className="font-heading text-xl font-semibold text-brand-red">
+          <h2 className="font-heading text-xl font-semibold text-dnews-accent">
             Send Us a Message
           </h2>
           <form className="mt-4 space-y-4">
