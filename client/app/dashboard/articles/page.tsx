@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Plus, Search, ExternalLink, Edit, Trash2, Send, Eye, Clock } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
@@ -34,6 +35,8 @@ export default function ArticlesPage() {
 
 function ArticlesPageContent() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const isJournalist = user?.role.name === "Journalist";
   const isSelfOnly = user?.role.name === "Journalist" || user?.role.name === "Editor";
   const [now, setNow] = useState(Date.now());
@@ -43,7 +46,7 @@ function ArticlesPageContent() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [status, setStatus] = useState("ALL");
+  const [status, setStatus] = useState(searchParams.get("status") || "ALL");
   const [page, setPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<Article | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -87,6 +90,13 @@ function ArticlesPageContent() {
   const handleStatusFilter = (value: string) => {
     setStatus(value);
     setPage(1);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "ALL") {
+      params.delete("status");
+    } else {
+      params.set("status", value);
+    }
+    router.replace(`/dashboard/articles?${params.toString()}`, { scroll: false });
   };
 
   const handleDelete = async () => {
