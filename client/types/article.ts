@@ -112,6 +112,7 @@ export interface CreateArticleInput {
   isFeatured?: boolean;
   isTrending?: boolean;
   publishedAt?: string;
+  scheduledAt?: string;
   tags?: string[];
 }
 

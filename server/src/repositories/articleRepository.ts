@@ -44,6 +44,7 @@ export interface CreateArticleInput {
   isFeatured?: boolean;
   isTrending?: boolean;
   publishedAt?: string;
+  scheduledAt?: string;
   tags?: string[];
 }
 
@@ -61,6 +62,7 @@ export interface UpdateArticleInput {
   isFeatured?: boolean;
   isTrending?: boolean;
   publishedAt?: string;
+  scheduledAt?: string;
   tags?: string[];
 }
 
@@ -280,6 +282,11 @@ export const articleRepository = {
       publishedAt = new Date();
     }
 
+    let scheduledAt: Date | undefined;
+    if (articleFields.scheduledAt) {
+      scheduledAt = new Date(articleFields.scheduledAt);
+    }
+
     const tagIds = tags?.length ? await mapTagSlugsToIds(tags) : [];
 
     return prisma.article.create({
@@ -297,6 +304,7 @@ export const articleRepository = {
         isFeatured: articleFields.isFeatured,
         isTrending: articleFields.isTrending,
         publishedAt,
+        scheduledAt,
         tags: tagIds.length
           ? {
               create: tagIds.map((tagId) => ({ tagId })),
@@ -317,6 +325,13 @@ export const articleRepository = {
       publishedAt = new Date();
     }
 
+    let scheduledAt: Date | undefined | null;
+    if (articleFields.scheduledAt === null) {
+      scheduledAt = null;
+    } else if (articleFields.scheduledAt) {
+      scheduledAt = new Date(articleFields.scheduledAt);
+    }
+
     if (tags) {
       await prisma.articleTag.deleteMany({ where: { articleId: id } });
 
@@ -333,6 +348,7 @@ export const articleRepository = {
       data: {
         ...articleFields as Prisma.ArticleUpdateInput,
         publishedAt,
+        scheduledAt,
       },
       include: articleInclude,
     });

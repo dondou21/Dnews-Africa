@@ -13,6 +13,7 @@ export const createArticleSchema = z.object({
   isFeatured: z.boolean().optional(),
   isTrending: z.boolean().optional(),
   publishedAt: z.string().optional(),
+  scheduledAt: z.string().optional(),
   tags: z.array(z.string().min(1)).optional(),
 });
 
