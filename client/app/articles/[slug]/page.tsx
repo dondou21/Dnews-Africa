@@ -10,6 +10,7 @@ import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import AdSlot from "@/components/home/AdSlot";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
+import ContentRenderer from "@/components/shared/ContentRenderer";
 
 interface ArticleDetail {
   id: string;
@@ -145,9 +146,7 @@ export default function ArticlePage() {
             </div>
 
             <div className="mt-6 space-y-4 text-sm leading-relaxed text-dnews-dark">
-              {article.content.split("\n\n").map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
-              ))}
+              <ContentRenderer content={article.content} />
             </div>
 
             {article.tags.length > 0 && (

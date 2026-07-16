@@ -131,8 +131,8 @@ function useApiArticles() {
   }
 
   const latest = allArticles.slice(0, 6);
-  const heroFeatured = featuredArticles.length > 0 ? featuredArticles[0] : null;
-  const featuredCards = featuredArticles.slice(1, 3);
+  const heroFeatured = featuredArticles.length > 0 ? featuredArticles[0] : (allArticles.length > 0 ? allArticles[0] : null);
+  const featuredCards = featuredArticles.length > 1 ? featuredArticles.slice(1, 3) : (allArticles.length > 1 ? allArticles.slice(0, 2) : []);
   const fallback = fallbackArticles;
 
   const newsArticles = articlesInSection(["top-stories", "youth"]);
@@ -255,8 +255,7 @@ export default function Home() {
     <div className="mx-auto max-w-[1180px] px-4 py-4 md:py-6">
       <div className="flex flex-col lg:flex-row lg:gap-8">
         <main className="min-w-0 flex-1">
-          {carouselArticles.length > 0 && (
-            <section className="mb-6 border-b border-dnews-border pb-6">
+          <section className="mb-6 border-b border-dnews-border pb-6">
               <div className="relative overflow-hidden rounded-sm">
                 {carouselArticles.map((article, idx) => (
                   <article
@@ -322,7 +321,6 @@ export default function Home() {
                 </div>
               )}
             </section>
-          )}
 
           {carouselArticles.length > 0 && featuredCards.length > 0 && (
             <div className="mb-8 grid gap-6 sm:grid-cols-2">
