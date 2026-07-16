@@ -21,6 +21,12 @@ export default function ArticleDetailPage() {
   return (<RoleGuard roles={["Admin", "Editor", "Journalist"]}><ArticleDetailContent /></RoleGuard>);
 }
 
+function getTomorrowDateString() {
+  const now = new Date();
+  now.setDate(now.getDate() + 1);
+  return now.toISOString().slice(0, 10);
+}
+
 function ArticleDetailContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -92,7 +98,21 @@ function ArticleDetailContent() {
           res = await post(`/editorial/articles/${id}/restore`, { changeReason: actionNotes || undefined });
           break;
         case "schedule":
-          const scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString();
+          if (!scheduleDate || !scheduleTime) {
+            setError("Please select both a date and time for scheduling.");
+            setActionLoading(false);
+            return;
+          }
+          const scheduleDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(0, 0, 0, 0);
+          if (scheduleDateTime < tomorrow) {
+            setError("The publication date must be a future date.");
+            setActionLoading(false);
+            return;
+          }
+          const scheduledAt = scheduleDateTime.toISOString();
           res = await post(`/editorial/articles/${id}/schedule`, { scheduledAt });
           break;
       }
@@ -348,7 +368,7 @@ function ArticleDetailContent() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Date</label>
-                <input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none focus:border-dnews-accent" />
+                <input type="date" value={scheduleDate} min={getTomorrowDateString()} onChange={(e) => setScheduleDate(e.target.value)} className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none focus:border-dnews-accent" />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Time</label>

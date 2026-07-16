@@ -11,7 +11,7 @@ import Modal from "@/components/dashboard/Modal";
 import { get, del, post } from "@/lib/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
-import type { Article, ArticlesResponse } from "@/types/article";
+import type { Article, ArticlesResponse, Category } from "@/types/article";
 
 const statusFilters = [
   { label: "All", value: "ALL" },
@@ -47,9 +47,17 @@ function ArticlesPageContent() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [status, setStatus] = useState(searchParams.get("status") || "ALL");
+  const [categoryId, setCategoryId] = useState<number | undefined>(
+    searchParams.get("categoryId") ? Number(searchParams.get("categoryId")) : undefined
+  );
+  const [categories, setCategories] = useState<Category[]>([]);
   const [page, setPage] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<Article | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    get<Category[]>("/categories").then(setCategories).catch(() => {});
+  }, []);
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -61,6 +69,7 @@ function ArticlesPageContent() {
       params.set("limit", "10");
       if (search) params.set("search", search);
       if (status !== "ALL") params.set("status", status);
+      if (categoryId) params.set("categoryId", String(categoryId));
 
       const res = await get<ArticlesResponse>(`/articles/admin/all?${params}`);
       setArticles(res.articles);
@@ -70,7 +79,7 @@ function ArticlesPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, status]);
+  }, [page, search, status, categoryId]);
 
   useEffect(() => {
     fetchArticles();
@@ -95,6 +104,19 @@ function ArticlesPageContent() {
       params.delete("status");
     } else {
       params.set("status", value);
+    }
+    router.replace(`/dashboard/articles?${params.toString()}`, { scroll: false });
+  };
+
+  const handleCategoryFilter = (value: string) => {
+    const id = value ? Number(value) : undefined;
+    setCategoryId(id);
+    setPage(1);
+    const params = new URLSearchParams(searchParams.toString());
+    if (id) {
+      params.set("categoryId", String(id));
+    } else {
+      params.delete("categoryId");
     }
     router.replace(`/dashboard/articles?${params.toString()}`, { scroll: false });
   };
@@ -275,7 +297,7 @@ function ArticlesPageContent() {
         </Link>
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-3">
         <div className="flex flex-wrap gap-2">
           {statusFilters.map((f) => (
             <button
@@ -291,6 +313,35 @@ function ArticlesPageContent() {
             </button>
           ))}
         </div>
+
+        <select
+          value={categoryId ?? ""}
+          onChange={(e) => handleCategoryFilter(e.target.value)}
+          className="rounded-sm border border-dnews-border bg-dnews-bg px-3 py-1.5 text-xs font-medium text-dnews-gray outline-none transition-colors focus:border-dnews-accent"
+        >
+          <option value="">All Categories</option>
+          {categories
+            .filter((c) => c.parentId == null)
+            .map((parent) => {
+              const children = categories.filter((c) => c.parentId === parent.id);
+              if (children.length === 0) {
+                return (
+                  <option key={parent.id} value={parent.id}>
+                    {parent.name}
+                  </option>
+                );
+              }
+              return (
+                <optgroup key={parent.id} label={parent.name}>
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {"\u2514\u2500 "}{child.name}
+                    </option>
+                  ))}
+                </optgroup>
+              );
+            })}
+        </select>
 
         <form onSubmit={handleSearch} className="flex items-center gap-2">
           <div className="relative">
@@ -322,12 +373,12 @@ function ArticlesPageContent() {
         loading={loading}
         emptyTitle="No articles found"
         emptyDescription={
-          search || status !== "ALL"
+          search || status !== "ALL" || categoryId
             ? "Try adjusting your search or filter."
             : "Get started by creating your first article."
         }
         emptyAction={
-          !search && status === "ALL" ? (
+          !search && status === "ALL" && !categoryId ? (
             <Link
               href="/dashboard/articles/new"
               className="inline-flex items-center gap-2 rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"

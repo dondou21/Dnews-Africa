@@ -103,7 +103,7 @@ function classifyArticle(title: string, content: string): CategoryMatch {
     { test: /world cup|fifa|football|senegal.*pape thiaw/i, category: "Sports", subcategory: "Football" },
     { test: /64-team|world cup expansion/i, category: "Sports", subcategory: "Football" },
     { test: /nuclear.*rwanda|rwanda.*nuclear|small modular reactor/i, category: "Innovation", subcategory: "Energy" },
-    { test: /nuclear.*ghana|nuclear.*kenya|nuclear.*nigeria/i, category: "Innovation", subcategory: "Energy" },
+    { test: /nuclear.*ghana|ghana.*nuclear|nuclear.*kenya|kenya.*nuclear|nuclear.*nigeria|nigeria.*nuclear/i, category: "Innovation", subcategory: "Energy" },
     { test: /digital payments|parafiscal|gabon/i, category: "Innovation", subcategory: "Technology" },
     { test: /ai.*thinking|chatgpt|critical thinking/i, category: "Innovation", subcategory: "Technology" },
     { test: /diaspora.*economic|african diaspora.*driver/i, category: "Business", subcategory: "Economy" },
@@ -123,38 +123,46 @@ function classifyArticle(title: string, content: string): CategoryMatch {
 }
 
 async function findOrCreateCategory(categoryName: string, subcategoryName?: string): Promise<{ categoryId: number; subcategoryId?: number }> {
-  const parent = subcategoryName
-    ? await prisma.category.findFirst({ where: { name: categoryName, parentId: null } })
-    : await prisma.category.findFirst({ where: { name: categoryName } });
+  try {
+    const parent = subcategoryName
+      ? await prisma.category.findFirst({ where: { name: categoryName, parentId: null } })
+      : await prisma.category.findFirst({ where: { name: categoryName } });
 
-  if (!parent) {
-    console.warn(`  [WARN] Category "${categoryName}" not found. Creating it.`);
-    const created = await prisma.category.create({
-      data: { name: categoryName, slug: generateSlug(categoryName) },
-    });
-    if (subcategoryName) {
-      const sub = await prisma.category.findFirst({ where: { name: subcategoryName, parentId: created.id } });
-      if (!sub) {
-        const createdSub = await prisma.category.create({
-          data: { name: subcategoryName, slug: generateSlug(subcategoryName), parentId: created.id },
-        });
-        return { categoryId: createdSub.id };
+    if (!parent) {
+      console.warn(`  [WARN] Category "${categoryName}" not found. Creating it.`);
+      const created = await prisma.category.create({
+        data: { name: categoryName, slug: generateSlug(categoryName) },
+      });
+      if (subcategoryName) {
+        const sub = await prisma.category.findFirst({ where: { name: subcategoryName, parentId: created.id } });
+        if (!sub) {
+          const createdSub = await prisma.category.create({
+            data: { name: subcategoryName, slug: generateSlug(subcategoryName), parentId: created.id },
+          });
+          return { categoryId: createdSub.id };
+        }
+        return { categoryId: sub.id };
       }
-      return { categoryId: sub.id };
+      return { categoryId: created.id };
     }
-    return { categoryId: created.id };
-  }
 
-  if (subcategoryName) {
-    const sub = await prisma.category.findFirst({ where: { name: subcategoryName, parentId: parent.id } });
-    if (!sub) {
-      console.warn(`  [WARN] Subcategory "${subcategoryName}" under "${categoryName}" not found. Using parent.`);
-      return { categoryId: parent.id, subcategoryId: undefined };
+    if (subcategoryName) {
+      const sub = await prisma.category.findFirst({ where: { name: subcategoryName, parentId: parent.id } });
+      if (!sub) {
+        console.warn(`  [WARN] Subcategory "${subcategoryName}" under "${categoryName}" not found. Using parent.`);
+        return { categoryId: parent.id, subcategoryId: undefined };
+      }
+      return { categoryId: sub.id, subcategoryId: sub.id };
     }
-    return { categoryId: sub.id, subcategoryId: sub.id };
-  }
 
-  return { categoryId: parent.id };
+    return { categoryId: parent.id };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("parentId") && msg.includes("does not exist")) {
+      throw new Error("Database schema mismatch: the 'parentId' column is missing from the 'categories' table. Run 'npx prisma migrate deploy' to apply pending migrations.");
+    }
+    throw new Error(`Category query failed: ${msg}`);
+  }
 }
 
 async function findOrCreateAuthor(email: string, firstName: string, lastName: string): Promise<string> {
@@ -269,6 +277,9 @@ async function main() {
   console.log("=".repeat(60));
   console.log("Dnews Africa — PDF Article Import Script");
   console.log("=".repeat(60));
+
+  console.log("\n[INFO] Ensure all Prisma migrations are applied before running this script.");
+  console.log("       Run: npx prisma migrate deploy\n");
 
   if (!fs.existsSync(PDF_PATH)) {
     console.error(`PDF not found at: ${PDF_PATH}`);
@@ -427,6 +438,13 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("Fatal error:", err);
+  const msg = err instanceof Error ? err.message : String(err);
+  if (msg.includes("parentId") && msg.includes("does not exist")) {
+    console.error("\nFATAL: Database schema mismatch — the 'categories' table is missing the 'parentId' column.");
+    console.error("       Run: npx prisma migrate deploy");
+    console.error("       Then re-run: npx tsx src/scripts/importArticlesFromPdf.ts");
+  } else {
+    console.error("\nFatal error:", err);
+  }
   process.exit(1);
 });

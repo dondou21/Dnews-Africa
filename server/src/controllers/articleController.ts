@@ -27,7 +27,8 @@ export const articleController = {
   getAllAdmin: asyncHandler(async (req: Request, res: Response) => {
     const parsed = parseZod(articleQuerySchema, req.query);
     const status = req.query.status as string | undefined;
-    const result = await articleService.getAllAdmin({ ...parsed, status }, req.user!);
+    const categoryId = parsed.categoryId;
+    const result = await articleService.getAllAdmin({ ...parsed, status, categoryId }, req.user!);
     res.json({ status: "success", data: result });
   }),
 

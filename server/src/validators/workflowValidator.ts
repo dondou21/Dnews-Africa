@@ -24,6 +24,14 @@ export const assignEditorSchema = z.object({
 
 export const scheduleArticleSchema = z.object({
   scheduledAt: z.string().datetime("Invalid datetime format"),
+}).superRefine((data, ctx) => {
+  const date = new Date(data.scheduledAt);
+  const tomorrow = new Date();
+  tomorrow.setHours(0, 0, 0, 0);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (date < tomorrow) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "The publication date must be a future date.", path: ["scheduledAt"] });
+  }
 });
 
 export const createEditorialCommentSchema = z.object({
