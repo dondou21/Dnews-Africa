@@ -208,7 +208,7 @@ export default function Home() {
   const [heroIndex, setHeroIndex] = useState(0);
 
   const carouselArticles = data.heroFeatured
-    ? [data.heroFeatured, ...data.featuredCards].filter(Boolean).slice(0, 5)
+    ? [data.heroFeatured, ...data.featuredCards].filter(Boolean).filter((a, i, arr) => arr.findIndex((x) => x.slug === a.slug) === i).slice(0, 5)
     : [];
 
   useEffect(() => {

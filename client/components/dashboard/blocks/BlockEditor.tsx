@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   Plus, GripVertical, Trash2, ChevronUp, ChevronDown,
   Type, Heading1, Quote, Image, LayoutGrid, Video,
-  Minus, List, ListOrdered, Table, Link2, FileText, AlertCircle
+  Minus, List, ListOrdered, Table, Link2, FileText, AlertCircle,
+  Undo2, Redo2
 } from "lucide-react";
 import type { ContentBlock, ContentBlockType } from "@/types/contentBlocks";
 import { createBlock } from "@/types/contentBlocks";
@@ -14,6 +15,8 @@ interface BlockEditorProps {
   blocks: ContentBlock[];
   onChange: (blocks: ContentBlock[]) => void;
 }
+
+const MAX_HISTORY = 50;
 
 const BLOCK_TEMPLATES: { type: ContentBlockType; label: string; icon: React.ReactNode; defaultData: Record<string, unknown> }[] = [
   { type: "paragraph", label: "Paragraph", icon: <Type size={14} />, defaultData: { text: "" } },
@@ -429,37 +432,136 @@ function BlockSettings({ block, onUpdate }: { block: ContentBlock; onUpdate: (da
   }
 }
 
+function deepClone<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 export default function BlockEditor({ blocks, onChange }: BlockEditorProps) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
+  const historyRef = useRef<ContentBlock[][]>([deepClone(blocks)]);
+  const historyIndexRef = useRef(0);
+  const ignoreNextChangeRef = useRef(false);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const syncUndoRedo = useCallback(() => {
+    setCanUndo(historyIndexRef.current > 0);
+    setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
+  }, []);
+
+  const pushHistory = useCallback((newBlocks: ContentBlock[]) => {
+    const history = historyRef.current;
+    const idx = historyIndexRef.current;
+    const trimmed = history.slice(0, idx + 1);
+    trimmed.push(deepClone(newBlocks));
+    if (trimmed.length > MAX_HISTORY) trimmed.shift();
+    historyRef.current = trimmed;
+    historyIndexRef.current = trimmed.length - 1;
+    syncUndoRedo();
+  }, [syncUndoRedo]);
+
+  const handleChange = useCallback((newBlocks: ContentBlock[]) => {
+    if (ignoreNextChangeRef.current) {
+      ignoreNextChangeRef.current = false;
+    } else {
+      pushHistory(newBlocks);
+    }
+    onChange(newBlocks);
+  }, [onChange, pushHistory]);
+
   const moveBlock = useCallback((from: number, to: number) => {
-    const next = [...blocks];
+    const next = deepClone(blocks);
     const [moved] = next.splice(from, 1);
     next.splice(to, 0, moved);
-    onChange(next);
-  }, [blocks, onChange]);
+    handleChange(next);
+  }, [blocks, handleChange]);
 
   const removeBlock = useCallback((index: number) => {
-    onChange(blocks.filter((_, i) => i !== index));
+    const next = blocks.filter((_, i) => i !== index);
+    handleChange(next);
     setEditingIndex(null);
-  }, [blocks, onChange]);
+  }, [blocks, handleChange]);
 
   const addBlock = useCallback((type: ContentBlockType) => {
     const tmpl = BLOCK_TEMPLATES.find((t) => t.type === type);
     const block = createBlock(type, tmpl?.defaultData ?? {});
-    onChange([...blocks, block]);
+    const next = [...blocks, block];
+    handleChange(next);
     setShowAddMenu(false);
     setEditingIndex(blocks.length);
-  }, [blocks, onChange]);
+  }, [blocks, handleChange]);
 
   const updateBlock = useCallback((index: number, data: Record<string, unknown>) => {
-    const next = blocks.map((b, i) => (i === index ? { ...b, data } : b));
-    onChange(next);
-  }, [blocks, onChange]);
+    const next = blocks.map((b, i) => (i === index ? { ...b, data: { ...b.data, ...data } } : b));
+    handleChange(next);
+  }, [blocks, handleChange]);
+
+  const undo = useCallback(() => {
+    const history = historyRef.current;
+    const idx = historyIndexRef.current;
+    if (idx <= 0) return;
+    const newIdx = idx - 1;
+    historyIndexRef.current = newIdx;
+    ignoreNextChangeRef.current = true;
+    onChange(deepClone(history[newIdx]));
+    syncUndoRedo();
+  }, [onChange, syncUndoRedo]);
+
+  const redo = useCallback(() => {
+    const history = historyRef.current;
+    const idx = historyIndexRef.current;
+    if (idx >= history.length - 1) return;
+    const newIdx = idx + 1;
+    historyIndexRef.current = newIdx;
+    ignoreNextChangeRef.current = true;
+    onChange(deepClone(history[newIdx]));
+    syncUndoRedo();
+  }, [onChange, syncUndoRedo]);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const ctrl = e.ctrlKey || e.metaKey;
+      if (!ctrl) return;
+
+      if (e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if ((e.key === "z" && e.shiftKey) || e.key === "y") {
+        e.preventDefault();
+        redo();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [undo, redo]);
 
   return (
     <div className="space-y-3">
+      {blocks.length > 0 && (
+        <div className="flex items-center gap-1 border-b border-dnews-border pb-2">
+          <button
+            type="button"
+            onClick={undo}
+            disabled={!canUndo}
+            className="rounded-sm p-1.5 text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-dark disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 size={14} />
+          </button>
+          <button
+            type="button"
+            onClick={redo}
+            disabled={!canRedo}
+            className="rounded-sm p-1.5 text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-dark disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Redo (Ctrl+Shift+Z)"
+          >
+            <Redo2 size={14} />
+          </button>
+        </div>
+      )}
+
       {blocks.map((block, index) => (
         <div key={block.id} className="group rounded-sm border border-dnews-border bg-dnews-card">
           <div className="flex items-center gap-1 border-b border-dnews-border bg-dnews-bg px-2 py-1">

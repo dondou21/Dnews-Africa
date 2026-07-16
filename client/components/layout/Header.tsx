@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useCallback } from "react";
-import { Search, Bell } from "lucide-react";
+import { useCallback, useSyncExternalStore, useState } from "react";
+import { Search, Bell, LayoutDashboard, LogIn } from "lucide-react";
 import { useTheme } from "next-themes";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
@@ -11,6 +11,15 @@ import SearchOverlay from "@/components/layout/SearchOverlay";
 export default function Header() {
   const { theme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
+  const authenticated = useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener("storage", onStoreChange);
+      return () => window.removeEventListener("storage", onStoreChange);
+    },
+    () => (typeof window !== "undefined" ? !!localStorage.getItem("dnews_token") : false),
+    () => false,
+  );
+
   const toggleSearch = useCallback(() => {
     setSearchOpen((prev) => !prev);
   }, []);
@@ -18,6 +27,26 @@ export default function Header() {
   const closeSearch = useCallback(() => {
     setSearchOpen(false);
   }, []);
+
+  const userButton = authenticated ? (
+    <Link
+      href="/dashboard"
+      className="inline-flex items-center gap-1.5 rounded-sm border border-dnews-border px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
+      aria-label="Go to dashboard"
+    >
+      <LayoutDashboard size={13} />
+      <span className="hidden sm:inline">Dashboard</span>
+    </Link>
+  ) : (
+    <Link
+      href="/dashboard/login"
+      className="inline-flex items-center gap-1.5 rounded-sm border border-dnews-border px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
+      aria-label="Sign in"
+    >
+      <LogIn size={13} />
+      <span className="hidden sm:inline">Sign In</span>
+    </Link>
+  );
 
   return (
     <header className="border-b border-dnews-border bg-dnews-card dark:bg-black">
@@ -48,6 +77,7 @@ export default function Header() {
             >
               <Search size={16} />
             </button>
+            <ThemeToggle />
             <Link
               href="/#newsletter"
               className="inline-flex items-center gap-1.5 rounded-sm bg-dnews-accent px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
@@ -56,7 +86,7 @@ export default function Header() {
               <Bell size={13} />
               Subscribe
             </Link>
-            <ThemeToggle />
+            {userButton}
           </div>
         </div>
 
@@ -68,6 +98,7 @@ export default function Header() {
           >
             <Search size={16} />
           </button>
+          <ThemeToggle />
           <Link
             href="/#newsletter"
             className="inline-flex items-center gap-1 rounded-sm bg-dnews-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
@@ -76,7 +107,7 @@ export default function Header() {
             <Bell size={12} />
             Subscribe
           </Link>
-          <ThemeToggle />
+          {userButton}
         </div>
       </div>
 
