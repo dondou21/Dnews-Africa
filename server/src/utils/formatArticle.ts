@@ -18,6 +18,8 @@ interface ArticleRaw {
   featuredImage: FeaturedImageRef | null;
   status: string;
   isFeatured: boolean;
+  isBreaking: boolean;
+  allowComments: boolean;
   isTrending: boolean;
   publishedAt: Date | null;
   scheduledAt: Date | null;

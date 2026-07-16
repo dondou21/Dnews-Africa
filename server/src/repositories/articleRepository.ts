@@ -23,6 +23,7 @@ const articleInclude = {
 
 export interface ArticleQueryParams {
   category?: string;
+  categoryId?: number;
   tag?: string;
   search?: string;
   page: number;
@@ -42,6 +43,8 @@ export interface CreateArticleInput {
   authorId?: string;
   status?: string;
   isFeatured?: boolean;
+  isBreaking?: boolean;
+  allowComments?: boolean;
   isTrending?: boolean;
   publishedAt?: string;
   scheduledAt?: string;
@@ -60,6 +63,8 @@ export interface UpdateArticleInput {
   authorId?: string;
   status?: string;
   isFeatured?: boolean;
+  isBreaking?: boolean;
+  allowComments?: boolean;
   isTrending?: boolean;
   publishedAt?: string;
   scheduledAt?: string;
@@ -156,6 +161,10 @@ export const articleRepository = {
       where.status = params.status as $Enums.ArticleStatus;
     }
 
+    if (params.categoryId) {
+      where.categoryId = params.categoryId;
+    }
+
     if (params.search) {
       where.OR = [
         { title: { contains: params.search, mode: "insensitive" } },
@@ -212,6 +221,10 @@ export const articleRepository = {
 
     if (params.status && params.status !== "ALL") {
       where.status = params.status as $Enums.ArticleStatus;
+    }
+
+    if (params.categoryId) {
+      where.categoryId = params.categoryId;
     }
 
     if (params.search) {
@@ -302,6 +315,8 @@ export const articleRepository = {
         authorId: articleFields.authorId!,
         status: articleFields.status as $Enums.ArticleStatus,
         isFeatured: articleFields.isFeatured,
+        isBreaking: articleFields.isBreaking,
+        allowComments: articleFields.allowComments,
         isTrending: articleFields.isTrending,
         publishedAt,
         scheduledAt,

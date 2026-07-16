@@ -50,6 +50,8 @@ export interface Article {
   featuredImage: FeaturedImage | null;
   status: ArticleStatus;
   isFeatured: boolean;
+  isBreaking: boolean;
+  allowComments: boolean;
   isTrending: boolean;
   publishedAt: string | null;
   scheduledAt: string | null;
@@ -110,10 +112,13 @@ export interface CreateArticleInput {
   categoryId: number;
   status?: ArticleStatus;
   isFeatured?: boolean;
+  isBreaking?: boolean;
+  allowComments?: boolean;
   isTrending?: boolean;
   publishedAt?: string;
   scheduledAt?: string;
   tags?: string[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UpdateArticleInput extends Partial<CreateArticleInput> {}

@@ -397,6 +397,8 @@ export const swaggerDoc: OpenAPIV3.Document = {
                   categoryId: { type: "integer", example: 1 },
                   status: { type: "string", enum: ["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "ARCHIVED"] },
                   isFeatured: { type: "boolean", default: false },
+          isBreaking: { type: "boolean", default: false },
+          allowComments: { type: "boolean", default: true },
                   isTrending: { type: "boolean", default: false },
                   tags: { type: "array", items: { type: "string" }, example: ["tech", "innovation"] },
                 },

@@ -657,6 +657,8 @@ model Article {
   featuredImage  Media?        @relation("FeaturedImage", fields: [featuredImageId], references: [id])
   status         ArticleStatus @default(DRAFT)
   isFeatured     Boolean       @default(false)
+  isBreaking     Boolean       @default(false)
+  allowComments  Boolean       @default(true)
   isTrending     Boolean       @default(false)
   publishedAt    DateTime?
   scheduledAt    DateTime?
