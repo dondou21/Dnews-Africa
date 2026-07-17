@@ -1,6 +1,6 @@
 import Image from "@/components/shared/AppImage";
 import Link from "next/link";
-import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import { getFeaturedImageUrl } from "@/lib/image";
 
 interface ArticleItem {
   slug: string;
@@ -20,6 +20,12 @@ function getCategoryColor(categoryName: string): "red" | "blue" {
   return sportsCulture.some((c) => categoryName.toLowerCase().includes(c))
     ? "red"
     : "blue";
+}
+
+function estimateReadingTime(text: string): number {
+  const wordsPerMinute = 200;
+  const words = text.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / wordsPerMinute));
 }
 
 export default function ArticleListItem({ article }: { article: ArticleItem }) {
@@ -64,7 +70,10 @@ export default function ArticleListItem({ article }: { article: ArticleItem }) {
             {article.title}
           </Link>
         </h3>
-        <div className="mt-1 flex items-center gap-2 text-[11px] text-dnews-muted">
+        <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
+          {article.summary}
+        </p>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-dnews-muted">
           <span>
             {article.publishedAt
               ? new Date(article.publishedAt).toLocaleDateString("en-US", {
@@ -79,7 +88,7 @@ export default function ArticleListItem({ article }: { article: ArticleItem }) {
                 })}
           </span>
           <span>·</span>
-          <span>{article.author.firstName} {article.author.lastName}</span>
+          <span>{estimateReadingTime(article.summary)} min read</span>
         </div>
       </div>
     </article>
