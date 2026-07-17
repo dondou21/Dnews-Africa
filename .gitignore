@@ -46,3 +46,6 @@ rapport/
 
 # uploads
 server/uploads/
+
+# compiled documents
+*.pdf
