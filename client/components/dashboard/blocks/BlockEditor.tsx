@@ -10,6 +10,7 @@ import {
 import type { ContentBlock, ContentBlockType } from "@/types/contentBlocks";
 import { createBlock } from "@/types/contentBlocks";
 import BlockRenderer from "./BlockRenderer";
+import InlineImageUpload from "@/components/dashboard/InlineImageUpload";
 
 interface BlockEditorProps {
   blocks: ContentBlock[];
@@ -99,59 +100,78 @@ function BlockSettings({ block, onUpdate }: { block: ContentBlock; onUpdate: (da
 
     case "image":
       return (
-        <div className="space-y-2">
-          <input
-            type="text"
-            value={String(data.url ?? "")}
-            onChange={(e) => set("url", e.target.value)}
-            placeholder="Image URL"
-            className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
+        <div className="space-y-3">
+          <InlineImageUpload
+            initialUrl={String(data.url ?? "")}
+            onUploadComplete={(url) => {
+              set("url", url);
+            }}
+            onClear={() => set("url", "")}
           />
-          <input
-            type="text"
-            value={String(data.alt ?? "")}
-            onChange={(e) => set("alt", e.target.value)}
-            placeholder="Alt text"
-            className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
-          />
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={String(data.caption ?? "")}
-              onChange={(e) => set("caption", e.target.value)}
-              placeholder="Caption"
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
-            />
-            <input
-              type="text"
-              value={String(data.credit ?? "")}
-              onChange={(e) => set("credit", e.target.value)}
-              placeholder="Credit"
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
-            />
-          </div>
-          <div className="flex gap-2">
-            <select
-              value={String(data.alignment ?? "full")}
-              onChange={(e) => set("alignment", e.target.value)}
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark outline-none"
-            >
-              <option value="full">Full Width</option>
-              <option value="left">Float Left</option>
-              <option value="center">Center</option>
-              <option value="right">Float Right</option>
-            </select>
-            <select
-              value={String(data.size ?? "large")}
-              onChange={(e) => set("size", e.target.value)}
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark outline-none"
-            >
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-              <option value="fullWidth">Full Width</option>
-            </select>
-          </div>
+          {String(data.url ?? "") && (
+            <>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Caption</label>
+                  <input
+                    type="text"
+                    value={String(data.caption ?? "")}
+                    onChange={(e) => set("caption", e.target.value)}
+                    placeholder="Image caption"
+                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Credit</label>
+                  <input
+                    type="text"
+                    value={String(data.credit ?? "")}
+                    onChange={(e) => set("credit", e.target.value)}
+                    placeholder="Photographer"
+                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Alt Text</label>
+                <input
+                  type="text"
+                  value={String(data.alt ?? "")}
+                  onChange={(e) => set("alt", e.target.value)}
+                  placeholder="Describe the image for accessibility"
+                  className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
+                />
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Alignment</label>
+                  <select
+                    value={String(data.alignment ?? "full")}
+                    onChange={(e) => set("alignment", e.target.value)}
+                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark outline-none"
+                  >
+                    <option value="full">Full Width</option>
+                    <option value="left">Float Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Float Right</option>
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Size</label>
+                  <select
+                    value={String(data.size ?? "large")}
+                    onChange={(e) => set("size", e.target.value)}
+                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark outline-none"
+                  >
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                    <option value="fullWidth">Full Width</option>
+                  </select>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       );
 
