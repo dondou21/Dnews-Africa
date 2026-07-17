@@ -8,12 +8,14 @@ import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
 import SectionHeader from "@/components/home/SectionHeader";
 import ArticleListItem from "@/components/home/ArticleListItem";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
+import { extractExcerpt } from "@/lib/excerpt";
 
 interface ArticleItem {
   id: string;
   title: string;
   slug: string;
   summary: string;
+  content: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
   featuredImage: { url: string; alt: string | null } | null;
@@ -156,7 +158,7 @@ export default function PoliticsPageClient() {
                       {featured.title}
                     </h2>
                     <p className="mt-2 line-clamp-3 text-base leading-relaxed text-dnews-gray">
-                      {featured.summary}
+                      {extractExcerpt(featured.summary, featured.content)}
                     </p>
                     <div className="mt-3 flex items-center gap-3 text-sm text-dnews-muted">
                       <span className="font-medium text-dnews-dark">
@@ -196,7 +198,7 @@ export default function PoliticsPageClient() {
                         {article.title}
                       </h3>
                       <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
-                        {article.summary}
+                        {extractExcerpt(article.summary, article.content)}
                       </p>
                       <div className="mt-2 flex items-center gap-2 text-xs text-dnews-muted">
                         <span className="font-medium text-dnews-dark">
@@ -255,7 +257,7 @@ export default function PoliticsPageClient() {
                         {article.title}
                       </h3>
                       <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
-                        {article.summary}
+                        {extractExcerpt(article.summary, article.content)}
                       </p>
                     </Link>
                   </article>

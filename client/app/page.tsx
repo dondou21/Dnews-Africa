@@ -14,6 +14,7 @@ interface ArticleItem {
   title: string;
   slug: string;
   summary: string;
+  content: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
   featuredImage: { url: string; alt: string | null } | null;
@@ -131,6 +132,7 @@ function useApiArticles() {
         title: featured.title,
         slug: featured.slug,
         summary: featured.excerpt,
+        content: featured.content,
         coverImageUrl: featured.imageUrl,
         coverImageAlt: featured.imageAlt,
         featuredImage: null,
@@ -175,6 +177,7 @@ function mockToArticleItem(a: MockArticle): ArticleItem {
     title: a.title,
     slug: a.slug,
     summary: a.excerpt,
+    content: a.content,
     coverImageUrl: a.imageUrl,
     coverImageAlt: a.imageAlt,
     featuredImage: null,

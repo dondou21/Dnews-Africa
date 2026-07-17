@@ -10,6 +10,7 @@ interface ArticleItem {
   title: string;
   slug: string;
   summary: string;
+  content: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
   publishedAt: string | null;

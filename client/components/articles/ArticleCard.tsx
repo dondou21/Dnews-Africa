@@ -1,12 +1,14 @@
 import Image from "@/components/shared/AppImage";
 import Link from "next/link";
 import { resolveImageUrl, getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import { extractExcerpt } from "@/lib/excerpt";
 
 interface ArticleItem {
   id: string;
   title: string;
   slug: string;
   summary: string;
+  content: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
   featuredImage?: { url: string; alt: string | null } | null;
@@ -19,6 +21,7 @@ interface ArticleItem {
 export default function ArticleCard({ article }: { article: ArticleItem }) {
   const imgSrc = getFeaturedImageUrl(article.featuredImage, article.coverImageUrl);
   const imgAlt = article.featuredImage?.alt || article.coverImageAlt || article.title;
+  const excerpt = extractExcerpt(article.summary, article.content);
 
   return (
     <article className="group overflow-hidden rounded-sm border border-dnews-border bg-dnews-card transition-shadow hover:shadow-md">
@@ -51,7 +54,7 @@ export default function ArticleCard({ article }: { article: ArticleItem }) {
           </Link>
         </h2>
         <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
-          {article.summary}
+          {excerpt}
         </p>
         <div className="mt-3 flex items-center gap-2 text-[11px] text-dnews-muted">
           <span className="font-medium text-dnews-dark">

@@ -4,6 +4,7 @@ interface ArticleItem {
   slug: string;
   title: string;
   summary: string;
+  content: string;
   category: { id: number; name: string; slug: string };
   author: { firstName: string; lastName: string };
   coverImageUrl: string | null;

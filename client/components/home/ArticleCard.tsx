@@ -1,12 +1,14 @@
 import Image from "@/components/shared/AppImage";
 import Link from "next/link";
 import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import { extractExcerpt } from "@/lib/excerpt";
 
 interface ArticleItem {
   id: string;
   title: string;
   slug: string;
   summary: string;
+  content: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
   featuredImage: { url: string; alt: string | null } | null;
@@ -44,6 +46,7 @@ interface ArticleCardProps {
 export default function ArticleCard({ article, variant = "default", priority }: ArticleCardProps) {
   const imgSrc = getFeaturedImageUrl(article.featuredImage, article.coverImageUrl);
   const imgAlt = article.featuredImage?.alt || article.coverImageAlt || article.title;
+  const excerpt = extractExcerpt(article.summary, article.content);
 
   if (variant === "hero") {
     return (
@@ -71,7 +74,7 @@ export default function ArticleCard({ article, variant = "default", priority }: 
               {article.title}
             </h2>
             <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-dnews-gray">
-              {article.summary}
+              {excerpt}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-dnews-muted">
               <span className="font-medium text-dnews-dark">
@@ -80,7 +83,7 @@ export default function ArticleCard({ article, variant = "default", priority }: 
               <span>·</span>
               <span>{formatDate(article.publishedAt)}</span>
               <span>·</span>
-              <span>{estimateReadingTime(article.summary)} min read</span>
+              <span>{estimateReadingTime(excerpt || article.summary)} min read</span>
             </div>
             <span className="mt-4 inline-block rounded-sm border border-dnews-border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-dnews-gray transition-colors group-hover:border-dnews-accent group-hover:text-dnews-accent">
               Read More →
@@ -116,12 +119,12 @@ export default function ArticleCard({ article, variant = "default", priority }: 
           {article.title}
         </h3>
         <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray md:line-clamp-3">
-          {article.summary}
+          {excerpt}
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-dnews-muted">
           <span>{formatDate(article.publishedAt)}</span>
           <span>·</span>
-          <span>{estimateReadingTime(article.summary)} min read</span>
+          <span>{estimateReadingTime(excerpt || article.summary)} min read</span>
         </div>
       </Link>
     </article>

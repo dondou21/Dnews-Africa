@@ -1,11 +1,13 @@
 import Image from "@/components/shared/AppImage";
 import Link from "next/link";
 import { getFeaturedImageUrl } from "@/lib/image";
+import { extractExcerpt } from "@/lib/excerpt";
 
 interface ArticleItem {
   slug: string;
   title: string;
   summary: string;
+  content: string;
   category: { id: number; name: string; slug: string };
   author: { firstName: string; lastName: string };
   coverImageUrl: string | null;
@@ -36,6 +38,7 @@ export default function ArticleListItem({ article }: { article: ArticleItem }) {
 
   const imgSrc = getFeaturedImageUrl(article.featuredImage, article.coverImageUrl);
   const imgAlt = article.featuredImage?.alt || article.coverImageAlt || "";
+  const excerpt = extractExcerpt(article.summary, article.content);
 
   return (
     <article className="flex gap-4 border-b border-dnews-border pb-4">
@@ -71,7 +74,7 @@ export default function ArticleListItem({ article }: { article: ArticleItem }) {
           </Link>
         </h3>
         <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
-          {article.summary}
+          {excerpt}
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-dnews-muted">
           <span>
@@ -88,7 +91,7 @@ export default function ArticleListItem({ article }: { article: ArticleItem }) {
                 })}
           </span>
           <span>·</span>
-          <span>{estimateReadingTime(article.summary)} min read</span>
+          <span>{estimateReadingTime(excerpt || article.summary)} min read</span>
         </div>
       </div>
     </article>
