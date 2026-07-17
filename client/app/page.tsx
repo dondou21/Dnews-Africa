@@ -23,6 +23,8 @@ interface ArticleItem {
   isFeatured: boolean;
   category: { id: number; name: string; slug: string };
   author: { id: string; firstName: string; lastName: string };
+  authorName?: string | null;
+  authorPosition?: string | null;
 }
 
 interface ApiResponse {
@@ -186,6 +188,7 @@ function mockToArticleItem(a: MockArticle): ArticleItem {
     isFeatured: a.isFeatured,
     category: { id: 0, name: a.category, slug: a.category.toLowerCase() },
     author: { id: "", firstName: a.authorName.split(" ")[0], lastName: a.authorName.split(" ").slice(1).join(" ") || "" },
+    authorName: a.authorName,
   };
 }
 

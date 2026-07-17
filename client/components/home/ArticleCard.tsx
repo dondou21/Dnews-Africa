@@ -16,6 +16,8 @@ interface ArticleItem {
   createdAt: string;
   category: { id: number; name: string; slug: string };
   author: { id: string; firstName: string; lastName: string };
+  authorName?: string | null;
+  authorPosition?: string | null;
 }
 
 function formatDate(dateStr: string | null): string {
@@ -78,7 +80,7 @@ export default function ArticleCard({ article, variant = "default", priority }: 
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-dnews-muted">
               <span className="font-medium text-dnews-dark">
-                By {article.author?.firstName || ""} {article.author?.lastName || ""}
+                By {article.authorName || `${article.author?.firstName || ""} ${article.author?.lastName || ""}`.trim()}
               </span>
               <span>·</span>
               <span>{formatDate(article.publishedAt)}</span>

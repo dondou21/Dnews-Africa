@@ -16,6 +16,8 @@ interface ArticleItem {
   createdAt: string;
   category: { id: number; name: string; slug: string };
   author: { id: string; firstName: string; lastName: string };
+  authorName?: string | null;
+  authorPosition?: string | null;
 }
 
 export default function ArticleCard({ article }: { article: ArticleItem }) {
@@ -58,7 +60,7 @@ export default function ArticleCard({ article }: { article: ArticleItem }) {
         </p>
         <div className="mt-3 flex items-center gap-2 text-[11px] text-dnews-muted">
           <span className="font-medium text-dnews-dark">
-            {article.author.firstName} {article.author.lastName}
+            {article.authorName || `${article.author.firstName} ${article.author.lastName}`}
           </span>
           <span>·</span>
           <span>

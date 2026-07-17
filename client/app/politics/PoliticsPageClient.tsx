@@ -24,6 +24,8 @@ interface ArticleItem {
   isFeatured: boolean;
   category: { id: number; name: string; slug: string };
   author: { id: string; firstName: string; lastName: string };
+  authorName?: string | null;
+  authorPosition?: string | null;
 }
 
 interface ApiResponse {
@@ -162,7 +164,7 @@ export default function PoliticsPageClient() {
                     </p>
                     <div className="mt-3 flex items-center gap-3 text-sm text-dnews-muted">
                       <span className="font-medium text-dnews-dark">
-                        By {featured.author?.firstName || ""} {featured.author?.lastName || ""}
+                        By {featured.authorName || `${featured.author?.firstName || ""} ${featured.author?.lastName || ""}`.trim()}
                       </span>
                       <span>·</span>
                       <span>{formatDate(featured.publishedAt)}</span>
@@ -202,7 +204,7 @@ export default function PoliticsPageClient() {
                       </p>
                       <div className="mt-2 flex items-center gap-2 text-xs text-dnews-muted">
                         <span className="font-medium text-dnews-dark">
-                          By {article.author?.firstName || ""} {article.author?.lastName || ""}
+                          By {article.authorName || `${article.author?.firstName || ""} ${article.author?.lastName || ""}`.trim()}
                         </span>
                         <span>·</span>
                         <span>{formatDate(article.publishedAt)}</span>

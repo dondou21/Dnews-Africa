@@ -12,6 +12,7 @@ import CoverImageUpload from "@/components/dashboard/CoverImageUpload";
 import CategorySelect from "@/components/dashboard/CategorySelect";
 import PublishingPanel from "@/components/dashboard/PublishingPanel";
 import ArticleBlockEditor from "@/components/dashboard/BlockEditor";
+import AuthorSelector from "@/components/dashboard/AuthorSelector";
 import SeoMetadataForm from "@/components/seo/SeoMetadataForm";
 import type { Article, Category } from "@/types/article";
 import type { SeoMetadata } from "@/types/seo";
@@ -55,6 +56,11 @@ function EditArticleForm() {
   const [allowComments, setAllowComments] = useState(true);
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
+  const [authorType, setAuthorType] = useState<"user" | "manual">("user");
+  const [authorUserId, setAuthorUserId] = useState("");
+  const [authorName, setAuthorName] = useState("");
+  const [authorPosition, setAuthorPosition] = useState("");
+  const [authorOrganization, setAuthorOrganization] = useState("");
   const [seoMetadata, setSeoMetadata] = useState<Partial<SeoMetadata>>({});
   const [seoLoading, setSeoLoading] = useState(false);
   const [seoSaving, setSeoSaving] = useState(false);
@@ -85,6 +91,13 @@ function EditArticleForm() {
         setIsFeatured(articleData.isFeatured);
         setIsBreaking(articleData.isBreaking ?? false);
         setAllowComments(articleData.allowComments ?? true);
+        setAuthorUserId(articleData.authorId);
+        if (articleData.authorName) {
+          setAuthorType("manual");
+          setAuthorName(articleData.authorName);
+          setAuthorPosition(articleData.authorPosition ?? "");
+          setAuthorOrganization(articleData.authorOrganization ?? "");
+        }
         if (articleData.scheduledAt) {
           setScheduleEnabled(true);
           setScheduledAt(new Date(articleData.scheduledAt).toISOString().slice(0, 16));
@@ -129,7 +142,7 @@ function EditArticleForm() {
 
     try {
       const finalStatus = scheduleEnabled ? "SCHEDULED" : isJournalist ? "DRAFT" : status;
-      await patch(`/articles/${id}`, {
+      const body: Record<string, unknown> = {
         title,
         slug,
         summary,
@@ -144,7 +157,17 @@ function EditArticleForm() {
         allowComments,
         tags,
         scheduledAt: scheduleEnabled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
-      });
+      };
+      if (authorType === "manual") {
+        body.authorName = authorName;
+        body.authorPosition = authorPosition || undefined;
+        body.authorOrganization = authorOrganization || undefined;
+      } else {
+        body.authorName = null;
+        body.authorPosition = null;
+        body.authorOrganization = null;
+      }
+      await patch(`/articles/${id}`, body);
       router.push("/dashboard/articles");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to update article.";
@@ -323,6 +346,34 @@ function EditArticleForm() {
               <h3 className="mb-4 font-heading text-base font-semibold text-dnews-dark">
                 Organization
               </h3>
+
+              {canEdit && (
+                <div className="mb-4">
+                  <AuthorSelector
+                    value={{
+                      type: authorType,
+                      userId: authorUserId,
+                      authorName,
+                      authorPosition,
+                      authorOrganization,
+                    }}
+                    onChange={(val) => {
+                      setAuthorType(val.type);
+                      if (val.type === "user") {
+                        setAuthorUserId(val.userId ?? user?.id ?? "");
+                        setAuthorName("");
+                        setAuthorPosition("");
+                        setAuthorOrganization("");
+                      } else {
+                        setAuthorName(val.authorName ?? "");
+                        setAuthorPosition(val.authorPosition ?? "");
+                        setAuthorOrganization(val.authorOrganization ?? "");
+                      }
+                    }}
+                  />
+                </div>
+              )}
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">

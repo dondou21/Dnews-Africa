@@ -670,8 +670,11 @@ model Article {
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
 
-  authorId String
-  author   User     @relation(fields: [authorId], references: [id])
+  authorId           String
+  author             User     @relation(fields: [authorId], references: [id])
+  authorName         String?
+  authorPosition     String?
+  authorOrganization String?
 
   assignedEditorId String?
   assignedEditor   User?    @relation("AssignedEditor", fields: [assignedEditorId], references: [id])

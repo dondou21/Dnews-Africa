@@ -11,6 +11,7 @@ import CoverImageUpload from "@/components/dashboard/CoverImageUpload";
 import CategorySelect from "@/components/dashboard/CategorySelect";
 import PublishingPanel from "@/components/dashboard/PublishingPanel";
 import ArticleBlockEditor from "@/components/dashboard/BlockEditor";
+import AuthorSelector from "@/components/dashboard/AuthorSelector";
 import type { Category } from "@/types/article";
 
 export default function NewArticlePage() {
@@ -46,6 +47,11 @@ function NewArticleForm() {
   const [allowComments, setAllowComments] = useState(true);
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
+  const [authorType, setAuthorType] = useState<"user" | "manual">("user");
+  const [authorUserId, setAuthorUserId] = useState(user?.id ?? "");
+  const [authorName, setAuthorName] = useState("");
+  const [authorPosition, setAuthorPosition] = useState("");
+  const [authorOrganization, setAuthorOrganization] = useState("");
 
   useEffect(() => {
     setCategoriesLoading(true);
@@ -92,7 +98,7 @@ function NewArticleForm() {
 
     try {
       const finalStatus = scheduleEnabled ? "SCHEDULED" : status;
-      await post("/articles", {
+      const body: Record<string, unknown> = {
         title,
         slug,
         summary,
@@ -107,7 +113,13 @@ function NewArticleForm() {
         allowComments,
         tags,
         scheduledAt: scheduleEnabled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
-      });
+      };
+      if (authorType === "manual") {
+        body.authorName = authorName;
+        body.authorPosition = authorPosition || undefined;
+        body.authorOrganization = authorOrganization || undefined;
+      }
+      await post("/articles", body);
       router.push(`/dashboard/articles`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to create article.";
@@ -223,6 +235,31 @@ function NewArticleForm() {
               <h3 className="mb-4 font-heading text-base font-semibold text-dnews-dark">
                 Organization
               </h3>
+
+              <div className="mb-4">
+                <AuthorSelector
+                  value={{
+                    type: authorType,
+                    userId: authorUserId,
+                    authorName,
+                    authorPosition,
+                    authorOrganization,
+                  }}
+                  onChange={(val) => {
+                    setAuthorType(val.type);
+                    if (val.type === "user") {
+                      setAuthorUserId(val.userId ?? user?.id ?? "");
+                      setAuthorName("");
+                      setAuthorPosition("");
+                      setAuthorOrganization("");
+                    } else {
+                      setAuthorName(val.authorName ?? "");
+                      setAuthorPosition(val.authorPosition ?? "");
+                      setAuthorOrganization(val.authorOrganization ?? "");
+                    }
+                  }}
+                />
+              </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>

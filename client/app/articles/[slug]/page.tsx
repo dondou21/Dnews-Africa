@@ -27,6 +27,9 @@ interface ArticleDetail {
   publishedAt: string | null;
   category: { id: number; name: string; slug: string };
   author: { id: string; firstName: string; lastName: string };
+  authorName: string | null;
+  authorPosition: string | null;
+  authorOrganization: string | null;
   tags: { tag: { id: number; name: string; slug: string } }[];
   createdAt: string;
 }
@@ -125,9 +128,22 @@ export default function ArticlePage() {
 
             <div className="mt-4 flex items-center gap-3 border-b border-dnews-border pb-4 text-xs text-dnews-muted">
               <div>
-                <span className="font-medium text-dnews-dark">
-                  {article.author.firstName} {article.author.lastName}
-                </span>
+                {article.authorName ? (
+                  <div>
+                    <span className="font-medium text-dnews-dark">
+                      {article.authorName}
+                    </span>
+                    {article.authorPosition && (
+                      <span className="ml-1 text-dnews-muted">
+                        &middot; {article.authorPosition}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="font-medium text-dnews-dark">
+                    {article.author.firstName} {article.author.lastName}
+                  </span>
+                )}
               </div>
               <span>·</span>
               <span>

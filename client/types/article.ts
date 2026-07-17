@@ -63,6 +63,9 @@ export interface Article {
   category: ArticleCategory;
   authorId: string;
   author: ArticleAuthor;
+  authorName: string | null;
+  authorPosition: string | null;
+  authorOrganization: string | null;
   assignedEditorId: string | null;
   assignedEditor?: ArticleAuthor | null;
   tags: ArticleTag[];
@@ -118,6 +121,9 @@ export interface CreateArticleInput {
   publishedAt?: string;
   scheduledAt?: string;
   tags?: string[];
+  authorName?: string;
+  authorPosition?: string;
+  authorOrganization?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

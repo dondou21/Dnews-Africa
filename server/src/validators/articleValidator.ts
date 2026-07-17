@@ -32,6 +32,9 @@ const articleBaseSchema = z.object({
   publishedAt: z.string().optional(),
   scheduledAt: z.string().optional(),
   tags: z.array(z.string().min(1)).optional(),
+  authorName: z.string().optional(),
+  authorPosition: z.string().optional(),
+  authorOrganization: z.string().optional(),
 });
 
 export const createArticleSchema = articleBaseSchema.superRefine((data, ctx) => {

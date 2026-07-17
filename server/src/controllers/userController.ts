@@ -4,6 +4,15 @@ import { createUserSchema, updateUserSchema } from "../validators/userValidator"
 import { AppError } from "../middlewares/errorHandler";
 
 export const userController = {
+  async getAuthors(_req: Request, res: Response, next: NextFunction) {
+    try {
+      const authors = await userService.getAuthors();
+      res.json({ status: "success", data: authors });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async createByAdmin(req: Request, res: Response, next: NextFunction) {
     try {
       const parsed = createUserSchema.safeParse(req.body);

@@ -40,4 +40,14 @@ export const userRepository = {
 
   delete: (id: string) =>
     prisma.user.delete({ where: { id } }),
+
+  findAuthors: () =>
+    prisma.user.findMany({
+      where: {
+        role: { name: { in: ["Admin", "Editor", "Chief Editor", "Journalist"] } },
+        isActive: true,
+      },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true, email: true, role: { select: { id: true, name: true } } },
+      orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+    }),
 };

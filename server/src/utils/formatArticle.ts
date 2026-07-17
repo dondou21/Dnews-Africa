@@ -31,6 +31,9 @@ interface ArticleRaw {
   category: { id: number; name: string; slug: string };
   authorId: string;
   author: { id: string; firstName: string; lastName: string; avatarUrl: string | null };
+  authorName: string | null;
+  authorPosition: string | null;
+  authorOrganization: string | null;
   assignedEditorId: string | null;
   tags: { tag: { id: number; name: string; slug: string } }[];
   createdAt: Date;

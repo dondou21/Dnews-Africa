@@ -11,6 +11,10 @@ export const userService = {
     return users.map(stripPassword);
   },
 
+  async getAuthors() {
+    return userRepository.findAuthors();
+  },
+
   async createByAdmin(data: { firstName: string; lastName: string; email: string; password: string; roleId: number }) {
     const existing = await userRepository.findByEmail(data.email);
     if (existing) {

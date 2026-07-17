@@ -150,7 +150,7 @@ function ArticleDetailContent() {
             <StatusBadge status={article.status} />
           </div>
           <p className="mt-1 text-sm text-dnews-muted">
-            by {article.author.firstName} {article.author.lastName} &middot; {article.category.name}
+            by {(article as { authorName?: string | null }).authorName || `${article.author.firstName} ${article.author.lastName}`} &middot; {article.category.name}
             {article.assignedEditor && <span> &middot; Editor: {article.assignedEditor.firstName} {article.assignedEditor.lastName}</span>}
           </p>
         </div>

@@ -18,6 +18,8 @@ interface ArticleItem {
   createdAt: string;
   category: { id: number; name: string; slug: string };
   author: { id: string; firstName: string; lastName: string };
+  authorName?: string | null;
+  authorPosition?: string | null;
 }
 
 interface ApiResponse {

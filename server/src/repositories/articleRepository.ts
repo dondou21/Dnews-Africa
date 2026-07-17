@@ -41,6 +41,9 @@ export interface CreateArticleInput {
   featuredImageId?: string;
   categoryId: number;
   authorId?: string;
+  authorName?: string;
+  authorPosition?: string;
+  authorOrganization?: string;
   status?: string;
   isFeatured?: boolean;
   isBreaking?: boolean;
@@ -61,6 +64,9 @@ export interface UpdateArticleInput {
   featuredImageId?: string;
   categoryId?: number;
   authorId?: string;
+  authorName?: string;
+  authorPosition?: string;
+  authorOrganization?: string;
   status?: string;
   isFeatured?: boolean;
   isBreaking?: boolean;
@@ -313,6 +319,9 @@ export const articleRepository = {
         featuredImageId: articleFields.featuredImageId,
         categoryId: articleFields.categoryId,
         authorId: articleFields.authorId!,
+        authorName: articleFields.authorName,
+        authorPosition: articleFields.authorPosition,
+        authorOrganization: articleFields.authorOrganization,
         status: articleFields.status as $Enums.ArticleStatus,
         isFeatured: articleFields.isFeatured,
         isBreaking: articleFields.isBreaking,
