@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useSyncExternalStore, useState } from "react";
+import { useCallback, useSyncExternalStore, useState, useRef } from "react";
 import { Search, Bell, LogIn } from "lucide-react";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import ThemeToggle from "@/components/theme/ThemeToggle";
@@ -15,12 +15,20 @@ export default function Header() {
   const { theme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
 
+  const userRef = useRef<User | null>(null);
+  if (typeof window !== "undefined" && !userRef.current) {
+    userRef.current = getStoredUser<User>();
+  }
   const storedUser = useSyncExternalStore(
     (onStoreChange) => {
-      window.addEventListener("storage", onStoreChange);
-      return () => window.removeEventListener("storage", onStoreChange);
+      const handler = () => {
+        userRef.current = getStoredUser<User>();
+        onStoreChange();
+      };
+      window.addEventListener("storage", handler);
+      return () => window.removeEventListener("storage", handler);
     },
-    () => (typeof window !== "undefined" ? getStoredUser<User>() : null),
+    () => userRef.current,
     () => null,
   );
 
