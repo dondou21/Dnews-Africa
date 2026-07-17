@@ -26,10 +26,18 @@ export default function ContentRenderer({ content }: ContentRendererProps) {
 
   if (!content) return null;
 
+  const paragraphs = content.split("\n\n");
   return (
     <>
-      {content.split("\n\n").map((paragraph, i) => (
-        <p key={i}>{paragraph}</p>
+      {paragraphs.map((para, i) => (
+        <p key={i}>
+          {para.split("\n").map((line, j) => (
+            <span key={j}>
+              {j > 0 && <br />}
+              {line}
+            </span>
+          ))}
+        </p>
       ))}
     </>
   );

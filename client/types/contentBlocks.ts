@@ -138,11 +138,12 @@ export function plainTextToBlocks(text: string): { blocks: ContentBlock[]; warni
 
     const paraLines: string[] = [];
     while (i < lines.length && lines[i].trim() !== "") {
-      paraLines.push(lines[i].trim());
+      paraLines.push(lines[i]);
       i++;
     }
     if (paraLines.length > 0) {
-      blocks.push(createBlock("paragraph", { text: paraLines.join(" ") }));
+      const text = paraLines.map((l) => l.trim()).join("\n");
+      blocks.push(createBlock("paragraph", { text }));
     }
   }
 
@@ -159,10 +160,12 @@ export function blocksToPlainText(blocks: ContentBlock[]): { text: string; warni
 
   for (const block of blocks) {
     switch (block.type) {
-      case "paragraph":
-        parts.push(String(block.data.text ?? ""));
+      case "paragraph": {
+        const pText = String(block.data.text ?? "");
+        parts.push(pText);
         parts.push("");
         break;
+      }
 
       case "heading": {
         const level = String(block.data.level ?? "h2");

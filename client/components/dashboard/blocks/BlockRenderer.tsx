@@ -7,8 +7,16 @@ interface BlockRendererProps {
 
 export default function BlockRenderer({ block }: BlockRendererProps) {
   switch (block.type) {
-    case "paragraph":
-      return <p className="mb-4 text-base leading-relaxed text-dnews-dark">{String(block.data.text ?? "")}</p>;
+    case "paragraph": {
+      const text = String(block.data.text ?? "");
+      const rendered = text.split("\n").map((line, i) => (
+        <span key={i}>
+          {i > 0 && <br />}
+          {line || "\u00A0"}
+        </span>
+      ));
+      return <p className="mb-4 text-base leading-relaxed text-dnews-dark">{rendered}</p>;
+    }
 
     case "heading": {
       const Tag = (block.data.level as "h2" | "h3" | "h4") ?? "h2";
