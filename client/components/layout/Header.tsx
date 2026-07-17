@@ -3,21 +3,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useSyncExternalStore, useState } from "react";
-import { Search, Bell, LayoutDashboard, LogIn } from "lucide-react";
+import { Search, Bell, LogIn } from "lucide-react";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
+import UserMenu from "@/components/layout/UserMenu";
+import { clearToken, getStoredUser } from "@/lib/api-client";
+import type { User } from "@/types/auth";
 
 export default function Header() {
   const { theme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
-  const authenticated = useSyncExternalStore(
+
+  const storedUser = useSyncExternalStore(
     (onStoreChange) => {
       window.addEventListener("storage", onStoreChange);
       return () => window.removeEventListener("storage", onStoreChange);
     },
-    () => (typeof window !== "undefined" ? !!localStorage.getItem("dnews_token") : false),
-    () => false,
+    () => (typeof window !== "undefined" ? getStoredUser<User>() : null),
+    () => null,
   );
 
   const toggleSearch = useCallback(() => {
@@ -28,15 +32,13 @@ export default function Header() {
     setSearchOpen(false);
   }, []);
 
-  const userButton = authenticated ? (
-    <Link
-      href="/dashboard"
-      className="inline-flex items-center gap-1.5 rounded-sm border border-dnews-border px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
-      aria-label="Go to dashboard"
-    >
-      <LayoutDashboard size={13} />
-      <span className="hidden sm:inline">Dashboard</span>
-    </Link>
+  const handleLogout = useCallback(() => {
+    clearToken();
+    window.location.href = "/";
+  }, []);
+
+  const userButton = storedUser ? (
+    <UserMenu user={storedUser} onLogout={handleLogout} />
   ) : (
     <Link
       href="/dashboard/login"
