@@ -1,0 +1,48 @@
+import { Router } from "express";
+import authRouter from "./auth";
+import usersRouter from "./users";
+import rolesRouter from "./roles";
+import articlesRouter from "./articles";
+import categoriesRouter from "./categories";
+import mediaRouter from "./media";
+import tagsRouter from "./tags";
+import dashboardRouter from "./dashboard";
+import analyticsRouter from "./analytics";
+import workflowRouter from "./workflow";
+import seoRouter from "./seo";
+import layoutsRouter from "./layouts";
+import advertisersRouter from "./advertisers";
+import adCampaignsRouter from "./adCampaigns";
+import advertisementsRouter from "./advertisements";
+import campaignsRouter from "./campaigns";
+import templatesRouter from "./templates";
+import automationsRouter from "./automations";
+import trackingRouter from "./tracking";
+import reportsRouter from "./reports";
+import settingsRouter from "./settings";
+
+const router = Router();
+
+router.use("/auth", authRouter);
+router.use("/users", usersRouter);
+router.use("/roles", rolesRouter);
+router.use("/articles", articlesRouter);
+router.use("/categories", categoriesRouter);
+router.use("/media", mediaRouter);
+router.use("/tags", tagsRouter);
+router.use("/dashboard", dashboardRouter);
+router.use("/analytics", analyticsRouter);
+router.use("/editorial", workflowRouter);
+router.use("/seo", seoRouter);
+router.use("/layouts", layoutsRouter);
+router.use("/advertisers", advertisersRouter);
+router.use("/ad-campaigns", adCampaignsRouter);
+router.use("/advertisements", advertisementsRouter);
+router.use("/newsletter/campaigns", campaignsRouter);
+router.use("/newsletter/templates", templatesRouter);
+router.use("/newsletter/automations", automationsRouter);
+router.use("/tracking", trackingRouter);
+router.use("/newsletter/reports", reportsRouter);
+router.use("/newsletter/settings", settingsRouter);
+
+export default router;

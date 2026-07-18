@@ -45,7 +45,15 @@ next-env.d.ts
 rapport/
 
 # uploads
+apps/uploads/
 server/uploads/
+
+# old client/server (replaced by monorepo)
+client/
+server/
+
+# turbo
+.turbo/
 
 # compiled documents
 *.pdf
