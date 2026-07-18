@@ -59,7 +59,8 @@ export const articleService = {
   },
 
   async create(data: CreateArticleInput, user: AuthenticatedUser) {
-    const createData = { ...data, authorId: user.id };
+    const { authorUserId, ...rest } = data;
+    const createData = { ...rest, authorId: authorUserId || user.id } as CreateArticleInput;
 
     if (user.role.name !== "Admin" && user.role.name !== "Editor") {
       createData.status = "DRAFT";
@@ -116,7 +117,13 @@ export const articleService = {
       throw new AppError("Only editors and admins can archive articles", 403);
     }
 
-    const article = await articleRepository.update(id, data);
+    const { authorUserId: auId, ...restData } = data;
+    const updateData = { ...restData } as UpdateArticleInput;
+    if (auId) {
+      updateData.authorId = auId;
+    }
+
+    const article = await articleRepository.update(id, updateData);
     return formatArticle(article);
   },
 

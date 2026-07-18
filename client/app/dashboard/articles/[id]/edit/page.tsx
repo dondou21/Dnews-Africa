@@ -158,14 +158,15 @@ function EditArticleForm() {
         tags,
         scheduledAt: scheduleEnabled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
       };
-      if (authorType === "manual") {
-        body.authorName = authorName;
-        body.authorPosition = authorPosition || undefined;
-        body.authorOrganization = authorOrganization || undefined;
-      } else {
+      if (authorType === "user") {
+        body.authorUserId = authorUserId;
         body.authorName = null;
         body.authorPosition = null;
         body.authorOrganization = null;
+      } else {
+        body.authorName = authorName || null;
+        body.authorPosition = authorPosition || null;
+        body.authorOrganization = authorOrganization || null;
       }
       await patch(`/articles/${id}`, body);
       router.push("/dashboard/articles");

@@ -46,22 +46,51 @@ function extractFromPlainText(content: string): string | null {
   return null;
 }
 
+function getArticleText(
+  summary: string | null | undefined,
+  content: string | null | undefined
+): string {
+  if (summary?.trim()) return summary.trim();
+  if (!content?.trim()) return "";
+  return extractFromBlocks(content) || extractFromPlainText(content) || "";
+}
+
 export function extractExcerpt(
   summary: string | null | undefined,
   content: string | null | undefined,
   maxChars = 280
 ): string {
-  if (summary?.trim()) {
-    return truncateText(summary.trim(), maxChars);
+  const text = getArticleText(summary, content);
+  if (!text) return "";
+  return truncateText(text, maxChars);
+}
+
+export function extractFirstSentence(
+  summary: string | null | undefined,
+  content: string | null | undefined,
+  maxFallbackChars = 220
+): string {
+  const text = getArticleText(summary, content);
+  if (!text) return "";
+
+  const match = text.match(/^(.*?[.!?])(?:\s|$)/);
+  if (match) {
+    let sentence = match[1].trim();
+    if (sentence.length < 20) {
+      const rest = text.slice(match[0].length).trim();
+      const secondMatch = rest.match(/^(.*?[.!?])(?:\s|$)/);
+      if (secondMatch) {
+        sentence += " " + secondMatch[1].trim();
+      }
+    }
+    return sentence;
   }
 
-  if (!content?.trim()) return "";
-
-  const fromBlocks = extractFromBlocks(content);
-  if (fromBlocks) return truncateText(fromBlocks, maxChars);
-
-  const fromPlain = extractFromPlainText(content);
-  if (fromPlain) return truncateText(fromPlain, maxChars);
-
-  return "";
+  if (text.length <= maxFallbackChars) return text;
+  const truncated = text.slice(0, maxFallbackChars);
+  const lastSpace = truncated.lastIndexOf(" ");
+  if (lastSpace > maxFallbackChars * 0.7) {
+    return truncated.slice(0, lastSpace) + "...";
+  }
+  return truncated + "...";
 }

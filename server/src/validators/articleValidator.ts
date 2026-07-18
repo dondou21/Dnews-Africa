@@ -32,17 +32,37 @@ const articleBaseSchema = z.object({
   publishedAt: z.string().optional(),
   scheduledAt: z.string().optional(),
   tags: z.array(z.string().min(1)).optional(),
-  authorName: z.string().optional(),
-  authorPosition: z.string().optional(),
-  authorOrganization: z.string().optional(),
+  authorUserId: z.string().uuid().optional(),
+  authorName: z.string().nullish(),
+  authorPosition: z.string().nullish(),
+  authorOrganization: z.string().nullish(),
 });
+
+function validateAuthor(
+  data: { authorUserId?: string; authorName?: string | null },
+  ctx: z.RefinementCtx,
+  isCreate: boolean
+) {
+  const touched = data.authorUserId !== undefined || data.authorName !== undefined;
+  if (isCreate || touched) {
+    if (!data.authorUserId && !data.authorName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Either select an existing author or provide an author name",
+        path: ["authorUserId"],
+      });
+    }
+  }
+}
 
 export const createArticleSchema = articleBaseSchema.superRefine((data, ctx) => {
   futureDate(data.scheduledAt, ctx);
+  validateAuthor(data, ctx, true);
 });
 
 export const updateArticleSchema = articleBaseSchema.partial().superRefine((data, ctx) => {
   futureDate(data.scheduledAt, ctx);
+  validateAuthor(data, ctx, false);
 });
 
 export const articleQuerySchema = z.object({

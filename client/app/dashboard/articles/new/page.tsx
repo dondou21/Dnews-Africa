@@ -114,10 +114,12 @@ function NewArticleForm() {
         tags,
         scheduledAt: scheduleEnabled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
       };
-      if (authorType === "manual") {
-        body.authorName = authorName;
-        body.authorPosition = authorPosition || undefined;
-        body.authorOrganization = authorOrganization || undefined;
+      if (authorType === "user") {
+        body.authorUserId = authorUserId;
+      } else {
+        body.authorName = authorName || null;
+        body.authorPosition = authorPosition || null;
+        body.authorOrganization = authorOrganization || null;
       }
       await post("/articles", body);
       router.push(`/dashboard/articles`);
