@@ -14,6 +14,7 @@ export const mediaRepository = {
     mimeType?: string;
     extension?: string;
     storageProvider?: string;
+    publicId?: string;
     uploadedById: string;
   }) =>
     prisma.media.create({
@@ -29,6 +30,7 @@ export const mediaRepository = {
         mimeType: data.mimeType,
         extension: data.extension,
         storageProvider: data.storageProvider || "local",
+        publicId: data.publicId,
         uploadedById: data.uploadedById,
       },
     }),

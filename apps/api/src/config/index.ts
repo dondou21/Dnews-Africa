@@ -17,4 +17,7 @@ export const config = {
   apiUrl: process.env.API_URL || `http://localhost:${process.env.PORT || 4000}`,
   mediaBaseUrl: process.env.MEDIA_BASE_URL || `http://localhost:${process.env.PORT || 4000}/uploads`,
   uploadDir: process.env.UPLOAD_DIR || path.resolve(__dirname, "../../uploads"),
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || "",
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || "",
 };

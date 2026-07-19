@@ -632,6 +632,7 @@ model Media {
   mimeType       String?
   extension      String?
   storageProvider String  @default("local")
+  publicId       String?
 
   uploadedById String
   uploadedBy   User   @relation(fields: [uploadedById], references: [id])

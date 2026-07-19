@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import prisma from "./prisma";
 import { config } from "../config";
+import { cloudinaryService } from "../services/cloudinaryService";
 
 export async function cleanupOrphanedMedia(mediaId: string): Promise<void> {
   const articleCount = await prisma.article.count({
@@ -25,13 +26,21 @@ export async function cleanupOrphanedMedia(mediaId: string): Promise<void> {
     return;
   }
 
-  const filename = media.filename || path.basename(media.url);
-  const filePath = path.join(config.uploadDir, filename);
-  if (fs.existsSync(filePath)) {
+  if (media.storageProvider === "cloudinary" && media.publicId) {
     try {
-      fs.unlinkSync(filePath);
+      await cloudinaryService.delete(media.publicId);
     } catch (err) {
-      console.error(`Failed to delete orphaned file ${filePath}:`, err);
+      console.error(`Failed to delete Cloudinary asset ${media.publicId}:`, err);
+    }
+  } else {
+    const filename = media.filename || path.basename(media.url);
+    const filePath = path.join(config.uploadDir, filename);
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (err) {
+        console.error(`Failed to delete orphaned file ${filePath}:`, err);
+      }
     }
   }
 
