@@ -1,2 +1,0 @@
-ALTER TABLE "articles" ADD COLUMN "isBreaking" BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE "articles" ADD COLUMN "allowComments" BOOLEAN NOT NULL DEFAULT true;
