@@ -47,6 +47,20 @@ export const commentController = {
     }
   },
 
+  async getById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const params = commentIdParamSchema.safeParse(req.params);
+      if (!params.success) {
+        throw new AppError("Invalid comment ID", 400);
+      }
+
+      const comment = await commentService.getById(params.data.id);
+      res.json({ status: "success", data: comment });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getAll(_req: Request, res: Response, next: NextFunction) {
     try {
       const comments = await commentService.getAll();

@@ -1,13 +1,13 @@
 import { v2 as cloudinary } from "cloudinary";
 import { config } from "../config";
 
-function initializeCloudinary() {
+let _instance: typeof cloudinary | null = null;
+
+function initializeCloudinary(): typeof cloudinary | null {
   const { cloudinaryCloudName, cloudinaryApiKey, cloudinaryApiSecret } = config;
 
   if (!cloudinaryCloudName || !cloudinaryApiKey || !cloudinaryApiSecret) {
-    throw new Error(
-      "Cloudinary configuration is missing. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables."
-    );
+    return null;
   }
 
   cloudinary.config({
@@ -20,7 +20,12 @@ function initializeCloudinary() {
   return cloudinary;
 }
 
-export const cloudinaryInstance = initializeCloudinary();
+export function getCloudinaryInstance(): typeof cloudinary | null {
+  if (_instance === null) {
+    _instance = initializeCloudinary();
+  }
+  return _instance;
+}
 
 export const ALLOWED_CLOUDINARY_FORMATS = ["jpg", "jpeg", "png", "webp", "avif"];
 

@@ -46,6 +46,14 @@ export const commentService = {
     return commentRepository.findApprovedByArticleId(articleId);
   },
 
+  async getById(id: string) {
+    const comment = await commentRepository.findById(id);
+    if (!comment) {
+      throw new AppError("Comment not found", 404);
+    }
+    return comment;
+  },
+
   async getAll() {
     return commentRepository.findAll();
   },
