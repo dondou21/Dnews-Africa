@@ -77,7 +77,7 @@ async function validateFile(file: Express.Multer.File): Promise<void> {
   }
 }
 
-function getMediaPublicUrl(filename: string): string {
+export function getMediaPublicUrl(filename: string): string {
   const clean = filename.replace(/^\/+/, "");
   return `${config.mediaBaseUrl}/${clean}`;
 }

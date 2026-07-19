@@ -4,7 +4,7 @@ import cmsRouter from "./cms";
 
 const router = Router();
 
-router.use("/public", publicRouter);
+router.use("/", publicRouter);
 router.use("/cms", cmsRouter);
 
 export default router;
