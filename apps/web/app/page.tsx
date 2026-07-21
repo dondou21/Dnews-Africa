@@ -6,7 +6,6 @@ import AdSlot from "@/components/home/AdSlot";
 import ArticleCard from "@/components/home/ArticleCard";
 import { get } from "@dnews/api-client";
 import SectionHeader from "@/components/home/SectionHeader";
-import { articles as fallbackArticles, getFeaturedArticle, getTrendingArticles, type Article as MockArticle } from "@/src/data/articles";
 import type { CategoryWithCount } from "@dnews/types";
 
 interface ArticleItem {
@@ -130,44 +129,6 @@ function useApiArticles() {
   for (const a of entertainmentArticles) usedSlugs.add(a.slug);
 
   const latest = allArticles.filter((a) => !usedSlugs.has(a.slug)).slice(0, 6);
-  const fallback = fallbackArticles;
-
-  if (!loading && allArticles.length === 0) {
-    const featured = getFeaturedArticle();
-    const fbArticles = fallback;
-    const fbSecondary = fbArticles.filter((a) => a.isFeatured).slice(1, 3).map(mockToArticleItem);
-    const fbNews = fbArticles.filter((a) => a.category.includes("News") || a.category === "Youth").slice(0, 3).map(mockToArticleItem);
-    const fbBusiness = fbArticles.filter((a) => a.category.includes("Business")).slice(0, 3).map(mockToArticleItem);
-    const fbSports = fbArticles.filter((a) => a.category.includes("Sports")).slice(0, 3).map(mockToArticleItem);
-    const fbEntertainment = fbArticles.filter((a) => a.category.includes("Culture") || a.category.includes("Entertainment")).slice(0, 3).map(mockToArticleItem);
-    const fbLatest = fbArticles.slice(0, 6).map(mockToArticleItem);
-    return {
-      loading: false,
-      heroArticle: featured ? {
-        id: featured.id,
-        title: featured.title,
-        slug: featured.slug,
-        summary: featured.excerpt,
-        content: featured.content,
-        coverImageUrl: featured.imageUrl,
-        coverImageAlt: featured.imageAlt,
-        featuredImage: null,
-        publishedAt: featured.publishedAt,
-        createdAt: featured.publishedAt,
-        isFeatured: true,
-        category: { id: 0, name: featured.category, slug: featured.category.toLowerCase() },
-        author: { id: "", firstName: featured.authorName.split(" ")[0], lastName: "" },
-      } : null,
-      secondaryArticles: fbSecondary,
-      trending: getTrendingArticles().slice(0, 5).map(mockToArticleItem),
-      latest: fbLatest,
-      newsArticles: fbNews,
-      businessArticles: fbBusiness,
-      sportsArticles: fbSports,
-      entertainmentArticles: fbEntertainment,
-      isFallback: true,
-    };
-  }
 
   return {
     loading,
@@ -183,26 +144,6 @@ function useApiArticles() {
     businessArticles,
     sportsArticles,
     entertainmentArticles,
-    isFallback: false,
-  };
-}
-
-function mockToArticleItem(a: MockArticle): ArticleItem {
-  return {
-    id: a.id,
-    title: a.title,
-    slug: a.slug,
-    summary: a.excerpt,
-    content: a.content,
-    coverImageUrl: a.imageUrl,
-    coverImageAlt: a.imageAlt,
-    featuredImage: null,
-    publishedAt: a.publishedAt,
-    createdAt: a.publishedAt,
-    isFeatured: a.isFeatured,
-    category: { id: 0, name: a.category, slug: a.category.toLowerCase() },
-    author: { id: "", firstName: a.authorName.split(" ")[0], lastName: a.authorName.split(" ").slice(1).join(" ") || "" },
-    authorName: a.authorName,
   };
 }
 
