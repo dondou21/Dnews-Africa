@@ -57,3 +57,8 @@ server/
 
 # compiled documents
 *.pdf
+
+# generated server logs
+*.log
+api-stderr.log
+api-stdout.log
