@@ -11,7 +11,7 @@ beforeAll(async () => {
   adminToken = admin.token;
 
   const article = await request(app)
-    .post("/api/v1/public/articles")
+    .post("/api/v1/cms/articles")
     .set("Authorization", `Bearer ${adminToken}`)
     .send({
       title: "Commentable Article",

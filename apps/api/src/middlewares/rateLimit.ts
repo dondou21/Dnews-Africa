@@ -6,9 +6,11 @@ const standardResponse = {
   message: "Too many requests. Please try again later.",
 };
 
+const isTest = process.env.NODE_ENV === "test";
+
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: config.isProduction ? 100 : 1000,
+  max: isTest ? 100000 : (config.isProduction ? 100 : 1000),
   standardHeaders: true,
   legacyHeaders: false,
   message: standardResponse,
@@ -16,7 +18,7 @@ export const globalLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: isTest ? 100000 : 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: standardResponse,
@@ -24,7 +26,7 @@ export const authLimiter = rateLimit({
 
 export const contactLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 5,
+  max: isTest ? 100000 : 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: standardResponse,
@@ -32,7 +34,7 @@ export const contactLimiter = rateLimit({
 
 export const newsletterLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 5,
+  max: isTest ? 100000 : 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: standardResponse,
@@ -40,7 +42,7 @@ export const newsletterLimiter = rateLimit({
 
 export const searchLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 60,
+  max: isTest ? 100000 : 60,
   standardHeaders: true,
   legacyHeaders: false,
   message: standardResponse,
@@ -48,7 +50,7 @@ export const searchLimiter = rateLimit({
 
 export const uploadLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 20,
+  max: isTest ? 100000 : 20,
   standardHeaders: true,
   legacyHeaders: false,
   message: standardResponse,

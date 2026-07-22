@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { PDFParse } from "pdf-parse";
+import pdf from "pdf-parse";
 import prisma from "../utils/prisma";
 import { articleService } from "../services/articleService";
 import { seoService } from "../services/seoService";
@@ -288,10 +288,8 @@ async function main() {
 
   console.log("\n[1/4] Reading PDF...");
   const buffer = fs.readFileSync(PDF_PATH);
-  const parser = new PDFParse({ data: buffer });
-  const pdfResult = await parser.getText();
-  await parser.destroy();
-  console.log(`  Extracted ${pdfResult.text.length} chars across ${pdfResult.total} pages`);
+  const pdfResult = await pdf(buffer);
+  console.log(`  Extracted ${pdfResult.text.length} chars across ${pdfResult.numpages} pages`);
 
   console.log("\n[2/4] Parsing articles...");
   const parsedArticles = parseArticles(pdfResult.text);

@@ -23,9 +23,9 @@ describe("Article setup", () => {
   });
 });
 
-describe("POST /api/v1/public/articles", () => {
+describe("POST /api/v1/cms/articles", () => {
   it("should reject creation without token", async () => {
-    const res = await request(app).post("/api/v1/public/articles").send({
+    const res = await request(app).post("/api/v1/cms/articles").send({
       title: "Test Article",
       slug: "test-article",
       summary: "Summary",
@@ -37,7 +37,7 @@ describe("POST /api/v1/public/articles", () => {
 
   it("should create article with valid role", async () => {
     const res = await request(app)
-      .post("/api/v1/public/articles")
+      .post("/api/v1/cms/articles")
       .set("Authorization", `Bearer ${editorToken}`)
       .send({
         title: "Published Article",
@@ -55,7 +55,7 @@ describe("POST /api/v1/public/articles", () => {
 
   it("should create article in draft status", async () => {
     const res = await request(app)
-      .post("/api/v1/public/articles")
+      .post("/api/v1/cms/articles")
       .set("Authorization", `Bearer ${editorToken}`)
       .send({
         title: "Draft Article",

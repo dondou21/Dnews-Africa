@@ -8,36 +8,36 @@ interface FeaturedImageRef {
 }
 
 interface ArticleRaw {
-  id: string;
-  title: string;
-  slug: string;
-  summary: string;
-  content: string;
-  coverImageUrl: string | null;
-  coverImageAlt: string | null;
-  featuredImage: FeaturedImageRef | null;
-  status: string;
-  isFeatured: boolean;
-  isBreaking: boolean;
-  allowComments: boolean;
-  isTrending: boolean;
-  publishedAt: Date | null;
-  scheduledAt: Date | null;
-  submittedAt: Date | null;
-  approvedAt: Date | null;
-  archivedAt: Date | null;
-  changeReason: string | null;
-  categoryId: number;
-  category: { id: number; name: string; slug: string };
-  authorId: string;
-  author: { id: string; firstName: string; lastName: string; avatarUrl: string | null };
-  authorName: string | null;
-  authorPosition: string | null;
-  authorOrganization: string | null;
-  assignedEditorId: string | null;
-  tags: { tag: { id: number; name: string; slug: string } }[];
-  createdAt: Date;
-  updatedAt: Date;
+  id?: string;
+  title?: string;
+  slug?: string;
+  summary?: string;
+  content?: string;
+  coverImageUrl?: string | null;
+  coverImageAlt?: string | null;
+  featuredImage?: FeaturedImageRef | null;
+  status?: string;
+  isFeatured?: boolean;
+  isBreaking?: boolean;
+  allowComments?: boolean;
+  isTrending?: boolean;
+  publishedAt?: Date | null;
+  scheduledAt?: Date | null;
+  submittedAt?: Date | null;
+  approvedAt?: Date | null;
+  archivedAt?: Date | null;
+  changeReason?: string | null;
+  categoryId?: number;
+  category?: { id: number; name: string; slug: string };
+  authorId?: string;
+  author?: { id: string; firstName: string; lastName: string; avatarUrl: string | null };
+  authorName?: string | null;
+  authorPosition?: string | null;
+  authorOrganization?: string | null;
+  assignedEditorId?: string | null;
+  tags?: { tag: { id: number; name: string; slug: string } }[];
+  createdAt?: Date;
+  updatedAt?: Date;
   [key: string]: unknown;
 }
 
