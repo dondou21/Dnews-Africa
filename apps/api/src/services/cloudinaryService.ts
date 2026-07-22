@@ -69,12 +69,12 @@ export const cloudinaryService = {
           height: result.height,
           format: result.format,
         };
-      } catch (error) {
-        console.error("Cloudinary upload failed:", error);
-        throw new AppError(
-          `Image upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-          500
-        );
+      } catch (error: unknown) {
+        const err = error as Record<string, unknown>;
+        const message = err?.message || (error instanceof Error ? error.message : "Unknown error");
+        const httpCode = (typeof err?.http_code === "number") ? err.http_code : 500;
+        console.error("Cloudinary upload failed:", message, "(HTTP", httpCode + ")");
+        throw new AppError(`Image upload failed: ${message}`, httpCode);
       }
     });
   },
