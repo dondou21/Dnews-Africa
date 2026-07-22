@@ -62,3 +62,6 @@ server/
 *.log
 api-stderr.log
 api-stdout.log
+
+upload-test.mjs
+apps/api/uploads/
