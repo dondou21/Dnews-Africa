@@ -42,6 +42,64 @@ export class ApiError extends Error {
   }
 }
 
+function normalizePath(path: string): string {
+  const trimmedPath = path.startsWith("/") ? path : `/${path}`;
+
+  if (
+    trimmedPath.startsWith("/cms/") ||
+    trimmedPath === "/cms" ||
+    trimmedPath.startsWith("/api/")
+  ) {
+    return trimmedPath;
+  }
+
+  if (typeof window === "undefined") {
+    return trimmedPath;
+  }
+
+  const isCmsContext =
+    window.location.pathname === "/login" ||
+    window.location.pathname.startsWith("/dashboard") ||
+    window.location.pathname.startsWith("/dashboard/");
+
+  if (!isCmsContext) {
+    return trimmedPath;
+  }
+
+  const [pathname] = trimmedPath.split("?");
+  const cmsPrefixes = [
+    "/dashboard",
+    "/users",
+    "/roles",
+    "/articles",
+    "/categories",
+    "/media",
+    "/upload",
+    "/tags",
+    "/analytics",
+    "/editorial",
+    "/seo",
+    "/layouts",
+    "/advertisers",
+    "/ad-campaigns",
+    "/advertisements",
+    "/newsletter",
+    "/tracking",
+    "/reports",
+    "/settings",
+    "/campaigns",
+    "/templates",
+    "/automations",
+    "/workflow",
+  ];
+
+  const shouldUseCmsPrefix = cmsPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+
+  return shouldUseCmsPrefix ? `/cms${trimmedPath}` : trimmedPath;
+}
+
 async function request<T>(
   method: string,
   path: string,
@@ -56,7 +114,9 @@ async function request<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const normalizedPath = normalizePath(path);
+
+  const res = await fetch(`${API_BASE}${normalizedPath}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
@@ -92,7 +152,9 @@ export async function uploadFile<T>(path: string, file: File): Promise<T> {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const normalizedPath = normalizePath(path);
+
+  const res = await fetch(`${API_BASE}${normalizedPath}`, {
     method: "POST",
     headers,
     body: formData,
