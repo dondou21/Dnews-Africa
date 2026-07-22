@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    get<User>("/auth/me")
+    get<User>("/cms/auth/me")
       .then((u) => {
         setUser(u);
         saveUser(u);
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string) => {
-      const res = await post<LoginResponse>("/auth/login", { email, password });
+      const res = await post<LoginResponse>("/cms/auth/login", { email, password });
       saveToken(res.token);
       saveUser(res.user);
       setUser(res.user);

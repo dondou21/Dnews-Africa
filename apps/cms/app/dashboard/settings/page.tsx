@@ -94,7 +94,7 @@ function SettingsPageContent() {
 
     setPasswordSaving(true);
     try {
-      await patch("/auth/password", { currentPassword, newPassword, confirmNewPassword });
+      await patch("/cms/auth/password", { currentPassword, newPassword, confirmNewPassword });
       setPasswordSuccess("Password changed successfully.");
       setCurrentPassword("");
       setNewPassword("");
