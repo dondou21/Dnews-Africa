@@ -41,28 +41,25 @@ const articleBaseSchema = z.object({
 function validateAuthor(
   data: { authorUserId?: string; authorName?: string | null },
   ctx: z.RefinementCtx,
-  isCreate: boolean
 ) {
   const touched = data.authorUserId !== undefined || data.authorName !== undefined;
-  if (isCreate || touched) {
-    if (!data.authorUserId && !data.authorName) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Either select an existing author or provide an author name",
-        path: ["authorUserId"],
-      });
-    }
+  if (touched && !data.authorUserId && !data.authorName) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Either select an existing author or provide an author name",
+      path: ["authorUserId"],
+    });
   }
 }
 
 export const createArticleSchema = articleBaseSchema.superRefine((data, ctx) => {
   futureDate(data.scheduledAt, ctx);
-  validateAuthor(data, ctx, true);
+  validateAuthor(data, ctx);
 });
 
 export const updateArticleSchema = articleBaseSchema.partial().superRefine((data, ctx) => {
   futureDate(data.scheduledAt, ctx);
-  validateAuthor(data, ctx, false);
+  validateAuthor(data, ctx);
 });
 
 export const articleQuerySchema = z.object({
