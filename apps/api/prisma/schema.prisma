@@ -8,17 +8,807 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+}
+
+model User {
+  id                         String               @id @default(uuid())
+  email                      String               @unique
+  passwordHash               String
+  firstName                  String
+  lastName                   String
+  avatarUrl                  String?
+  bio                        String?
+  isActive                   Boolean              @default(true)
+  roleId                     Int
+  createdAt                  DateTime             @default(now())
+  updatedAt                  DateTime             @updatedAt
+  advertisementsCreated      Advertisement[]
+  analyticsExports           AnalyticsExport[]
+  auditLogs                  ArticleAuditLog[]
+  articleRevisions           ArticleRevision[]
+  assignedArticles           Article[]            @relation("AssignedEditor")
+  articles                   Article[]
+  comments                   Comment[]
+  editorialApprovals         EditorialApproval[]
+  editorialComments          EditorialComment[]
+  homepageLayouts            HomePageLayout[]
+  media                      Media[]
+  newsletterCampaignsCreated NewsletterCampaign[] @relation("CampaignCreatedBy")
+  newsletterCampaignsUpdated NewsletterCampaign[] @relation("CampaignUpdatedBy")
+  newsletterTemplates        NewsletterTemplate[]
+  notifications              Notification[]
+  role                       Role                 @relation(fields: [roleId], references: [id])
+
+  @@map("users")
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  slug        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  parentId    Int?
+  articles    Article[]
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+
+  @@map("categories")
+}
+
+model ArticleRevision {
+  id              String   @id @default(uuid())
+  version         Int
+  title           String
+  slug            String
+  summary         String
+  content         String
+  featuredImageId String?
+  changeReason    String?
+  articleId       String
+  changedById     String
+  createdAt       DateTime @default(now())
+  article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  changedBy       User     @relation(fields: [changedById], references: [id])
+
+  @@unique([articleId, version])
+  @@map("article_revisions")
+}
+
+model EditorialComment {
+  id               String             @id @default(uuid())
+  comment          String
+  sectionReference String?
+  resolved         Boolean            @default(false)
+  articleId        String
+  userId           String
+  parentId         String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  article          Article            @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  parent           EditorialComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies          EditorialComment[] @relation("CommentReplies")
+  user             User               @relation(fields: [userId], references: [id])
+
+  @@map("editorial_comments")
+}
+
+model EditorialApproval {
+  id         String           @id @default(uuid())
+  decision   ApprovalDecision
+  notes      String?
+  articleId  String
+  reviewerId String
+  createdAt  DateTime         @default(now())
+  article    Article          @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  reviewer   User             @relation(fields: [reviewerId], references: [id])
+
+  @@map("editorial_approvals")
+}
+
+model ArticleAuditLog {
+  id          String         @id @default(uuid())
+  action      AuditAction
+  fromStatus  ArticleStatus?
+  toStatus    ArticleStatus?
+  description String?
+  metadata    Json?
+  articleId   String
+  userId      String
+  createdAt   DateTime       @default(now())
+  article     Article        @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id])
+
+  @@map("article_audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  userId    String
+  articleId String?
+  createdAt DateTime @default(now())
+  article   Article? @relation(fields: [articleId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model Tag {
+  id        Int          @id @default(autoincrement())
+  name      String       @unique
+  slug      String       @unique
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  articles  ArticleTag[]
+
+  @@map("tags")
+}
+
+model ArticleTag {
+  articleId String
+  tagId     Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@map("article_tags")
+}
+
+model Comment {
+  id         String        @id @default(uuid())
+  content    String
+  status     CommentStatus @default(PENDING)
+  articleId  String
+  authorId   String?
+  guestName  String?
+  guestEmail String?
+  parentId   String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  article    Article       @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author     User?         @relation(fields: [authorId], references: [id])
+  parent     Comment?      @relation("CommentReplies", fields: [parentId], references: [id])
+  replies    Comment[]     @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+model NewsletterSubscriber {
+  id                  String                        @id @default(uuid())
+  email               String                        @unique
+  name                String?
+  subscribedAt        DateTime                      @default(now())
+  unsubscribedAt      DateTime?
+  createdAt           DateTime                      @default(now())
+  preferences         Json?
+  source              NewsletterSource?
+  status              NewsletterStatus              @default(PENDING)
+  updatedAt           DateTime                      @updatedAt
+  verificationExpires DateTime?
+  verificationToken   String?
+  verified            Boolean                       @default(false)
+  campaignRecipients  NewsletterCampaignRecipient[]
+
+  @@map("newsletter_subscribers")
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}
+
+model NewsletterTemplate {
+  id          String                 @id @default(uuid())
+  name        String
+  description String?
+  subject     String
+  content     String
+  thumbnail   String?
+  isDefault   Boolean                @default(false)
+  createdById String
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  automations NewsletterAutomation[]
+  campaigns   NewsletterCampaign[]
+  createdBy   User                   @relation(fields: [createdById], references: [id])
+
+  @@map("newsletter_templates")
+}
+
+model NewsletterAutomation {
+  id         String              @id @default(uuid())
+  name       String
+  enabled    Boolean             @default(true)
+  frequency  AutomationFrequency
+  sendDay    Int?
+  sendTime   String
+  timezone   String              @default("UTC")
+  templateId String
+  lastRun    DateTime?
+  nextRun    DateTime?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  template   NewsletterTemplate  @relation(fields: [templateId], references: [id])
+
+  @@map("newsletter_automations")
+}
+
+model NewsletterCampaign {
+  id              String                        @id @default(uuid())
+  title           String
+  subject         String
+  slug            String                        @unique
+  content         String
+  plainText       String?
+  excerpt         String?
+  featuredImage   String?
+  status          CampaignStatus                @default(DRAFT)
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  totalRecipients Int                           @default(0)
+  totalSent       Int                           @default(0)
+  totalFailed     Int                           @default(0)
+  createdById     String
+  updatedById     String?
+  createdAt       DateTime                      @default(now())
+  updatedAt       DateTime                      @updatedAt
+  templateId      String?
+  totalClicked    Int                           @default(0)
+  totalOpened     Int                           @default(0)
+  analytics       NewsletterAnalytics[]
+  recipients      NewsletterCampaignRecipient[]
+  createdBy       User                          @relation("CampaignCreatedBy", fields: [createdById], references: [id])
+  template        NewsletterTemplate?           @relation(fields: [templateId], references: [id])
+  updatedBy       User?                         @relation("CampaignUpdatedBy", fields: [updatedById], references: [id])
+  clicks          NewsletterClick[]
+  opens           NewsletterOpen[]
+
+  @@map("newsletter_campaigns")
+}
+
+model NewsletterCampaignRecipient {
+  id           String               @id @default(uuid())
+  status       RecipientStatus      @default(PENDING)
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  failedAt     DateTime?
+  errorMessage String?
+  campaignId   String
+  subscriberId String
+  createdAt    DateTime             @default(now())
+  clickedAt    DateTime?
+  openedAt     DateTime?
+  campaign     NewsletterCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriber   NewsletterSubscriber @relation(fields: [subscriberId], references: [id])
+
+  @@map("newsletter_campaign_recipients")
+}
+
+model NewsletterAnalytics {
+  id              String             @id @default(uuid())
+  totalRecipients Int                @default(0)
+  delivered       Int                @default(0)
+  opened          Int                @default(0)
+  clicked         Int                @default(0)
+  bounced         Int                @default(0)
+  unsubscribed    Int                @default(0)
+  failed          Int                @default(0)
+  campaignId      String
+  createdAt       DateTime           @default(now())
+  campaign        NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("newsletter_analytics")
+}
+
+model NewsletterOpen {
+  id           String             @id @default(uuid())
+  subscriberId String
+  openedAt     DateTime           @default(now())
+  campaignId   String
+  campaign     NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("newsletter_opens")
+}
+
+model NewsletterClick {
+  id           String             @id @default(uuid())
+  url          String
+  articleId    String?
+  clickedAt    DateTime           @default(now())
+  campaignId   String
+  subscriberId String
+  campaign     NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("newsletter_clicks")
+}
+
+model NewsletterSettings {
+  id                Int      @id @default(autoincrement())
+  senderName        String   @default("Dnews Africa")
+  senderEmail       String   @default("noreply@dnewsafrica.com")
+  replyToEmail      String   @default("noreply@dnewsafrica.com")
+  companyName       String   @default("Dnews Africa")
+  footerText        String   @default("Follow us for the latest African stories.")
+  logoUrl           String?
+  timezone          String   @default("UTC")
+  defaultTemplateId String?
+  socialFacebook    String?
+  socialTwitter     String?
+  socialInstagram   String?
+  socialLinkedin    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("newsletter_settings")
+}
+
+model Advertiser {
+  id          String          @id @default(uuid())
+  companyName String
+  contactName String?
+  email       String?
+  phone       String?
+  website     String?
+  logoUrl     String?
+  notes       String?
+  status      String          @default("ACTIVE")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  campaigns   AdCampaign[]
+  ads         Advertisement[]
+
+  @@map("advertisers")
+}
+
+model AdCampaign {
+  id           String          @id @default(uuid())
+  name         String
+  budget       Float?
+  startDate    DateTime?
+  endDate      DateTime?
+  status       String          @default("ACTIVE")
+  totalAds     Int             @default(0)
+  advertiserId String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  advertiser   Advertiser      @relation(fields: [advertiserId], references: [id])
+  ads          Advertisement[]
+
+  @@map("ad_campaigns")
+}
+
+model Advertisement {
+  id             String      @id @default(uuid())
+  title          String
+  type           AdType
+  placement      AdPlacement
+  targetUrl      String
+  buttonText     String?
+  description    String?
+  startDate      DateTime?
+  endDate        DateTime?
+  priority       Int         @default(0)
+  status         AdStatus    @default(ACTIVE)
+  impressions    Int         @default(0)
+  clicks         Int         @default(0)
+  maxImpressions Int?
+  maxClicks      Int?
+  rotation       AdRotation  @default(RANDOM)
+  weight         Int         @default(1)
+  imageId        String?
+  videoId        String?
+  advertiserId   String
+  campaignId     String?
+  createdById    String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  advertiser     Advertiser  @relation(fields: [advertiserId], references: [id])
+  campaign       AdCampaign? @relation(fields: [campaignId], references: [id])
+  createdBy      User        @relation(fields: [createdById], references: [id])
+  image          Media?      @relation("AdImage", fields: [imageId], references: [id])
+  video          Media?      @relation("AdVideo", fields: [videoId], references: [id])
+
+  @@map("advertisements")
+}
+
+model Media {
+  id              String          @id @default(uuid())
+  url             String
+  alt             String?
+  type            MediaType       @default(IMAGE)
+  width           Int?
+  height          Int?
+  fileSize        Int?
+  uploadedById    String
+  createdAt       DateTime        @default(now())
+  extension       String?
+  filename        String?
+  mimeType        String?
+  originalName    String?
+  storageProvider String          @default("local")
+  publicId        String?
+  adImages        Advertisement[] @relation("AdImage")
+  adVideos        Advertisement[] @relation("AdVideo")
+  articles        Article[]       @relation("FeaturedImage")
+  uploadedBy      User            @relation(fields: [uploadedById], references: [id])
+
+  @@map("media")
+}
+
+model Article {
+  id                 String              @id @default(uuid())
+  title              String
+  slug               String              @unique
+  summary            String
+  content            String
+  coverImageUrl      String?
+  coverImageAlt      String?
+  status             ArticleStatus       @default(DRAFT)
+  isFeatured         Boolean             @default(false)
+  isTrending         Boolean             @default(false)
+  publishedAt        DateTime?
+  categoryId         Int
+  authorId           String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  approvedAt         DateTime?
+  archivedAt         DateTime?
+  assignedEditorId   String?
+  changeReason       String?
+  scheduledAt        DateTime?
+  submittedAt        DateTime?
+  featuredImageId    String?
+  isBreaking         Boolean             @default(false)
+  allowComments      Boolean             @default(true)
+  authorName         String?
+  authorOrganization String?
+  authorPosition     String?
+  auditLogs          ArticleAuditLog[]
+  revisions          ArticleRevision[]
+  tags               ArticleTag[]
+  assignedEditor     User?               @relation("AssignedEditor", fields: [assignedEditorId], references: [id])
+  author             User                @relation(fields: [authorId], references: [id])
+  category           Category            @relation(fields: [categoryId], references: [id])
+  featuredImage      Media?              @relation("FeaturedImage", fields: [featuredImageId], references: [id])
+  comments           Comment[]
+  editorialApprovals EditorialApproval[]
+  editorialComments  EditorialComment[]
+  notifications      Notification[]
+
+  @@map("articles")
+}
+
+model SeoMetadata {
+  id                 String   @id @default(uuid())
+  entityType         String
+  entityId           String
+  metaTitle          String?
+  metaDescription    String?
+  canonicalUrl       String?
+  focusKeyword       String?
+  robots             String   @default("index, follow")
+  ogTitle            String?
+  ogDescription      String?
+  ogImageId          String?
+  twitterTitle       String?
+  twitterDescription String?
+  twitterImageId     String?
+  schemaType         String   @default("NewsArticle")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([entityType, entityId])
+  @@map("seo_metadata")
+}
+
+model Redirect {
+  id         String   @id @default(uuid())
+  fromPath   String   @unique
+  toPath     String
+  statusCode Int      @default(301)
+  entityType String?
+  entityId   String?
+  active     Boolean  @default(true)
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("redirects")
+}
+
+model SeoSettings {
+  id                 Int      @id @default(autoincrement())
+  siteTitle          String   @default("Dnews Africa")
+  defaultDescription String   @default("Latest African news, stories, and analysis.")
+  defaultImageUrl    String?
+  defaultRobots      String   @default("index, follow")
+  organizationName   String   @default("Dnews Africa")
+  organizationLogo   String?
+  socialFacebook     String?
+  socialTwitter      String?
+  socialInstagram    String?
+  socialLinkedin     String?
+  googleNewsPubName  String?  @default("Dnews Africa")
+  googleNewsPubLogo  String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("seo_settings")
+}
+
+model HomePageLayout {
+  id          String            @id @default(uuid())
+  name        String
+  slug        String            @unique
+  status      LayoutStatus      @default(DRAFT)
+  version     Int               @default(1)
+  isDefault   Boolean           @default(false)
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  settings    Json?
+  createdById String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  createdBy   User              @relation(fields: [createdById], references: [id])
+  sections    HomePageSection[]
+
+  @@map("homepage_layouts")
+}
+
+model HomePageSection {
+  id        String         @id @default(uuid())
+  type      String
+  title     String?
+  subtitle  String?
+  position  Int
+  settings  Json?
+  visible   Boolean        @default(true)
+  layoutId  String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  layout    HomePageLayout @relation(fields: [layoutId], references: [id], onDelete: Cascade)
+
+  @@map("homepage_sections")
+}
+
+model VisitorSession {
+  id             String            @id @default(uuid())
+  anonymousId    String
+  startTime      DateTime          @default(now())
+  endTime        DateTime?
+  duration       Int?
+  pageViews      Int               @default(0)
+  isBounced      Boolean           @default(false)
+  isReturning    Boolean           @default(false)
+  country        String?
+  region         String?
+  city           String?
+  timezone       String?
+  language       String?
+  deviceType     DeviceType        @default(UNKNOWN)
+  browser        String?
+  browserVersion String?
+  os             String?
+  osVersion      String?
+  deviceModel    String?
+  screenWidth    Int?
+  screenHeight   Int?
+  trafficSource  TrafficSourceType @default(DIRECT)
+  referrer       String?
+  referrerUrl    String?
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  utmTerm        String?
+  utmContent     String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  pageViewsRel   PageView[]
+  events         ReaderEvent[]
+
+  @@index([anonymousId])
+  @@index([startTime])
+  @@index([trafficSource])
+  @@index([country])
+  @@map("visitor_sessions")
+}
+
+model PageView {
+  id            String            @id @default(uuid())
+  path          String
+  title         String?
+  sessionId     String
+  visitorId     String
+  referrer      String?
+  referrerUrl   String?
+  timeOnPage    Int?
+  scrollDepth   Int?
+  isExit        Boolean           @default(false)
+  isBounce      Boolean           @default(false)
+  entityType    String?
+  entityId      String?
+  country       String?
+  region        String?
+  city          String?
+  language      String?
+  deviceType    DeviceType        @default(UNKNOWN)
+  browser       String?
+  os            String?
+  trafficSource TrafficSourceType @default(DIRECT)
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  createdAt     DateTime          @default(now())
+  session       VisitorSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([path])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([sessionId])
+  @@index([visitorId])
+  @@map("page_views")
+}
+
+model ArticleView {
+  id             String            @id @default(uuid())
+  articleId      String
+  title          String            @default("")
+  sessionId      String
+  visitorId      String
+  referrer       String?
+  timeOnPage     Int?
+  scrollDepth    Int?
+  completionRate Float?
+  isCompleted    Boolean           @default(false)
+  trafficSource  TrafficSourceType @default(DIRECT)
+  createdAt      DateTime          @default(now())
+
+  @@index([articleId])
+  @@index([createdAt])
+  @@index([visitorId])
+  @@map("article_views")
+}
+
+model ReaderEvent {
+  id         String         @id @default(uuid())
+  eventType  String
+  eventData  Json?
+  sessionId  String
+  visitorId  String
+  pageViewId String?
+  entityType String?
+  entityId   String?
+  value      Float?
+  createdAt  DateTime       @default(now())
+  session    VisitorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([eventType])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("reader_events")
+}
+
+model SearchQuery {
+  id           String   @id @default(uuid())
+  query        String
+  normalized   String
+  resultsCount Int      @default(0)
+  noResults    Boolean  @default(false)
+  sessionId    String
+  visitorId    String
+  source       String?
+  createdAt    DateTime @default(now())
+
+  @@index([normalized])
+  @@index([createdAt])
+  @@index([noResults])
+  @@map("search_queries")
+}
+
+model DailyStat {
+  id              String   @id @default(uuid())
+  date            DateTime
+  entityType      String?
+  entityId        String?
+  pageViews       Int      @default(0)
+  uniqueVisitors  Int      @default(0)
+  sessions        Int      @default(0)
+  avgTimeOnPage   Float?
+  bounceRate      Float?
+  avgScrollDepth  Float?
+  directViews     Int      @default(0)
+  googleSearch    Int      @default(0)
+  googleDiscover  Int      @default(0)
+  googleNews      Int      @default(0)
+  socialViews     Int      @default(0)
+  newsletterViews Int      @default(0)
+  referralViews   Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([date, entityType, entityId])
+  @@index([date])
+  @@index([entityType, entityId])
+  @@map("daily_stats")
+}
+
+model DashboardSnapshot {
+  id                 String   @id @default(uuid())
+  snapshotType       String
+  periodStart        DateTime
+  periodEnd          DateTime
+  totalPageViews     Int      @default(0)
+  totalVisitors      Int      @default(0)
+  totalSessions      Int      @default(0)
+  activeReaders      Int      @default(0)
+  avgSessionDuration Float?
+  bounceRate         Float?
+  pagesPerSession    Float?
+  returningVisitors  Int      @default(0)
+  totalArticles      Int      @default(0)
+  totalNewsletters   Int      @default(0)
+  totalSubscribers   Int      @default(0)
+  trafficBreakdown   Json?
+  topArticles        Json?
+  topSources         Json?
+  topCountries       Json?
+  topCategories      Json?
+  topAuthors         Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([snapshotType, periodStart])
+  @@map("dashboard_snapshots")
+}
+
+model AnalyticsExport {
+  id          String   @id @default(uuid())
+  exportType  String
+  format      String
+  periodStart DateTime
+  periodEnd   DateTime
+  filters     Json?
+  fileUrl     String?
+  status      String   @default("pending")
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  @@map("analytics_exports")
+}
+
 enum ArticleStatus {
-  IDEA
   DRAFT
-  IN_REVIEW
-  NEEDS_REVISION
-  APPROVED
-  SCHEDULED
   PENDING_REVIEW
   PUBLISHED
   REJECTED
   ARCHIVED
+  IDEA
+  IN_REVIEW
+  NEEDS_REVISION
+  APPROVED
+  SCHEDULED
 }
 
 enum ApprovalDecision {
@@ -55,215 +845,6 @@ enum MediaType {
   OTHER
 }
 
-model Role {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  description String?
-
-  users User[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  firstName    String
-  lastName     String
-  avatarUrl    String?
-  bio          String?
-  isActive     Boolean  @default(true)
-
-  roleId Int
-  role   Role   @relation(fields: [roleId], references: [id])
-
-  articles Article[]
-  assignedArticles Article[] @relation("AssignedEditor")
-  comments Comment[]
-  media    Media[]
-  newsletterCampaignsCreated NewsletterCampaign[] @relation("CampaignCreatedBy")
-  newsletterCampaignsUpdated NewsletterCampaign[] @relation("CampaignUpdatedBy")
-  newsletterTemplates        NewsletterTemplate[]
-  advertisementsCreated      Advertisement[]
-  editorialComments          EditorialComment[]
-  editorialApprovals         EditorialApproval[]
-  articleRevisions           ArticleRevision[]
-  notifications              Notification[]
-  auditLogs                  ArticleAuditLog[]
-  homepageLayouts            HomePageLayout[]
-  analyticsExports           AnalyticsExport[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("users")
-}
-
-model Category {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
-  slug        String    @unique
-  description String?
-  parentId    Int?
-
-  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children Category[] @relation("CategoryHierarchy")
-
-  articles Article[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("categories")
-}
-
-model ArticleRevision {
-  id        String   @id @default(uuid())
-  version   Int
-  title     String
-  slug      String
-  summary   String
-  content   String
-  featuredImageId String?
-  changeReason    String?
-
-  articleId String
-  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  changedById String
-  changedBy   User   @relation(fields: [changedById], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@unique([articleId, version])
-  @@map("article_revisions")
-}
-
-model EditorialComment {
-  id        String   @id @default(uuid())
-  comment   String
-  sectionReference String?
-  resolved  Boolean  @default(false)
-
-  articleId String
-  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  parentId String?
-  parent   EditorialComment? @relation("CommentReplies", fields: [parentId], references: [id])
-  replies  EditorialComment[] @relation("CommentReplies")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("editorial_comments")
-}
-
-model EditorialApproval {
-  id         String           @id @default(uuid())
-  decision   ApprovalDecision
-  notes      String?
-
-  articleId  String
-  article    Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  reviewerId String
-  reviewer   User    @relation(fields: [reviewerId], references: [id])
-
-  createdAt  DateTime @default(now())
-
-  @@map("editorial_approvals")
-}
-
-model ArticleAuditLog {
-  id        String      @id @default(uuid())
-  action    AuditAction
-  fromStatus ArticleStatus?
-  toStatus   ArticleStatus?
-  description String?
-  metadata   Json?
-
-  articleId String
-  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@map("article_audit_logs")
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  type      String
-  title     String
-  message   String
-  link      String?
-  read      Boolean  @default(false)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  articleId String?
-  article   Article? @relation(fields: [articleId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@map("notifications")
-}
-
-model Tag {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-  slug String @unique
-
-  articles ArticleTag[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("tags")
-}
-
-model ArticleTag {
-  articleId String
-  tagId     Int
-
-  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@id([articleId, tagId])
-  @@map("article_tags")
-}
-
-model Comment {
-  id      String        @id @default(uuid())
-  content String
-  status  CommentStatus @default(PENDING)
-
-  articleId String
-  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
-
-  authorId   String?
-  author     User?    @relation(fields: [authorId], references: [id])
-  guestName  String?
-  guestEmail String?
-
-  parentId String?
-  parent   Comment? @relation("CommentReplies", fields: [parentId], references: [id])
-  replies  Comment[] @relation("CommentReplies")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("comments")
-}
-
 enum NewsletterStatus {
   PENDING
   ACTIVE
@@ -277,40 +858,6 @@ enum NewsletterSource {
   ARTICLE
   POPUP
   MANUAL
-}
-
-model NewsletterSubscriber {
-  id                 String            @id @default(uuid())
-  email              String            @unique
-  name               String?
-  status             NewsletterStatus  @default(PENDING)
-  verified           Boolean           @default(false)
-  verificationToken  String?
-  verificationExpires DateTime?
-  source             NewsletterSource?
-  preferences        Json?
-  subscribedAt       DateTime          @default(now())
-  unsubscribedAt     DateTime?
-
-  campaignRecipients NewsletterCampaignRecipient[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("newsletter_subscribers")
-}
-
-model ContactMessage {
-  id        String   @id @default(uuid())
-  name      String
-  email     String
-  subject   String
-  message   String
-  isRead    Boolean  @default(false)
-
-  createdAt DateTime @default(now())
-
-  @@map("contact_messages")
 }
 
 enum AutomationFrequency {
@@ -331,170 +878,6 @@ enum RecipientStatus {
   PENDING
   SENT
   FAILED
-}
-
-model NewsletterTemplate {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  subject     String
-  content     String
-  thumbnail   String?
-  isDefault   Boolean  @default(false)
-
-  createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
-
-  campaigns   NewsletterCampaign[]
-  automations NewsletterAutomation[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("newsletter_templates")
-}
-
-model NewsletterAutomation {
-  id        String              @id @default(uuid())
-  name      String
-  enabled   Boolean             @default(true)
-  frequency AutomationFrequency
-  sendDay   Int?
-  sendTime  String
-  timezone  String              @default("UTC")
-
-  templateId String
-  template   NewsletterTemplate @relation(fields: [templateId], references: [id])
-
-  lastRun DateTime?
-  nextRun DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("newsletter_automations")
-}
-
-model NewsletterCampaign {
-  id              String          @id @default(uuid())
-  title           String
-  subject         String
-  slug            String          @unique
-  content         String
-  plainText       String?
-  excerpt         String?
-  featuredImage   String?
-  status          CampaignStatus  @default(DRAFT)
-  scheduledAt     DateTime?
-  sentAt          DateTime?
-  totalRecipients Int             @default(0)
-  totalSent       Int             @default(0)
-  totalFailed     Int             @default(0)
-  totalOpened     Int             @default(0)
-  totalClicked    Int             @default(0)
-
-  templateId String?
-  template   NewsletterTemplate? @relation(fields: [templateId], references: [id])
-
-  createdById String
-  createdBy   User   @relation("CampaignCreatedBy", fields: [createdById], references: [id])
-  updatedById String?
-  updatedBy   User?  @relation("CampaignUpdatedBy", fields: [updatedById], references: [id])
-
-  recipients NewsletterCampaignRecipient[]
-  opens      NewsletterOpen[]
-  clicks     NewsletterClick[]
-  analytics  NewsletterAnalytics[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("newsletter_campaigns")
-}
-
-model NewsletterCampaignRecipient {
-  id           String          @id @default(uuid())
-  status       RecipientStatus @default(PENDING)
-  sentAt       DateTime?
-  deliveredAt  DateTime?
-  openedAt     DateTime?
-  clickedAt    DateTime?
-  failedAt     DateTime?
-  errorMessage String?
-
-  campaignId   String
-  campaign     NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  subscriberId String
-  subscriber   NewsletterSubscriber @relation(fields: [subscriberId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@map("newsletter_campaign_recipients")
-}
-
-model NewsletterAnalytics {
-  id              String   @id @default(uuid())
-  totalRecipients Int      @default(0)
-  delivered       Int      @default(0)
-  opened          Int      @default(0)
-  clicked         Int      @default(0)
-  bounced         Int      @default(0)
-  unsubscribed    Int      @default(0)
-  failed          Int      @default(0)
-
-  campaignId String
-  campaign   NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@map("newsletter_analytics")
-}
-
-model NewsletterOpen {
-  id           String   @id @default(uuid())
-  subscriberId String
-  openedAt     DateTime @default(now())
-
-  campaignId String
-  campaign   NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  @@map("newsletter_opens")
-}
-
-model NewsletterClick {
-  id           String   @id @default(uuid())
-  url          String
-  articleId    String?
-  clickedAt    DateTime @default(now())
-
-  campaignId   String
-  campaign     NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  subscriberId String
-
-  @@map("newsletter_clicks")
-}
-
-model NewsletterSettings {
-  id             Int      @id @default(autoincrement())
-  senderName     String   @default("Dnews Africa")
-  senderEmail    String   @default("noreply@dnewsafrica.com")
-  replyToEmail   String   @default("noreply@dnewsafrica.com")
-  companyName    String   @default("Dnews Africa")
-  footerText     String   @default("Follow us for the latest African stories.")
-  logoUrl        String?
-  timezone       String   @default("UTC")
-  defaultTemplateId String?
-  socialFacebook String?
-  socialTwitter  String?
-  socialInstagram String?
-  socialLinkedin String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("newsletter_settings")
 }
 
 enum AdType {
@@ -540,223 +923,6 @@ enum AdRotation {
   SEQUENTIAL
 }
 
-model Advertiser {
-  id          String   @id @default(uuid())
-  companyName String
-  contactName String?
-  email       String?
-  phone       String?
-  website     String?
-  logoUrl     String?
-  notes       String?
-  status      String   @default("ACTIVE")
-
-  campaigns AdCampaign[]
-  ads       Advertisement[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("advertisers")
-}
-
-model AdCampaign {
-  id           String   @id @default(uuid())
-  name         String
-  budget       Float?
-  startDate    DateTime?
-  endDate      DateTime?
-  status       String   @default("ACTIVE")
-  totalAds     Int      @default(0)
-
-  advertiserId String
-  advertiser   Advertiser @relation(fields: [advertiserId], references: [id])
-
-  ads Advertisement[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("ad_campaigns")
-}
-
-model Advertisement {
-  id           String      @id @default(uuid())
-  title        String
-  type         AdType
-  placement    AdPlacement
-  targetUrl    String
-  buttonText   String?
-  description  String?
-  startDate    DateTime?
-  endDate      DateTime?
-  priority     Int         @default(0)
-  status       AdStatus    @default(ACTIVE)
-  impressions  Int         @default(0)
-  clicks       Int         @default(0)
-  maxImpressions Int?
-  maxClicks    Int?
-  rotation     AdRotation  @default(RANDOM)
-  weight       Int         @default(1)
-
-  imageId String?
-  image   Media?  @relation("AdImage", fields: [imageId], references: [id])
-  videoId String?
-  video   Media?  @relation("AdVideo", fields: [videoId], references: [id])
-
-  advertiserId String
-  advertiser   Advertiser @relation(fields: [advertiserId], references: [id])
-
-  campaignId String?
-  campaign   AdCampaign? @relation(fields: [campaignId], references: [id])
-
-  createdById String
-  createdBy   User   @relation(fields: [createdById], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("advertisements")
-}
-
-model Media {
-  id       String    @id @default(uuid())
-  url      String
-  alt      String?
-  type     MediaType @default(IMAGE)
-  width    Int?
-  height   Int?
-  fileSize Int?
-
-  originalName   String?
-  filename       String?
-  mimeType       String?
-  extension      String?
-  storageProvider String  @default("local")
-  publicId       String?
-
-  uploadedById String
-  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
-
-  adImages     Advertisement[] @relation("AdImage")
-  adVideos     Advertisement[] @relation("AdVideo")
-  articles     Article[]       @relation("FeaturedImage")
-
-  createdAt DateTime @default(now())
-
-  @@map("media")
-}
-
-model Article {
-  id             String        @id @default(uuid())
-  title          String
-  slug           String        @unique
-  summary        String
-  content        String
-  coverImageUrl  String?
-  coverImageAlt  String?
-  featuredImageId String?
-  featuredImage  Media?        @relation("FeaturedImage", fields: [featuredImageId], references: [id])
-  status         ArticleStatus @default(DRAFT)
-  isFeatured     Boolean       @default(false)
-  isBreaking     Boolean       @default(false)
-  allowComments  Boolean       @default(true)
-  isTrending     Boolean       @default(false)
-  publishedAt    DateTime?
-  scheduledAt    DateTime?
-  submittedAt    DateTime?
-  approvedAt     DateTime?
-  archivedAt     DateTime?
-  changeReason   String?
-
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
-
-  authorId           String
-  author             User     @relation(fields: [authorId], references: [id])
-  authorName         String?
-  authorPosition     String?
-  authorOrganization String?
-
-  assignedEditorId String?
-  assignedEditor   User?    @relation("AssignedEditor", fields: [assignedEditorId], references: [id])
-
-  tags              ArticleTag[]
-  comments          Comment[]
-  revisions         ArticleRevision[]
-  editorialComments EditorialComment[]
-  editorialApprovals EditorialApproval[]
-  auditLogs         ArticleAuditLog[]
-  notifications     Notification[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("articles")
-}
-
-model SeoMetadata {
-  id        String   @id @default(uuid())
-  entityType String
-  entityId   String
-
-  metaTitle       String?
-  metaDescription String?
-  canonicalUrl    String?
-  focusKeyword    String?
-  robots          String   @default("index, follow")
-  ogTitle         String?
-  ogDescription   String?
-  ogImageId       String?
-  twitterTitle    String?
-  twitterDescription String?
-  twitterImageId  String?
-  schemaType      String   @default("NewsArticle")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([entityType, entityId])
-  @@map("seo_metadata")
-}
-
-model Redirect {
-  id         String   @id @default(uuid())
-  fromPath   String   @unique
-  toPath     String
-  statusCode Int      @default(301)
-  entityType String?
-  entityId   String?
-  active     Boolean  @default(true)
-  note       String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("redirects")
-}
-
-model SeoSettings {
-  id              Int      @id @default(autoincrement())
-  siteTitle       String   @default("Dnews Africa")
-  defaultDescription String @default("Latest African news, stories, and analysis.")
-  defaultImageUrl String?
-  defaultRobots   String   @default("index, follow")
-  organizationName String  @default("Dnews Africa")
-  organizationLogo String?
-  socialFacebook  String?
-  socialTwitter   String?
-  socialInstagram String?
-  socialLinkedin  String?
-  googleNewsPubName String? @default("Dnews Africa")
-  googleNewsPubLogo String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("seo_settings")
-}
-
 enum LayoutStatus {
   DRAFT
   PUBLISHED
@@ -784,275 +950,4 @@ enum TrafficSourceType {
   REFERRAL
   INTERNAL
   OTHER
-}
-
-model HomePageLayout {
-  id          String        @id @default(uuid())
-  name        String
-  slug        String        @unique
-  status      LayoutStatus  @default(DRAFT)
-  version     Int           @default(1)
-  isDefault   Boolean       @default(false)
-  scheduledAt DateTime?
-  publishedAt DateTime?
-  settings    Json?
-
-  sections HomePageSection[]
-
-  createdById String
-  createdBy   User   @relation(fields: [createdById], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("homepage_layouts")
-}
-
-model HomePageSection {
-  id        String   @id @default(uuid())
-  type      String
-  title     String?
-  subtitle  String?
-  position  Int
-  settings  Json?
-  visible   Boolean  @default(true)
-
-  layoutId String
-  layout   HomePageLayout @relation(fields: [layoutId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("homepage_sections")
-}
-
-// === ANALYTICS MODELS ===
-
-model VisitorSession {
-  id              String            @id @default(uuid())
-  anonymousId     String
-  startTime       DateTime          @default(now())
-  endTime         DateTime?
-  duration        Int?
-  pageViews       Int               @default(0)
-  isBounced       Boolean           @default(false)
-  isReturning     Boolean           @default(false)
-
-  country         String?
-  region          String?
-  city            String?
-  timezone        String?
-  language        String?
-
-  deviceType      DeviceType        @default(UNKNOWN)
-  browser         String?
-  browserVersion  String?
-  os              String?
-  osVersion       String?
-  deviceModel     String?
-  screenWidth     Int?
-  screenHeight    Int?
-
-  trafficSource   TrafficSourceType @default(DIRECT)
-  referrer        String?
-  referrerUrl     String?
-  utmSource       String?
-  utmMedium       String?
-  utmCampaign     String?
-  utmTerm         String?
-  utmContent      String?
-
-  pageViewsRel    PageView[]
-  events          ReaderEvent[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([anonymousId])
-  @@index([startTime])
-  @@index([trafficSource])
-  @@index([country])
-  @@map("visitor_sessions")
-}
-
-model PageView {
-  id              String            @id @default(uuid())
-  path            String
-  title           String?
-  sessionId       String
-  session         VisitorSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  visitorId       String
-  referrer        String?
-  referrerUrl     String?
-
-  timeOnPage      Int?
-  scrollDepth     Int?
-  isExit          Boolean           @default(false)
-  isBounce        Boolean           @default(false)
-
-  entityType      String?
-  entityId        String?
-
-  country         String?
-  region          String?
-  city            String?
-  language        String?
-
-  deviceType      DeviceType        @default(UNKNOWN)
-  browser         String?
-  os              String?
-
-  trafficSource   TrafficSourceType @default(DIRECT)
-  utmSource       String?
-  utmMedium       String?
-  utmCampaign     String?
-
-  createdAt DateTime @default(now())
-
-  @@index([path])
-  @@index([entityType, entityId])
-  @@index([createdAt])
-  @@index([sessionId])
-  @@index([visitorId])
-  @@map("page_views")
-}
-
-model ArticleView {
-  id              String            @id @default(uuid())
-  articleId       String
-  title           String            @default("")
-  sessionId       String
-  visitorId       String
-  referrer        String?
-  timeOnPage      Int?
-  scrollDepth     Int?
-  completionRate  Float?
-  isCompleted     Boolean           @default(false)
-  trafficSource   TrafficSourceType @default(DIRECT)
-
-  createdAt DateTime @default(now())
-
-  @@index([articleId])
-  @@index([createdAt])
-  @@index([visitorId])
-  @@map("article_views")
-}
-
-model ReaderEvent {
-  id          String         @id @default(uuid())
-  eventType   String
-  eventData   Json?
-  sessionId   String
-  session     VisitorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  visitorId   String
-  pageViewId  String?
-  entityType  String?
-  entityId    String?
-  value       Float?
-
-  createdAt DateTime @default(now())
-
-  @@index([eventType])
-  @@index([entityType, entityId])
-  @@index([createdAt])
-  @@map("reader_events")
-}
-
-model SearchQuery {
-  id           String   @id @default(uuid())
-  query        String
-  normalized   String
-  resultsCount Int      @default(0)
-  noResults    Boolean  @default(false)
-  sessionId    String
-  visitorId    String
-  source       String?
-
-  createdAt DateTime @default(now())
-
-  @@index([normalized])
-  @@index([createdAt])
-  @@index([noResults])
-  @@map("search_queries")
-}
-
-model DailyStat {
-  id              String   @id @default(uuid())
-  date            DateTime
-  entityType      String?
-  entityId        String?
-
-  pageViews       Int      @default(0)
-  uniqueVisitors  Int      @default(0)
-  sessions        Int      @default(0)
-  avgTimeOnPage   Float?
-  bounceRate      Float?
-  avgScrollDepth  Float?
-
-  directViews     Int      @default(0)
-  googleSearch    Int      @default(0)
-  googleDiscover  Int      @default(0)
-  googleNews      Int      @default(0)
-  socialViews     Int      @default(0)
-  newsletterViews Int      @default(0)
-  referralViews   Int      @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([date, entityType, entityId])
-  @@index([date])
-  @@index([entityType, entityId])
-  @@map("daily_stats")
-}
-
-model DashboardSnapshot {
-  id               String   @id @default(uuid())
-  snapshotType     String
-  periodStart      DateTime
-  periodEnd        DateTime
-
-  totalPageViews    Int     @default(0)
-  totalVisitors     Int     @default(0)
-  totalSessions     Int     @default(0)
-  activeReaders     Int     @default(0)
-  avgSessionDuration Float?
-  bounceRate        Float?
-  pagesPerSession   Float?
-  returningVisitors Int     @default(0)
-
-  totalArticles    Int      @default(0)
-  totalNewsletters Int      @default(0)
-  totalSubscribers Int      @default(0)
-
-  trafficBreakdown Json?
-  topArticles      Json?
-  topSources       Json?
-  topCountries     Json?
-  topCategories    Json?
-  topAuthors       Json?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([snapshotType, periodStart])
-  @@map("dashboard_snapshots")
-}
-
-model AnalyticsExport {
-  id          String   @id @default(uuid())
-  exportType  String
-  format      String
-  periodStart DateTime
-  periodEnd   DateTime
-  filters     Json?
-  fileUrl     String?
-  status      String   @default("pending")
-  createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("analytics_exports")
 }
