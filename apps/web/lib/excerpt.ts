@@ -23,7 +23,7 @@ function extractFromBlocks(content: string): string | null {
     const parsed = JSON.parse(content);
     if (!Array.isArray(parsed)) return null;
     const firstParagraph = parsed.find(
-      (b: { type: string }) => b.type === "paragraph" && b.data?.text
+      (b: any) => b.type === "paragraph" && b.data?.text
     );
     if (firstParagraph) {
       const text = String(firstParagraph.data.text ?? "").trim();

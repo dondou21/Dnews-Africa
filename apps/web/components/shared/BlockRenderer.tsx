@@ -32,7 +32,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       return (
         <blockquote className="mb-4 border-l-4 border-dnews-accent bg-dnews-bg py-3 pl-4 pr-4 italic text-dnews-dark">
           <p className="text-base">{String(block.data.text ?? "")}</p>
-          {block.data.attribution && (
+          {!!block.data.attribution && (
             <cite className="mt-1 block text-xs text-dnews-muted">&mdash; {String(block.data.attribution)}</cite>
           )}
         </blockquote>
@@ -44,7 +44,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
           <p className="font-heading text-xl font-bold italic leading-snug text-dnews-dark">
             &ldquo;{String(block.data.text ?? "")}&rdquo;
           </p>
-          {block.data.attribution && (
+          {!!block.data.attribution && (
             <cite className="mt-2 block text-xs text-dnews-muted">&mdash; {String(block.data.attribution)}</cite>
           )}
         </aside>
@@ -58,10 +58,10 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       return (
         <figure className={`my-6 ${alignClass} ${sizeClass}`}>
           <img src={String(block.data.url ?? "")} alt={String(block.data.alt ?? "")} className="w-full rounded-sm" />
-          {(block.data.caption || block.data.credit) && (
+          {!!(block.data.caption || block.data.credit) && (
             <figcaption className="mt-1 text-center text-xs text-dnews-muted">
               {String(block.data.caption ?? "")}
-              {block.data.credit && <span className="ml-1">({String(block.data.credit)})</span>}
+              {!!block.data.credit && <span className="ml-1">({String(block.data.credit)})</span>}
             </figcaption>
           )}
         </figure>
@@ -82,7 +82,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
               </figure>
             ))}
           </div>
-          {block.data.caption && (
+          {!!block.data.caption && (
             <p className="mt-2 text-center text-xs text-dnews-muted">{String(block.data.caption)}</p>
           )}
         </div>
@@ -105,7 +105,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
               </video>
             )}
           </div>
-          {block.data.caption && (
+          {!!block.data.caption && (
             <p className="mt-1 text-center text-xs text-dnews-muted">{String(block.data.caption)}</p>
           )}
         </div>
@@ -161,7 +161,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
               ))}
             </tbody>
           </table>
-          {block.data.caption && (
+          {!!block.data.caption && (
             <p className="mt-1 text-center text-xs text-dnews-muted">{String(block.data.caption)}</p>
           )}
         </div>
@@ -178,7 +178,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
               allowFullScreen
             />
           </div>
-          {block.data.caption && (
+          {!!block.data.caption && (
             <p className="mt-1 text-center text-xs text-dnews-muted">{String(block.data.caption)}</p>
           )}
         </div>
@@ -208,7 +208,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       };
       return (
         <div className={`my-6 rounded-sm border-l-4 p-4 ${variantStyles[variant] ?? variantStyles.info}`}>
-          {block.data.title && (
+          {!!block.data.title && (
             <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-dnews-muted">{String(block.data.title)}</p>
           )}
           <p className="text-sm text-dnews-dark">{String(block.data.text ?? "")}</p>
