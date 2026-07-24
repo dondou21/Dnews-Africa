@@ -87,9 +87,9 @@ function useApiArticles() {
         setCategorySlugMap(buildCategorySlugMap(cats));
         const latest = allRes.articles || [];
         setTrending(latest.filter((a) => a.isFeatured || a.featuredImage).slice(0, 5));
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          console.error("Failed to fetch homepage articles");
+          console.error("Failed to fetch homepage articles:", err);
         }
       } finally {
         if (!cancelled) setLoading(false);
