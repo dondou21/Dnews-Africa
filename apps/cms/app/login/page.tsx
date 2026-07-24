@@ -43,19 +43,19 @@ export default function DashboardLogin() {
       <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-12">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 flex justify-center">
-            <Link
-              href="/"
-              className="dark:bg-black dark:px-3 dark:py-1 dark:rounded-sm inline-block"
-            >
-              <Image
-                src="/images/logo0.png"
-                alt="Dnews Africa"
-                width={320}
-                height={80}
-                priority
-                className="h-auto w-[280px] object-contain sm:w-[320px]"
-              />
-            </Link>
+              <Link
+                href="/"
+                className="dark:bg-black dark:px-3 dark:py-1 dark:rounded-sm inline-block w-[280px] sm:w-[320px]"
+              >
+                <Image
+                  src="/images/logo0.png"
+                  alt="Dnews Africa"
+                  width={320}
+                  height={80}
+                  priority
+                  className="h-auto w-full object-contain"
+                />
+              </Link>
           </div>
 
           {error && (
