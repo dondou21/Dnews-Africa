@@ -8,13 +8,8 @@ import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isDashboard = pathname.startsWith("/dashboard");
   const isArticlePage = pathname.startsWith("/articles/");
   const isHomepage = pathname === "/";
-
-  if (isDashboard) {
-    return <>{children}</>;
-  }
 
   return (
     <>
