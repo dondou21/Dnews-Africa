@@ -209,7 +209,7 @@ export const campaignService = {
     if (!campaign) return;
 
     const buildContent = (subscriber: { email: string; name: string | null }) => {
-      const unsubscribeUrl = `${process.env.CLIENT_URL || "http://localhost:3000"}/api/newsletter/unsubscribe`;
+      const unsubscribeUrl = `${process.env.CLIENT_URL || "http://localhost:5000"}/api/newsletter/unsubscribe`;
       const name = subscriber.name || "there";
 
       return `
