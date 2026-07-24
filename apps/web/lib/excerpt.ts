@@ -70,7 +70,17 @@ export function extractFirstSentence(
   content: string | null | undefined,
   maxFallbackChars = 220
 ): string {
-  const text = getArticleText(summary, content);
+  if (!content?.trim() && !summary?.trim()) return "";
+
+  let text = "";
+  if (content?.trim()) {
+    text = extractFromBlocks(content) || extractFromPlainText(content) || "";
+  }
+
+  if (!text && summary?.trim()) {
+    text = summary.trim();
+  }
+
   if (!text) return "";
 
   const match = text.match(/^(.*?[.!?])(?:\s|$)/);
@@ -83,14 +93,20 @@ export function extractFirstSentence(
         sentence += " " + secondMatch[1].trim();
       }
     }
+    if (sentence.length > maxFallbackChars) {
+      const truncated = sentence.slice(0, maxFallbackChars);
+      const lastSpace = truncated.lastIndexOf(" ");
+      return lastSpace > maxFallbackChars * 0.7
+        ? truncated.slice(0, lastSpace) + "..."
+        : truncated + "...";
+    }
     return sentence;
   }
 
   if (text.length <= maxFallbackChars) return text;
   const truncated = text.slice(0, maxFallbackChars);
   const lastSpace = truncated.lastIndexOf(" ");
-  if (lastSpace > maxFallbackChars * 0.7) {
-    return truncated.slice(0, lastSpace) + "...";
-  }
-  return truncated + "...";
+  return lastSpace > maxFallbackChars * 0.7
+    ? truncated.slice(0, lastSpace) + "..."
+    : truncated + "...";
 }
