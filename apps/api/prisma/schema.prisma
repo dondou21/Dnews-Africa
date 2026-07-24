@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -441,6 +442,7 @@ model Media {
   fileSize        Int?
   uploadedById    String
   createdAt       DateTime        @default(now())
+  updatedAt       DateTime?       @updatedAt
   extension       String?
   filename        String?
   mimeType        String?

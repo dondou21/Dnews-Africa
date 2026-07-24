@@ -457,6 +457,7 @@ export interface MediaItem {
   mimeType: string | null;
   extension: string | null;
   storageProvider: string;
+  publicId: string | null;
   uploadedById: string;
   uploadedBy: {
     id: string;
