@@ -2,35 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useSyncExternalStore, useState, useRef } from "react";
-import { Search, Bell, LogIn } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Search, Bell } from "lucide-react";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import SearchOverlay from "@/components/layout/SearchOverlay";
-import UserMenu from "@/components/layout/UserMenu";
-import { clearToken, getStoredUser } from "@dnews/api-client";
-import type { User } from "@dnews/types";
 
 export default function Header() {
   const { theme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
-
-  const userRef = useRef<User | null>(null);
-  if (typeof window !== "undefined" && !userRef.current) {
-    userRef.current = getStoredUser<User>();
-  }
-  const storedUser = useSyncExternalStore(
-    (onStoreChange) => {
-      const handler = () => {
-        userRef.current = getStoredUser<User>();
-        onStoreChange();
-      };
-      window.addEventListener("storage", handler);
-      return () => window.removeEventListener("storage", handler);
-    },
-    () => userRef.current,
-    () => null,
-  );
 
   const toggleSearch = useCallback(() => {
     setSearchOpen((prev) => !prev);
@@ -39,24 +19,6 @@ export default function Header() {
   const closeSearch = useCallback(() => {
     setSearchOpen(false);
   }, []);
-
-  const handleLogout = useCallback(() => {
-    clearToken();
-    window.location.href = "/";
-  }, []);
-
-  const userButton = storedUser ? (
-    <UserMenu user={storedUser} onLogout={handleLogout} />
-  ) : (
-    <Link
-      href="/dashboard/login"
-      className="inline-flex items-center gap-1.5 rounded-sm border border-dnews-border px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
-      aria-label="Sign in"
-    >
-      <LogIn size={13} />
-      <span className="hidden sm:inline">Sign In</span>
-    </Link>
-  );
 
   return (
     <header className="border-b border-dnews-border bg-dnews-card dark:bg-black">
@@ -96,7 +58,6 @@ export default function Header() {
               <Bell size={13} />
               Subscribe
             </Link>
-            {userButton}
           </div>
         </div>
 
@@ -117,7 +78,6 @@ export default function Header() {
             <Bell size={12} />
             Subscribe
           </Link>
-          {userButton}
         </div>
       </div>
 
