@@ -16,6 +16,10 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Dnews Africa CMS",
   description: "Content management system for Dnews Africa",
+  icons: {
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
+  },
 };
 
 export default function RootLayout({
