@@ -130,15 +130,24 @@ async function request<T>(
     throw new ApiError("Unauthorized", 401);
   }
 
-  const json = await res.json();
-
   if (!res.ok) {
-    throw new ApiError(
-      json.message || json.error || "Request failed",
-      res.status
-    );
+    const text = await res.text().catch(() => "");
+    let message = "Request failed";
+    try {
+      const parsed = JSON.parse(text);
+      message = parsed.message || parsed.error || message;
+    } catch {
+      if (text) message = text;
+    }
+    throw new ApiError(message, res.status);
   }
 
+  const contentType = res.headers.get("content-type") || "";
+  if (!contentType.includes("application/json") || res.status === 204) {
+    return undefined as T;
+  }
+
+  const json = await res.json().catch(() => ({}));
   return json.data as T;
 }
 
@@ -168,15 +177,24 @@ export async function uploadFile<T>(path: string, file: File): Promise<T> {
     throw new ApiError("Unauthorized", 401);
   }
 
-  const json = await res.json();
-
   if (!res.ok) {
-    throw new ApiError(
-      json.message || json.error || "Upload failed",
-      res.status
-    );
+    const text = await res.text().catch(() => "");
+    let message = "Upload failed";
+    try {
+      const parsed = JSON.parse(text);
+      message = parsed.message || parsed.error || message;
+    } catch {
+      if (text) message = text;
+    }
+    throw new ApiError(message, res.status);
   }
 
+  const contentType = res.headers.get("content-type") || "";
+  if (!contentType.includes("application/json") || res.status === 204) {
+    return undefined as T;
+  }
+
+  const json = await res.json().catch(() => ({}));
   return json.data as T;
 }
 
