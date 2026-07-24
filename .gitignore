@@ -41,7 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# rapport
+# report & analysis markdown files (generated during dev/reviews)
+PROJECT_RUN_INFO.md
 rapport/
 
 # uploads
@@ -65,3 +66,6 @@ api-stdout.log
 
 upload-test.mjs
 apps/api/uploads/
+
+# temporary files
+*.tmp
