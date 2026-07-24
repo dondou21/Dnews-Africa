@@ -20,7 +20,17 @@ interface ArticleDetail {
   content: string;
   coverImageUrl: string | null;
   coverImageAlt: string | null;
-  featuredImage: { url: string; alt: string | null } | null;
+  featuredImage: {
+    url: string;
+    alt: string | null;
+    caption?: string | null;
+    credit?: string | null;
+    source?: string | null;
+    description?: string | null;
+    copyright?: string | null;
+    location?: string | null;
+    dateTaken?: string | null;
+  } | null;
   status: string;
   isFeatured: boolean;
   isTrending: boolean;
@@ -92,6 +102,16 @@ export default function ArticlePage() {
 
   const imgUrl = getFeaturedImageUrl(article.featuredImage, article.coverImageUrl);
   const imgAlt = article.featuredImage?.alt || article.coverImageAlt || article.title;
+  const caption = article.featuredImage?.caption || null;
+  const credit = article.featuredImage?.credit || null;
+  const source = article.featuredImage?.source || null;
+  const creditLine = credit && source
+    ? `Photo: ${credit} / ${source}`
+    : credit
+      ? `Photo: ${credit}`
+      : source
+        ? `Photo: ${source}`
+        : null;
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
@@ -113,6 +133,17 @@ export default function ArticlePage() {
                 }}
               />
             </div>
+
+            {caption && (
+              <p className="mb-1 mt-2 text-sm italic leading-relaxed text-dnews-gray">
+                {caption}
+              </p>
+            )}
+            {creditLine && (
+              <p className="mb-3 text-xs text-dnews-muted">
+                {creditLine}
+              </p>
+            )}
 
             <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
               {article.category.name}

@@ -39,6 +39,13 @@ export interface CreateArticleInput {
   coverImageUrl?: string;
   coverImageAlt?: string;
   featuredImageId?: string;
+  featuredImageCaption?: string;
+  featuredImageCredit?: string;
+  featuredImageSource?: string;
+  featuredImageDescription?: string;
+  featuredImageCopyright?: string;
+  featuredImageLocation?: string;
+  featuredImageDateTaken?: string;
   categoryId: number;
   authorUserId?: string;
   authorId?: string;
@@ -319,6 +326,13 @@ export const articleRepository = {
         coverImageUrl: articleFields.coverImageUrl,
         coverImageAlt: articleFields.coverImageAlt,
         featuredImageId: articleFields.featuredImageId,
+        ...(articleFields.featuredImageCaption !== undefined ? { featuredImageCaption: articleFields.featuredImageCaption } : {}),
+        ...(articleFields.featuredImageCredit !== undefined ? { featuredImageCredit: articleFields.featuredImageCredit } : {}),
+        ...(articleFields.featuredImageSource !== undefined ? { featuredImageSource: articleFields.featuredImageSource } : {}),
+        ...(articleFields.featuredImageDescription !== undefined ? { featuredImageDescription: articleFields.featuredImageDescription } : {}),
+        ...(articleFields.featuredImageCopyright !== undefined ? { featuredImageCopyright: articleFields.featuredImageCopyright } : {}),
+        ...(articleFields.featuredImageLocation !== undefined ? { featuredImageLocation: articleFields.featuredImageLocation } : {}),
+        ...(articleFields.featuredImageDateTaken !== undefined ? { featuredImageDateTaken: new Date(articleFields.featuredImageDateTaken) } : {}),
         categoryId: articleFields.categoryId,
         authorId: articleFields.authorId!,
         authorName: articleFields.authorName,

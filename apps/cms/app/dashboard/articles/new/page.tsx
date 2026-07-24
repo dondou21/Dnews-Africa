@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { get, post } from "@dnews/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
-import CoverImageUpload from "@/components/dashboard/CoverImageUpload";
+import FeaturedImageEditor from "@/components/dashboard/FeaturedImageEditor";
 import CategorySelect from "@/components/dashboard/CategorySelect";
 import PublishingPanel from "@/components/dashboard/PublishingPanel";
 import ArticleBlockEditor from "@/components/dashboard/BlockEditor";
@@ -39,6 +39,13 @@ function NewArticleForm() {
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [coverImageAlt, setCoverImageAlt] = useState("");
   const [featuredImageId, setFeaturedImageId] = useState("");
+  const [featuredImageCaption, setFeaturedImageCaption] = useState("");
+  const [featuredImageCredit, setFeaturedImageCredit] = useState("");
+  const [featuredImageSource, setFeaturedImageSource] = useState("");
+  const [featuredImageDescription, setFeaturedImageDescription] = useState("");
+  const [featuredImageCopyright, setFeaturedImageCopyright] = useState("");
+  const [featuredImageLocation, setFeaturedImageLocation] = useState("");
+  const [featuredImageDateTaken, setFeaturedImageDateTaken] = useState("");
   const [categoryId, setCategoryId] = useState<number | "">("");
   const [tagsInput, setTagsInput] = useState("");
   const [status, setStatus] = useState("DRAFT");
@@ -106,6 +113,13 @@ function NewArticleForm() {
         coverImageUrl: coverImageUrl || undefined,
         coverImageAlt: coverImageAlt || undefined,
         featuredImageId: featuredImageId || undefined,
+        featuredImageCaption: featuredImageCaption || undefined,
+        featuredImageCredit: featuredImageCredit || undefined,
+        featuredImageSource: featuredImageSource || undefined,
+        featuredImageDescription: featuredImageDescription || undefined,
+        featuredImageCopyright: featuredImageCopyright || undefined,
+        featuredImageLocation: featuredImageLocation || undefined,
+        featuredImageDateTaken: featuredImageDateTaken || undefined,
         categoryId: Number(categoryId),
         status: finalStatus,
         isFeatured,
@@ -220,13 +234,27 @@ function NewArticleForm() {
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
                     Cover Image
                   </label>
-                  <CoverImageUpload
+                  <FeaturedImageEditor
                     initialUrl={coverImageUrl}
                     initialAlt={coverImageAlt}
-                    onImageChange={(url, alt, mediaId) => {
-                      setCoverImageUrl(url);
-                      setCoverImageAlt(alt);
-                      if (mediaId) setFeaturedImageId(mediaId);
+                    initialCaption={featuredImageCaption}
+                    initialCredit={featuredImageCredit}
+                    initialSource={featuredImageSource}
+                    initialDescription={featuredImageDescription}
+                    initialCopyright={featuredImageCopyright}
+                    initialLocation={featuredImageLocation}
+                    initialDateTaken={featuredImageDateTaken}
+                    onChange={(data) => {
+                      setCoverImageUrl(data.url);
+                      setCoverImageAlt(data.alt);
+                      if (data.mediaId) setFeaturedImageId(data.mediaId);
+                      setFeaturedImageCaption(data.caption ?? "");
+                      setFeaturedImageCredit(data.credit ?? "");
+                      setFeaturedImageSource(data.source ?? "");
+                      setFeaturedImageDescription(data.description ?? "");
+                      setFeaturedImageCopyright(data.copyright ?? "");
+                      setFeaturedImageLocation(data.location ?? "");
+                      setFeaturedImageDateTaken(data.dateTaken ?? "");
                     }}
                   />
                 </div>

@@ -39,6 +39,13 @@ export interface FeaturedImage {
   id: string;
   url: string;
   alt: string | null;
+  caption?: string | null;
+  credit?: string | null;
+  source?: string | null;
+  description?: string | null;
+  copyright?: string | null;
+  location?: string | null;
+  dateTaken?: string | null;
 }
 
 export type ArticleStatus = "IDEA" | "DRAFT" | "IN_REVIEW" | "NEEDS_REVISION" | "APPROVED" | "SCHEDULED" | "PENDING_REVIEW" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
@@ -116,6 +123,13 @@ export interface CreateArticleInput {
   coverImageUrl?: string;
   coverImageAlt?: string;
   featuredImageId?: string;
+  featuredImageCaption?: string;
+  featuredImageCredit?: string;
+  featuredImageSource?: string;
+  featuredImageDescription?: string;
+  featuredImageCopyright?: string;
+  featuredImageLocation?: string;
+  featuredImageDateTaken?: string;
   categoryId: number;
   status?: ArticleStatus;
   isFeatured?: boolean;

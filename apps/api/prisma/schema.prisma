@@ -479,8 +479,15 @@ model Article {
   changeReason       String?
   scheduledAt        DateTime?
   submittedAt        DateTime?
-  featuredImageId    String?
-  isBreaking         Boolean             @default(false)
+  featuredImageId        String?
+  featuredImageCaption   String?
+  featuredImageCredit    String?
+  featuredImageSource    String?
+  featuredImageDescription String?
+  featuredImageCopyright String?
+  featuredImageLocation  String?
+  featuredImageDateTaken DateTime?
+  isBreaking             Boolean             @default(false)
   allowComments      Boolean             @default(true)
   authorName         String?
   authorOrganization String?

@@ -5,6 +5,13 @@ interface FeaturedImageRef {
   id: string;
   url: string;
   alt: string | null;
+  caption?: string | null;
+  credit?: string | null;
+  source?: string | null;
+  description?: string | null;
+  copyright?: string | null;
+  location?: string | null;
+  dateTaken?: string | null;
 }
 
 interface ArticleRaw {
@@ -15,6 +22,13 @@ interface ArticleRaw {
   content?: string;
   coverImageUrl?: string | null;
   coverImageAlt?: string | null;
+  featuredImageCaption?: string | null;
+  featuredImageCredit?: string | null;
+  featuredImageSource?: string | null;
+  featuredImageDescription?: string | null;
+  featuredImageCopyright?: string | null;
+  featuredImageLocation?: string | null;
+  featuredImageDateTaken?: string | null;
   featuredImage?: FeaturedImageRef | null;
   status?: string;
   isFeatured?: boolean;
@@ -47,14 +61,21 @@ function resolveMediaUrl(url: string): string {
 }
 
 export function formatArticle<T extends ArticleRaw>(article: T) {
-  let featuredImage: { id: string; url: string; alt: string | null } | null = null;
+  let featuredImage: FeaturedImageRef | null = null;
 
   if (article.featuredImage) {
     featuredImage = {
       id: article.featuredImage.id,
       url: resolveMediaUrl(article.featuredImage.url),
       alt: article.featuredImage.alt || article.coverImageAlt || null,
-    };
+    } as FeaturedImageRef;
+    if (article.featuredImageCaption !== undefined) featuredImage.caption = article.featuredImageCaption;
+    if (article.featuredImageCredit !== undefined) featuredImage.credit = article.featuredImageCredit;
+    if (article.featuredImageSource !== undefined) featuredImage.source = article.featuredImageSource;
+    if (article.featuredImageDescription !== undefined) featuredImage.description = article.featuredImageDescription;
+    if (article.featuredImageCopyright !== undefined) featuredImage.copyright = article.featuredImageCopyright;
+    if (article.featuredImageLocation !== undefined) featuredImage.location = article.featuredImageLocation;
+    if (article.featuredImageDateTaken !== undefined) featuredImage.dateTaken = article.featuredImageDateTaken;
   } else if (article.coverImageUrl) {
     featuredImage = {
       id: "",
