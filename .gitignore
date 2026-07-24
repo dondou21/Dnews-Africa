@@ -68,5 +68,9 @@ api-stdout.log
 upload-test.mjs
 apps/api/uploads/
 
+# generated api-client build output
+packages/api-client/src/index.js
+packages/api-client/src/index.js.map
+
 # temporary files
 *.tmp
