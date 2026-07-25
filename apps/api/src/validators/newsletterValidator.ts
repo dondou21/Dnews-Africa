@@ -18,7 +18,17 @@ export const verifyQuerySchema = z.object({
 });
 
 export const unsubscribeSchema = z.object({
-  email: z.string().email("A valid email address is required"),
+  email: z.string().email("A valid email address is required").optional(),
+  token: z.string().min(1).optional(),
+});
+
+export const preferencesQuerySchema = z.object({
+  token: z.string().min(1, "Token is required"),
+});
+
+export const updatePreferencesSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  preferences: z.record(z.boolean()),
 });
 
 export const subscriberQuerySchema = z.object({

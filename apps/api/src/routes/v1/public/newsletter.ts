@@ -9,5 +9,7 @@ router.get("/verify", newsletterController.verify);
 router.post("/unsubscribe", newsletterController.unsubscribe);
 router.get("/unsubscribe", newsletterController.unsubscribeByToken);
 router.post("/resubscribe", newsletterController.resubscribe);
+router.get("/preferences", newsletterController.getPreferences);
+router.patch("/preferences", newsletterController.updatePreferences);
 
 export default router;

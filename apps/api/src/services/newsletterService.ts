@@ -333,6 +333,29 @@ export const newsletterService = {
     logger.info("NewsletterService", "Confirmation email resent", { id, email: subscriber.email });
   },
 
+  async getByUnsubscribeToken(token: string) {
+    const subscriber = await newsletterRepository.findByUnsubscribeToken(token);
+    if (!subscriber) {
+      throw new AppError("Invalid token", 400);
+    }
+    return {
+      id: subscriber.id,
+      email: subscriber.email,
+      name: subscriber.name,
+      status: subscriber.status,
+      preferences: subscriber.preferences,
+    };
+  },
+
+  async updatePreferences(token: string, preferences: Record<string, boolean>) {
+    const subscriber = await newsletterRepository.findByUnsubscribeToken(token);
+    if (!subscriber) {
+      throw new AppError("Invalid token", 400);
+    }
+    await newsletterRepository.update(subscriber.id, { preferences: preferences as object });
+    logger.info("NewsletterService", "Preferences updated", { email: subscriber.email });
+  },
+
   async getStats() {
     const [total, active, pending, blocked, unsubscribed] = await newsletterRepository.countByStatus();
 

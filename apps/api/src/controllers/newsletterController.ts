@@ -5,6 +5,8 @@ import {
   verifyQuerySchema,
   unsubscribeSchema,
   unsubscribeByTokenSchema,
+  preferencesQuerySchema,
+  updatePreferencesSchema,
   subscriberQuerySchema,
   updateSubscriberSchema,
 } from "../validators/newsletterValidator";
@@ -57,7 +59,13 @@ export const newsletterController = {
       if (!parsed.success) {
         throw new AppError(parsed.error.errors[0].message, 400);
       }
-      await newsletterService.unsubscribeByEmail(parsed.data.email);
+      if (parsed.data.token) {
+        await newsletterService.unsubscribeByToken(parsed.data.token);
+      } else if (parsed.data.email) {
+        await newsletterService.unsubscribeByEmail(parsed.data.email);
+      } else {
+        throw new AppError("Email or token is required", 400);
+      }
       res.json({ status: "success", data: null });
     } catch (error) {
       next(error);
@@ -150,6 +158,32 @@ export const newsletterController = {
     try {
       const { id } = req.params;
       await newsletterService.resendConfirmation(id);
+      res.json({ status: "success", data: null });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getPreferences(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = preferencesQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new AppError(parsed.error.errors[0].message, 400);
+      }
+      const subscriber = await newsletterService.getByUnsubscribeToken(parsed.data.token);
+      res.json({ status: "success", data: subscriber });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updatePreferences(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = updatePreferencesSchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new AppError(parsed.error.errors[0].message, 400);
+      }
+      await newsletterService.updatePreferences(parsed.data.token, parsed.data.preferences);
       res.json({ status: "success", data: null });
     } catch (error) {
       next(error);
