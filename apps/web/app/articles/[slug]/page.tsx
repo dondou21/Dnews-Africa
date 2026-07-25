@@ -365,7 +365,7 @@ export default function ArticlePage() {
               )}
 
               {/* Article Content */}
-              <div className="mt-8 space-y-5 text-base leading-relaxed text-dnews-dark">
+              <div className="mt-8 text-dnews-dark [&>*:first-child]:mt-0">
                 <ContentRenderer content={article.content} />
               </div>
 

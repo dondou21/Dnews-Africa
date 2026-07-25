@@ -34,7 +34,7 @@ export default function ContentRenderer({ content }: ContentRendererProps) {
         return (
           <p
             key={i}
-            className="mb-5 text-[17px] leading-[1.75] text-dnews-dark last:mb-0"
+            className="mb-6 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.8] text-dnews-dark last:mb-0"
           >
             {para.split("\n").map((line, j) => (
               <span key={j}>

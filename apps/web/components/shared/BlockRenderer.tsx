@@ -16,7 +16,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
         </span>
       ));
       return (
-        <p className="mb-5 text-[17px] leading-[1.75] text-dnews-dark last:mb-0">
+        <p className="mb-6 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.8] text-dnews-dark last:mb-0">
           {rendered}
         </p>
       );
@@ -25,9 +25,9 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
     case "heading": {
       const Tag = (block.data.level as "h2" | "h3" | "h4") ?? "h2";
       const sizes: Record<string, string> = {
-        h2: "text-2xl font-bold mb-4 mt-10",
-        h3: "text-xl font-bold mb-3 mt-8",
-        h4: "text-lg font-semibold mb-2 mt-6",
+        h2: "text-[clamp(1.35rem,2vw,1.75rem)] font-bold mb-5 mt-12",
+        h3: "text-[clamp(1.15rem,1.5vw,1.35rem)] font-bold mb-4 mt-10",
+        h4: "text-[clamp(1rem,1.2vw,1.15rem)] font-semibold mb-3 mt-8",
       };
       return (
         <Tag className={`${sizes[Tag]} leading-tight text-dnews-dark`}>
@@ -38,12 +38,12 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
 
     case "quote":
       return (
-        <blockquote className="mb-6 mt-6 border-l-4 border-dnews-accent bg-dnews-bg py-4 pl-5 pr-4 italic text-dnews-dark">
-          <p className="text-[17px] leading-relaxed">
+        <blockquote className="mb-8 mt-8 border-l-4 border-dnews-accent bg-dnews-bg py-5 pl-6 pr-5 italic text-dnews-dark">
+          <p className="text-[clamp(1rem,1.2vw,1.1rem)] leading-relaxed">
             {String(block.data.text ?? "")}
           </p>
           {!!block.data.attribution && (
-            <cite className="mt-2 block text-sm text-dnews-muted not-italic">
+            <cite className="mt-3 block text-sm text-dnews-muted not-italic">
               &mdash; {String(block.data.attribution)}
             </cite>
           )}
@@ -52,8 +52,8 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
 
     case "pullQuote":
       return (
-        <aside className="my-8 border-y border-dnews-border py-6 text-center">
-          <p className="font-heading text-2xl font-bold italic leading-snug text-dnews-dark md:text-3xl">
+        <aside className="my-10 border-y border-dnews-border py-8 text-center">
+          <p className="font-heading text-[clamp(1.35rem,2.5vw,2rem)] font-bold italic leading-snug text-dnews-dark">
             &ldquo;{String(block.data.text ?? "")}&rdquo;
           </p>
           {!!block.data.attribution && (
@@ -68,7 +68,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       const al = (block.data.alignment as string) ?? "full";
       const sz = (block.data.size as string) ?? "large";
       const alignClass =
-        al === "left" ? "float-left mr-5 mb-3" : al === "right" ? "float-right ml-5 mb-3" : "mx-auto";
+        al === "left" ? "float-left mr-6 mb-4" : al === "right" ? "float-right ml-6 mb-4" : "mx-auto";
       const sizeClass =
         sz === "small"
           ? "w-1/3"
@@ -78,7 +78,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
               ? "w-full"
               : "w-full max-w-3xl";
       return (
-        <figure className={`my-8 ${alignClass} ${sizeClass}`}>
+        <figure className={`my-10 ${alignClass} ${sizeClass}`}>
           <img
             src={String(block.data.url ?? "")}
             alt={String(block.data.alt ?? "")}
@@ -86,7 +86,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
             loading="lazy"
           />
           {!!(block.data.caption || block.data.credit) && (
-            <figcaption className="mt-2 text-center text-sm text-dnews-muted">
+            <figcaption className="mt-2.5 text-center text-sm text-dnews-muted">
               {String(block.data.caption ?? "")}
               {!!block.data.credit && (
                 <span className="ml-1">
@@ -109,8 +109,8 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
         }>
       ) ?? [];
       return (
-        <div className="my-8">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="my-10">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             {items.map((item, i) => (
               <figure key={i} className="overflow-hidden rounded-sm">
                 <img
@@ -120,7 +120,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
                   loading="lazy"
                 />
                 {item.caption && (
-                  <figcaption className="mt-1 text-center text-xs text-dnews-muted">
+                  <figcaption className="mt-1.5 text-center text-xs text-dnews-muted">
                     {item.caption}
                   </figcaption>
                 )}
@@ -128,7 +128,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
             ))}
           </div>
           {!!block.data.caption && (
-            <p className="mt-3 text-center text-sm text-dnews-muted">
+            <p className="mt-4 text-center text-sm text-dnews-muted">
               {String(block.data.caption)}
             </p>
           )}
@@ -138,7 +138,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
 
     case "video":
       return (
-        <div className="my-8">
+        <div className="my-10">
           <div className="aspect-video overflow-hidden rounded-sm bg-dnews-bg">
             {String(block.data.url ?? "").includes("youtube") ||
             String(block.data.url ?? "").includes("youtu.be") ? (
@@ -159,7 +159,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
             )}
           </div>
           {!!block.data.caption && (
-            <p className="mt-2 text-center text-sm text-dnews-muted">
+            <p className="mt-2.5 text-center text-sm text-dnews-muted">
               {String(block.data.caption)}
             </p>
           )}
@@ -167,15 +167,16 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       );
 
     case "divider":
-      return <hr className="my-8 border-dnews-border" />;
+      return <hr className="my-10 border-dnews-border/60" />;
 
     case "bulletList": {
       const items = (block.data.items as string[]) ?? [];
       return (
-        <ul className="mb-5 mt-3 list-inside list-disc space-y-2 text-[17px] leading-relaxed text-dnews-dark">
+        <ul className="mb-6 mt-4 space-y-2.5 text-[clamp(1rem,1.2vw,1.125rem)] leading-relaxed text-dnews-dark">
           {items.map((item, i) => (
-            <li key={i} className="pl-2">
-              {item}
+            <li key={i} className="flex items-start gap-2.5 pl-1">
+              <span className="mt-2.5 block h-1.5 w-1.5 shrink-0 rounded-full bg-dnews-accent/60" />
+              <span>{item}</span>
             </li>
           ))}
         </ul>
@@ -185,9 +186,9 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
     case "numberedList": {
       const items = (block.data.items as string[]) ?? [];
       return (
-        <ol className="mb-5 mt-3 list-inside list-decimal space-y-2 text-[17px] leading-relaxed text-dnews-dark">
+        <ol className="mb-6 mt-4 list-inside list-decimal space-y-2.5 text-[clamp(1rem,1.2vw,1.125rem)] leading-relaxed text-dnews-dark marker:text-dnews-accent">
           {items.map((item, i) => (
-            <li key={i} className="pl-2">
+            <li key={i} className="pl-1">
               {item}
             </li>
           ))}
@@ -199,7 +200,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       const rows = (block.data.rows as string[][]) ?? [];
       const header = (block.data.header as string[]) ?? [];
       return (
-        <div className="my-8 overflow-x-auto">
+        <div className="my-10 overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             {header.length > 0 && (
               <thead>
@@ -207,7 +208,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
                   {header.map((h, i) => (
                     <th
                       key={i}
-                      className="border border-dnews-border px-4 py-2.5 text-left font-semibold text-dnews-dark"
+                      className="border border-dnews-border px-4 py-3 text-left font-semibold text-dnews-dark"
                     >
                       {h}
                     </th>
@@ -226,7 +227,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
                   {row.map((cell, ci) => (
                     <td
                       key={ci}
-                      className="border border-dnews-border px-4 py-2.5 text-dnews-dark"
+                      className="border border-dnews-border px-4 py-3 text-dnews-dark"
                     >
                       {cell}
                     </td>
@@ -236,7 +237,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
             </tbody>
           </table>
           {!!block.data.caption && (
-            <p className="mt-2 text-center text-sm text-dnews-muted">
+            <p className="mt-3 text-center text-sm text-dnews-muted">
               {String(block.data.caption)}
             </p>
           )}
@@ -246,7 +247,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
 
     case "embed":
       return (
-        <div className="my-8">
+        <div className="my-10">
           <div className="overflow-hidden rounded-sm bg-dnews-bg">
             <iframe
               src={String(block.data.url ?? "")}
@@ -256,7 +257,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
             />
           </div>
           {!!block.data.caption && (
-            <p className="mt-2 text-center text-sm text-dnews-muted">
+            <p className="mt-2.5 text-center text-sm text-dnews-muted">
               {String(block.data.caption)}
             </p>
           )}
@@ -265,7 +266,7 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
 
     case "relatedArticle":
       return (
-        <div className="my-8 rounded-sm border border-dnews-border bg-dnews-bg p-5">
+        <div className="my-10 rounded-sm border border-dnews-border bg-dnews-bg p-6">
           <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-dnews-muted">
             Related Article
           </p>
@@ -288,14 +289,14 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       };
       return (
         <div
-          className={`my-8 rounded-sm border-l-4 p-5 ${variantStyles[variant] ?? variantStyles.info}`}
+          className={`my-10 rounded-sm border-l-4 p-6 ${variantStyles[variant] ?? variantStyles.info}`}
         >
           {!!block.data.title && (
             <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-dnews-muted">
               {String(block.data.title)}
             </p>
           )}
-          <p className="text-[15px] leading-relaxed text-dnews-dark">
+          <p className="text-[clamp(0.95rem,1.1vw,1.05rem)] leading-relaxed text-dnews-dark">
             {String(block.data.text ?? "")}
           </p>
         </div>
