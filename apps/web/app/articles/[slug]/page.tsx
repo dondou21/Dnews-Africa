@@ -255,7 +255,7 @@ export default function ArticlePage() {
               {/* Date & Reading Time */}
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-dnews-muted">
                 <time dateTime={article.publishedAt || article.createdAt} className="inline-flex items-center gap-1.5">
-                  <CalendarDays size={13} className="opacity-60" />
+                  <CalendarDays size={13} className="opacity-60" aria-hidden="true" />
                   {formatDate(article.publishedAt || article.createdAt)}
                 </time>
                 {showUpdated && (
@@ -265,7 +265,7 @@ export default function ArticlePage() {
                 )}
                 <span className="inline-flex items-center gap-1 whitespace-nowrap">
                   <span>&middot;</span>
-                  <Clock size={13} />
+                  <Clock size={13} aria-hidden="true" />
                   {readingTime} min read
                 </span>
               </div>
@@ -279,10 +279,10 @@ export default function ArticlePage() {
                   href={`https://twitter.com/intent/tweet?text=${shareText}&url=${encodedUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-dnews-bg text-dnews-gray transition-colors hover:bg-black hover:text-white"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-dnews-bg text-dnews-gray transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
                   aria-label="Share on X (Twitter)"
                 >
-                  <FaXTwitter size={14} />
+                  <FaXTwitter size={14} aria-hidden="true" />
                 </a>
                 <a
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
@@ -291,7 +291,7 @@ export default function ArticlePage() {
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-dnews-bg text-dnews-gray transition-colors hover:bg-[#1877f2] hover:text-white"
                   aria-label="Share on Facebook"
                 >
-                  <FaFacebookF size={14} />
+                  <FaFacebookF size={14} aria-hidden="true" />
                 </a>
                 <a
                   href={`https://wa.me/?text=${shareText}%20${encodedUrl}`}
@@ -300,7 +300,7 @@ export default function ArticlePage() {
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-dnews-bg text-dnews-gray transition-colors hover:bg-[#25d366] hover:text-white"
                   aria-label="Share on WhatsApp"
                 >
-                  <Share2 size={14} />
+                  <Share2 size={14} aria-hidden="true" />
                 </a>
               </div>
 
@@ -373,7 +373,7 @@ export default function ArticlePage() {
               </div>
 
               {/* Metadata Footer */}
-              <div className="mt-10 border-t border-dnews-border pt-6">
+              <div className="mt-12 border-t border-dnews-border pt-6">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-dnews-muted">
                   <span className="inline-flex items-center gap-1">
                     <span className="font-medium text-dnews-dark">Category:</span>{" "}
@@ -428,7 +428,7 @@ export default function ArticlePage() {
               )}
 
               {/* Author */}
-              <div className="mt-10 rounded-sm border border-dnews-border bg-dnews-card p-6">
+              <div className="mt-10 rounded-sm border border-dnews-border bg-dnews-card px-5 py-6 sm:p-6">
                 <div className="flex items-start gap-4">
                   {article.author.avatarUrl ? (
                     <img
@@ -461,7 +461,7 @@ export default function ArticlePage() {
               </div>
 
               {/* Newsletter */}
-              <div className="mt-10 rounded-sm border border-dnews-border bg-dnews-card p-6">
+              <div className="mt-10 rounded-sm border border-dnews-border bg-dnews-card px-5 py-6 sm:p-6">
                 <NewsletterSubscribe
                   title="Enjoying this article?"
                   description="Subscribe to receive more African stories delivered to your inbox."
