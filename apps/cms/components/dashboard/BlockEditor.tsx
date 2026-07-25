@@ -1,13 +1,28 @@
 "use client";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { AlertTriangle, ArrowLeftRight } from "lucide-react";
+import { AlertTriangle, ArrowLeftRight, TextSelect, Pilcrow } from "lucide-react";
 import type { ContentBlock } from "@dnews/types";
 import {
   deserializeContent, serializeContent, isContentBlocks,
   plainTextToBlocks, blocksToPlainText
 } from "@dnews/types";
 import BlocksEditor from "./blocks/BlockEditor";
+import RichTextEditor, { isRichTextContent } from "./RichTextEditor";
+
+type EditorMode = "blocks" | "richtext" | "plain";
+
+const MODE_LABELS: Record<EditorMode, string> = {
+  blocks: "Block Editor",
+  richtext: "Rich Text",
+  plain: "Plain Text",
+};
+
+function detectMode(content: string): EditorMode {
+  if (isContentBlocks(content)) return "blocks";
+  if (isRichTextContent(content)) return "richtext";
+  return "plain";
+}
 
 interface ArticleBlockEditorProps {
   content: string;
@@ -15,49 +30,70 @@ interface ArticleBlockEditorProps {
 }
 
 export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEditorProps) {
+  const [mode, setMode] = useState<EditorMode>(() => detectMode(content));
   const [blocks, setBlocks] = useState<ContentBlock[]>(() => deserializeContent(content));
-  const [useBlocks, setUseBlocks] = useState(() => isContentBlocks(content));
+  const [richHtml, setRichHtml] = useState(() => {
+    if (isRichTextContent(content)) return content;
+    return "";
+  });
   const [plainText, setPlainText] = useState(() => {
-    if (isContentBlocks(content)) {
-      return blocksToPlainText(deserializeContent(content)).text;
-    }
+    if (isContentBlocks(content)) return blocksToPlainText(deserializeContent(content)).text;
+    if (isRichTextContent(content)) return "";
     return content;
   });
-  const [warnings, setWarnings] = useState<{ mode: "blocks" | "plain"; messages: string[] } | null>(null);
+  const [warnings, setWarnings] = useState<{ mode: EditorMode; messages: string[] } | null>(null);
   const warningsTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const showTemporaryWarnings = useCallback((mode: "blocks" | "plain", messages: string[]) => {
+  const showTemporaryWarnings = useCallback((targetMode: EditorMode, messages: string[]) => {
     if (warningsTimeoutRef.current) clearTimeout(warningsTimeoutRef.current);
-    setWarnings({ mode, messages });
+    setWarnings({ mode: targetMode, messages });
     warningsTimeoutRef.current = setTimeout(() => setWarnings(null), 6000);
   }, []);
 
-  const switchToBlocks = useCallback(() => {
-    const { blocks: newBlocks, warnings: convWarnings } = plainTextToBlocks(plainText);
-    setBlocks(newBlocks);
-    setUseBlocks(true);
-    if (convWarnings.length > 0) {
-      showTemporaryWarnings("blocks", [
-        `Converted ${newBlocks.length} block(s) from plain text.`,
-        ...convWarnings.map((w) => `Note: ${w.message}`),
-      ]);
-    }
-  }, [plainText, showTemporaryWarnings]);
+  const cycleMode = useCallback(() => {
+    const order: EditorMode[] = ["richtext", "blocks", "plain"];
+    const next = order[(order.indexOf(mode) + 1) % order.length];
 
-  const switchToPlain = useCallback(() => {
-    const { text, warnings: convWarnings } = blocksToPlainText(blocks);
-    setPlainText(text);
-    setUseBlocks(false);
-    if (convWarnings.length > 0) {
-      showTemporaryWarnings("plain", [
-        `Converted ${blocks.length} block(s) to plain text.`,
-        ...convWarnings.map((w) => `⚠ ${w.message} was replaced with a placeholder`),
-      ]);
+    if (mode === "richtext") {
+      const { blocks: newBlocks, warnings: convWarnings } = plainTextToBlocks(richHtml.replace(/<[^>]*>/g, ""));
+      setBlocks(newBlocks);
+      setPlainText(richHtml.replace(/<[^>]*>/g, ""));
+      if (next === "blocks" && convWarnings.length > 0) {
+        showTemporaryWarnings("blocks", [
+          `Converted ${newBlocks.length} block(s) from rich text.`,
+          ...convWarnings.map((w) => `Note: ${w.message}`),
+        ]);
+      }
+    } else if (mode === "blocks") {
+      const { text, warnings: convWarnings } = blocksToPlainText(blocks);
+      setPlainText(text);
+      setRichHtml(`<p>${text.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br />")}</p>`);
+      if (next === "plain" && convWarnings.length > 0) {
+        showTemporaryWarnings("plain", [
+          `Converted ${blocks.length} block(s) to plain text.`,
+          ...convWarnings.map((w) => `⚠ ${w.message} was replaced with a placeholder`),
+        ]);
+      }
+    } else {
+      const { blocks: newBlocks, warnings: convWarnings } = plainTextToBlocks(plainText);
+      setBlocks(newBlocks);
+      setRichHtml(`<p>${plainText.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br />")}</p>`);
+      if (next === "blocks" && convWarnings.length > 0) {
+        showTemporaryWarnings("blocks", [
+          `Converted ${newBlocks.length} block(s) from plain text.`,
+          ...convWarnings.map((w) => `Note: ${w.message}`),
+        ]);
+      }
     }
-  }, [blocks, showTemporaryWarnings]);
+    setMode(next);
+  }, [mode, blocks, richHtml, plainText, showTemporaryWarnings]);
 
   const handleBlocksChange = useCallback((newBlocks: ContentBlock[]) => {
     setBlocks(newBlocks);
+  }, []);
+
+  const handleRichTextChange = useCallback((html: string) => {
+    setRichHtml(html);
   }, []);
 
   const handlePlainTextChange = useCallback((val: string) => {
@@ -65,12 +101,14 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
   }, []);
 
   useEffect(() => {
-    if (useBlocks) {
+    if (mode === "blocks") {
       onChange(serializeContent(blocks));
+    } else if (mode === "richtext") {
+      onChange(richHtml);
     } else {
       onChange(plainText);
     }
-  }, [blocks, plainText, useBlocks, onChange]);
+  }, [blocks, richHtml, plainText, mode, onChange]);
 
   const warningsBanner = useMemo(() => {
     if (!warnings) return null;
@@ -88,27 +126,42 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
     );
   }, [warnings]);
 
+  const modeIcons: Record<EditorMode, React.ReactNode> = {
+    blocks: <TextSelect size={12} />,
+    richtext: <Pilcrow size={12} />,
+    plain: <ArrowLeftRight size={12} />,
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-xs font-semibold uppercase tracking-wider text-dnews-gray">
-          {useBlocks ? "Content Blocks" : "Content"} <span className="text-dnews-red">*</span>
+          {MODE_LABELS[mode]} <span className="text-dnews-red">*</span>
         </label>
         <button
           type="button"
-          onClick={useBlocks ? switchToPlain : switchToBlocks}
+          onClick={cycleMode}
           className="flex items-center gap-1 rounded-sm border border-dnews-border px-2 py-1 text-[10px] font-medium text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
         >
-          <ArrowLeftRight size={12} />
-          Switch to {useBlocks ? "Plain Text" : "Block Editor"}
+          {modeIcons[mode]}
+          Switch to{" "}
+          {mode === "richtext"
+            ? "Block Editor"
+            : mode === "blocks"
+              ? "Plain Text"
+              : "Rich Text"}
         </button>
       </div>
 
       {warningsBanner}
 
-      {useBlocks ? (
+      {mode === "blocks" && (
         <BlocksEditor blocks={blocks} onChange={handleBlocksChange} />
-      ) : (
+      )}
+      {mode === "richtext" && (
+        <RichTextEditor content={richHtml} onChange={handleRichTextChange} />
+      )}
+      {mode === "plain" && (
         <textarea
           value={plainText}
           onChange={(e) => handlePlainTextChange(e.target.value)}
