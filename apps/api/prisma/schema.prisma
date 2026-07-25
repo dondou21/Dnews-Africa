@@ -269,6 +269,7 @@ model NewsletterCampaign {
   plainText       String?
   excerpt         String?
   featuredImage   String?
+  targetSegment   String                        @default("active")
   status          CampaignStatus                @default(DRAFT)
   scheduledAt     DateTime?
   sentAt          DateTime?

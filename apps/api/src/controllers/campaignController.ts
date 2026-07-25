@@ -5,6 +5,7 @@ import {
   updateCampaignSchema,
   campaignQuerySchema,
   scheduleCampaignSchema,
+  testEmailSchema,
 } from "../validators/campaignValidator";
 import { AppError } from "../middlewares/errorHandler";
 
@@ -98,6 +99,20 @@ export const campaignController = {
       const { id } = req.params;
       const campaign = await campaignService.cancel(id, req.user!);
       res.json({ status: "success", data: campaign });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async sendTestEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const parsed = testEmailSchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new AppError(parsed.error.errors[0].message, 400);
+      }
+      await campaignService.sendTestEmail(id, parsed.data.email, req.user!);
+      res.json({ status: "success", data: null });
     } catch (error) {
       next(error);
     }

@@ -16,6 +16,7 @@ router.put("/:id", requireRole("Admin", "Editor"), campaignController.update);
 router.delete("/:id", requireRole("Admin", "Editor"), campaignController.delete);
 
 router.post("/:id/send", requireRole("Admin"), campaignController.send);
+router.post("/:id/test", requireRole("Admin", "Editor"), campaignController.sendTestEmail);
 router.post("/:id/schedule", requireRole("Admin"), campaignController.schedule);
 router.post("/:id/cancel", requireRole("Admin"), campaignController.cancel);
 

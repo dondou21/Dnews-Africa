@@ -590,6 +590,7 @@ export interface Campaign {
   plainText: string | null;
   excerpt: string | null;
   featuredImage: string | null;
+  targetSegment: string;
   status: CampaignStatus;
   scheduledAt: string | null;
   sentAt: string | null;
@@ -649,6 +650,7 @@ export interface CreateCampaignInput {
   plainText?: string;
   excerpt?: string;
   featuredImage?: string;
+  targetSegment?: string;
   status?: "DRAFT" | "SCHEDULED";
 }
 
@@ -659,6 +661,7 @@ export interface UpdateCampaignInput {
   plainText?: string;
   excerpt?: string;
   featuredImage?: string;
+  targetSegment?: string;
   status?: "DRAFT" | "SCHEDULED" | "CANCELLED";
 }
 

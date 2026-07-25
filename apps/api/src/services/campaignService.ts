@@ -61,6 +61,7 @@ export const campaignService = {
     plainText?: string;
     excerpt?: string;
     featuredImage?: string;
+    targetSegment?: string;
     status?: string;
   }, user: AuthenticatedUser) {
     let slug = generateSlug(data.title);
@@ -68,6 +69,11 @@ export const campaignService = {
     if (existing) {
       slug = `${slug}-${Date.now()}`;
     }
+
+    const validSegments = ["all", "active", "pending", "unsubscribed"];
+    const targetSegment = data.targetSegment && validSegments.includes(data.targetSegment)
+      ? data.targetSegment
+      : "active";
 
     const campaign = await campaignRepository.create({
       title: data.title,
@@ -77,6 +83,7 @@ export const campaignService = {
       plainText: data.plainText || null,
       excerpt: data.excerpt || null,
       featuredImage: data.featuredImage || null,
+      targetSegment,
       status: (data.status as $Enums.CampaignStatus) || "DRAFT",
       createdBy: { connect: { id: user.id } },
     });
@@ -93,6 +100,7 @@ export const campaignService = {
     plainText?: string;
     excerpt?: string;
     featuredImage?: string;
+    targetSegment?: string;
     status?: string;
   }, user: AuthenticatedUser) {
     const existing = await campaignRepository.findById(id);
@@ -123,6 +131,7 @@ export const campaignService = {
     if (data.excerpt !== undefined) updateData.excerpt = data.excerpt;
     if (data.featuredImage !== undefined) updateData.featuredImage = data.featuredImage;
     if (data.status !== undefined) updateData.status = data.status;
+    if (data.targetSegment !== undefined) updateData.targetSegment = data.targetSegment;
 
     const campaign = await campaignRepository.update(id, updateData);
 
@@ -164,9 +173,17 @@ export const campaignService = {
       throw new AppError("Cannot send an empty campaign", 400);
     }
 
-    const recipients = await campaignRepository.findActiveRecipients();
+    const segments = {
+      all: ["ACTIVE", "PENDING", "UNSUBSCRIBED"],
+      active: ["ACTIVE"],
+      pending: ["PENDING"],
+      unsubscribed: ["UNSUBSCRIBED"],
+    };
+    const statusFilter = segments[campaign.targetSegment as keyof typeof segments] || ["ACTIVE"];
+
+    const recipients = await campaignRepository.findRecipientsByStatuses(statusFilter);
     if (recipients.length === 0) {
-      throw new AppError("No active subscribers to send to", 400);
+      throw new AppError("No subscribers match the selected audience segment", 400);
     }
 
     await campaignRepository.update(id, {
@@ -381,6 +398,57 @@ export const campaignService = {
     logger.info("CampaignService", "Campaign cancelled", { id });
 
     return updated;
+  },
+
+  async sendTestEmail(id: string, testEmail: string, user: AuthenticatedUser) {
+    const campaign = await campaignRepository.findById(id);
+    if (!campaign) {
+      throw new AppError("Campaign not found", 404);
+    }
+
+    const buildContent = (email: string) => {
+      const unsubscribeUrl = `${process.env.CLIENT_URL || "http://localhost:5000"}/api/newsletter/unsubscribe`;
+      return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f4;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+          <tr>
+            <td style="padding:30px 40px;text-align:center;background-color:#1a1a2e;">
+              <h1 style="color:#ffffff;font-size:22px;margin:0;">Dnews Africa</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:40px;">
+              <p style="color:#999;font-size:13px;margin:0 0 16px;font-style:italic;">This is a test email — not sent to subscribers.</p>
+              <div style="color:#333;font-size:15px;line-height:1.7;">
+                ${campaign.content}
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 40px;text-align:center;border-top:1px solid #eee;">
+              <p style="color:#aaa;font-size:11px;margin:0;"><a href="${unsubscribeUrl}" style="color:#999;">Unsubscribe</a></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+    };
+
+    await emailService.sendCampaignEmail(testEmail, "Test User", `[TEST] ${campaign.subject}`, buildContent(testEmail));
+
+    logger.info("CampaignService", "Test email sent", { campaignId: id, testEmail, userId: user.id });
   },
 
   async getStats() {

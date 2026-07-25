@@ -102,6 +102,12 @@ export const campaignRepository = {
       select: { id: true, email: true, name: true },
     }),
 
+  findRecipientsByStatuses: (statuses: string[]) =>
+    prisma.newsletterSubscriber.findMany({
+      where: { status: { in: statuses as $Enums.NewsletterStatus[] } },
+      select: { id: true, email: true, name: true },
+    }),
+
   createRecipients: (data: { campaignId: string; subscriberId: string }[]) =>
     prisma.newsletterCampaignRecipient.createMany({ data }),
 

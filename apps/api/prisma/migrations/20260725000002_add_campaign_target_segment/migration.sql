@@ -1,0 +1,1 @@
+ALTER TABLE "newsletter_campaigns" ADD COLUMN "targetSegment" TEXT NOT NULL DEFAULT 'active';

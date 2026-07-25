@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const targetSegmentSchema = z.enum(["all", "active", "pending", "unsubscribed"]).default("active");
+
 export const createCampaignSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   subject: z.string().min(1, "Subject is required").max(300),
@@ -7,6 +9,7 @@ export const createCampaignSchema = z.object({
   plainText: z.string().optional(),
   excerpt: z.string().max(500).optional(),
   featuredImage: z.string().url().optional().or(z.literal("")),
+  targetSegment: targetSegmentSchema,
   status: z.enum(["DRAFT", "SCHEDULED"]).optional(),
 });
 
@@ -17,6 +20,7 @@ export const updateCampaignSchema = z.object({
   plainText: z.string().optional(),
   excerpt: z.string().max(500).optional(),
   featuredImage: z.string().url().optional().or(z.literal("")),
+  targetSegment: targetSegmentSchema.optional(),
   status: z.enum(["DRAFT", "SCHEDULED", "CANCELLED"]).optional(),
 });
 
@@ -30,4 +34,8 @@ export const campaignQuerySchema = z.object({
 
 export const scheduleCampaignSchema = z.object({
   scheduledAt: z.string().min(1, "Scheduled date is required"),
+});
+
+export const testEmailSchema = z.object({
+  email: z.string().email("A valid email address is required"),
 });
