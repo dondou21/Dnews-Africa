@@ -43,7 +43,7 @@ interface ArticleDetail {
   publishedAt: string | null;
   updatedAt: string;
   category: { id: number; name: string; slug: string };
-  author: { id: string; firstName: string; lastName: string };
+  author: { id: string; firstName: string; lastName: string; bio?: string | null; avatarUrl?: string | null };
   authorName: string | null;
   authorPosition: string | null;
   authorOrganization: string | null;
@@ -216,9 +216,12 @@ export default function ArticlePage() {
             <div className="mx-auto max-w-[720px]">
 
               {/* Category */}
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
+              <Link
+                href={`/${article.category.slug}`}
+                className="inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red transition-colors hover:text-dnews-accent"
+              >
                 {article.category.name}
-              </div>
+              </Link>
 
               {/* Title */}
               <h1 className="font-heading text-[clamp(1.75rem,4vw,3.25rem)] font-bold leading-tight text-dnews-dark mt-3">
@@ -369,18 +372,53 @@ export default function ArticlePage() {
                 <ContentRenderer content={article.content} />
               </div>
 
+              {/* Metadata Footer */}
+              <div className="mt-10 border-t border-dnews-border pt-6">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-dnews-muted">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="font-medium text-dnews-dark">Category:</span>{" "}
+                    <Link
+                      href={`/${article.category.slug}`}
+                      className="text-dnews-accent transition-colors hover:text-dnews-accent-light"
+                    >
+                      {article.category.name}
+                    </Link>
+                  </span>
+                  <span className="hidden sm:inline">&middot;</span>
+                  <span>
+                    Published{" "}
+                    <time dateTime={article.publishedAt || article.createdAt}>
+                      {formatDate(article.publishedAt || article.createdAt)}
+                    </time>
+                  </span>
+                  {showUpdated && (
+                    <>
+                      <span className="hidden sm:inline">&middot;</span>
+                      <span>
+                        Updated{" "}
+                        <time dateTime={article.updatedAt}>
+                          {formatDate(article.updatedAt)}
+                        </time>
+                      </span>
+                    </>
+                  )}
+                  <span className="hidden sm:inline">&middot;</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock size={12} />
+                    {readingTime} min read
+                  </span>
+                </div>
+              </div>
+
               {/* Tags */}
               {article.tags.length > 0 && (
-                <div className="mt-10 border-t border-dnews-border pt-6">
-                  <h4 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-dnews-muted">
-                    Tags
-                  </h4>
+                <div className="mt-8">
                   <div className="flex flex-wrap gap-2">
                     {article.tags.map((t) => (
                       <Link
                         key={t.tag.id}
                         href={`/search?q=${encodeURIComponent(t.tag.name)}`}
-                        className="rounded border border-dnews-border px-3 py-1 text-xs text-dnews-gray transition-colors hover:border-dnews-accent hover:text-dnews-accent"
+                        className="rounded-md border border-dnews-border bg-dnews-card px-3 py-1.5 text-[11px] font-medium text-dnews-gray transition-colors hover:border-dnews-accent hover:bg-dnews-accent/5 hover:text-dnews-accent"
                       >
                         {t.tag.name}
                       </Link>
@@ -391,12 +429,20 @@ export default function ArticlePage() {
 
               {/* Author */}
               <div className="mt-10 rounded-sm border border-dnews-border bg-dnews-card p-6">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-dnews-accent/10 text-sm font-bold text-dnews-accent">
-                    {authorInitials}
-                  </div>
-                  <div>
-                    <p className="font-medium text-dnews-dark">
+                <div className="flex items-start gap-4">
+                  {article.author.avatarUrl ? (
+                    <img
+                      src={article.author.avatarUrl}
+                      alt={authorDisplayName}
+                      className="h-12 w-12 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-dnews-accent/10 text-sm font-bold text-dnews-accent">
+                      {authorInitials}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-semibold text-dnews-dark">
                       {authorDisplayName}
                     </p>
                     {article.authorPosition && (
@@ -404,6 +450,11 @@ export default function ArticlePage() {
                     )}
                     {article.authorOrganization && (
                       <p className="text-xs text-dnews-muted">{article.authorOrganization}</p>
+                    )}
+                    {article.author.bio && (
+                      <p className="mt-2 text-sm leading-relaxed text-dnews-gray">
+                        {article.author.bio}
+                      </p>
                     )}
                   </div>
                 </div>
