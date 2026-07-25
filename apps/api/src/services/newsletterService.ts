@@ -20,7 +20,13 @@ export const newsletterService = {
     ipAddress?: string | null;
     userAgent?: string | null;
     preferredLanguage?: string;
+    _hp?: string;
   }) {
+    if (data._hp) {
+      logger.warn("NewsletterService", "Honeypot triggered - bot detected", { email: data.email });
+      return { id: "blocked", email: data.email, status: "PENDING" };
+    }
+
     const existing = await newsletterRepository.findByEmail(data.email);
 
     if (existing) {
@@ -218,6 +224,60 @@ export const newsletterService = {
     });
 
     logger.info("NewsletterService", "Subscriber soft-deleted", { id });
+
+    return updated;
+  },
+
+  async unsubscribeByToken(token: string) {
+    const subscriber = await newsletterRepository.findByUnsubscribeToken(token);
+
+    if (!subscriber) {
+      throw new AppError("Invalid unsubscribe token", 400);
+    }
+
+    if (subscriber.status === "UNSUBSCRIBED") {
+      throw new AppError("Email is already unsubscribed", 400);
+    }
+
+    const updated = await newsletterRepository.update(subscriber.id, {
+      status: "UNSUBSCRIBED",
+      unsubscribedAt: new Date(),
+    });
+
+    logger.info("NewsletterService", "Unsubscribed by token", { email: subscriber.email });
+
+    return updated;
+  },
+
+  async resubscribe(token: string) {
+    const subscriber = await newsletterRepository.findByUnsubscribeToken(token);
+
+    if (!subscriber) {
+      throw new AppError("Invalid token", 400);
+    }
+
+    if (subscriber.status !== "UNSUBSCRIBED") {
+      throw new AppError("Email is already active", 400);
+    }
+
+    const verificationToken = generateToken();
+    const verificationExpires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+    const updated = await newsletterRepository.update(subscriber.id, {
+      status: "PENDING",
+      verified: false,
+      verificationToken,
+      verificationExpires,
+      unsubscribedAt: null,
+    });
+
+    logger.info("NewsletterService", "Resubscribe initiated", { email: subscriber.email });
+
+    try {
+      await emailService.sendVerificationEmail(subscriber.email, verificationToken);
+    } catch {
+      logger.error("NewsletterService", "Failed to send resubscribe verification email", { email: subscriber.email });
+    }
 
     return updated;
   },

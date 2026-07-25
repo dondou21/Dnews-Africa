@@ -25,6 +25,7 @@ export default function NewsletterSubscribe({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [isDuplicate, setIsDuplicate] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -42,6 +43,7 @@ export default function NewsletterSubscribe({
     try {
       const body: Record<string, unknown> = { email: email.trim(), source };
       if (firstName.trim()) body.name = firstName.trim();
+      if (honeypot) body._hp = honeypot;
       await post("/newsletter/subscribe", body);
       setSuccess(true);
       setEmail("");
@@ -95,6 +97,18 @@ export default function NewsletterSubscribe({
 
           <form onSubmit={handleSubmit} className="mt-5" noValidate>
             <div className="space-y-3">
+              <div aria-hidden="true" style={{ position: "absolute", left: "-9999px" }}>
+                <label htmlFor="nl-website">Website</label>
+                <input
+                  id="nl-website"
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
               <div>
                 <label htmlFor="nl-first-name" className="sr-only">
                   First Name (optional)

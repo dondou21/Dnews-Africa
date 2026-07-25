@@ -6,6 +6,11 @@ export const subscribeSchema = z.object({
   firstName: z.string().max(200).optional(),
   source: z.enum(["HOME_PAGE", "FOOTER", "ARTICLE", "POPUP", "MANUAL"]).optional(),
   preferredLanguage: z.string().length(2).default("en"),
+  _hp: z.string().optional(),
+});
+
+export const unsubscribeByTokenSchema = z.object({
+  token: z.string().min(1, "Unsubscribe token is required"),
 });
 
 export const verifyQuerySchema = z.object({

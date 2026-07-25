@@ -4,6 +4,7 @@ import {
   subscribeSchema,
   verifyQuerySchema,
   unsubscribeSchema,
+  unsubscribeByTokenSchema,
   subscriberQuerySchema,
   updateSubscriberSchema,
 } from "../validators/newsletterValidator";
@@ -16,13 +17,21 @@ export const newsletterController = {
       if (!parsed.success) {
         throw new AppError(parsed.error.errors[0].message, 400);
       }
+
       const ipAddress = (req.ip || req.socket.remoteAddress || null) as string | null;
       const userAgent = (req.headers["user-agent"] || null) as string | null;
+
       const subscriber = await newsletterService.subscribe({
         ...parsed.data,
         ipAddress,
         userAgent,
       });
+
+      if (subscriber && "id" in subscriber && subscriber.id === "blocked") {
+        res.json({ status: "success", data: { message: "Subscription received" } });
+        return;
+      }
+
       res.status(201).json({ status: "success", data: subscriber });
     } catch (error) {
       next(error);
@@ -49,6 +58,32 @@ export const newsletterController = {
         throw new AppError(parsed.error.errors[0].message, 400);
       }
       await newsletterService.unsubscribeByEmail(parsed.data.email);
+      res.json({ status: "success", data: null });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async unsubscribeByToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = unsubscribeByTokenSchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new AppError(parsed.error.errors[0].message, 400);
+      }
+      await newsletterService.unsubscribeByToken(parsed.data.token);
+      res.json({ status: "success", data: null });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async resubscribe(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = unsubscribeByTokenSchema.safeParse(req.query);
+      if (!parsed.success) {
+        throw new AppError(parsed.error.errors[0].message, 400);
+      }
+      await newsletterService.resubscribe(parsed.data.token);
       res.json({ status: "success", data: null });
     } catch (error) {
       next(error);

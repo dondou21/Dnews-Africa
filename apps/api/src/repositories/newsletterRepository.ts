@@ -17,6 +17,8 @@ export const newsletterRepository = {
 
   findByVerificationToken: (token: string) =>
     prisma.newsletterSubscriber.findFirst({ where: { verificationToken: token } }),
+  findByUnsubscribeToken: (token: string) =>
+    prisma.newsletterSubscriber.findFirst({ where: { unsubscribeToken: token } }),
 
   create: (data: Prisma.NewsletterSubscriberCreateInput) =>
     prisma.newsletterSubscriber.create({ data }),
