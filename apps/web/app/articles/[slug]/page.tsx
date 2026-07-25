@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import Image from "@/components/shared/AppImage";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Clock, Share2, User } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Share2 } from "lucide-react";
 import { FaXTwitter, FaFacebookF } from "react-icons/fa6";
 import { get } from "@dnews/api-client";
 import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
@@ -157,7 +157,7 @@ export default function ArticlePage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-[1180px] px-4 py-8">
+      <div className="mx-auto max-w-[1180px] px-4 py-6 sm:py-8">
         <div className="mx-auto max-w-[720px] space-y-4">
           <div className="h-4 w-20 animate-pulse rounded bg-dnews-border/50" />
           <div className="h-10 w-full animate-pulse rounded bg-dnews-border/50" />
@@ -173,7 +173,7 @@ export default function ArticlePage() {
 
   if (!article) {
     return (
-      <div className="mx-auto max-w-[1180px] px-4 py-8 text-center">
+      <div className="mx-auto max-w-[1180px] px-4 py-6 text-center sm:py-8">
         <h1 className="font-heading text-2xl font-bold text-dnews-dark">
           Article Not Found
         </h1>
@@ -209,9 +209,9 @@ export default function ArticlePage() {
   return (
     <>
       <ArticleJsonLd article={article} imgUrl={imgUrl} />
-      <div className="mx-auto max-w-[1180px] px-4 py-8">
+      <div className="mx-auto max-w-[1180px] px-4 py-6 sm:py-8">
         <Breadcrumbs articleTitle={article.title} categoryName={article.category.name} />
-        <div className="flex flex-col gap-8 lg:flex-row">
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
           <article className="min-w-0 flex-1">
             <div className="mx-auto max-w-[720px]">
 
@@ -255,7 +255,7 @@ export default function ArticlePage() {
               {/* Date & Reading Time */}
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-dnews-muted">
                 <time dateTime={article.publishedAt || article.createdAt} className="inline-flex items-center gap-1.5">
-                  <User size={12} className="opacity-50" />
+                  <CalendarDays size={13} className="opacity-60" />
                   {formatDate(article.publishedAt || article.createdAt)}
                 </time>
                 {showUpdated && (
