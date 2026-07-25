@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo } from "react";
 import { Calendar, Globe, Star, Zap, MessageCircle, AlertCircle, Clock } from "lucide-react";
 
 function getTodayDateString() {
