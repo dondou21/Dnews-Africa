@@ -317,41 +317,43 @@ export default function ArticlePage() {
                 />
               </div>
 
-              {hasCredits && (
-                <div className="mt-2 flex flex-wrap gap-x-1 text-xs text-dnews-muted">
-                  {fi?.credit && (
-                    <span>
-                      Photo: {fi.credit}
-                      {fi?.creditUrl && (
-                        <>
-                          {" "}
-                          <a
-                            href={fi.creditUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="underline transition-colors hover:text-dnews-accent"
-                          >
-                            ({fi.creditUrl})
-                          </a>
-                        </>
-                      )}
-                    </span>
+              {(hasCredits || hasCaption) && (
+                <div className="mt-3 border-l-2 border-dnews-border/50 pl-4">
+                  {hasCaption && (
+                    <p className="text-sm leading-relaxed text-dnews-dark">
+                      {fi?.caption}
+                    </p>
                   )}
-                  {fi?.credit && fi?.source && <span className="mx-1">|</span>}
-                  {fi?.source && <span>Source: {fi.source}</span>}
+                  {hasCredits && (
+                    <div className="mt-1.5 flex flex-wrap gap-x-1 text-[11px] text-dnews-muted">
+                      {fi?.credit && (
+                        <span>
+                          Photo: {fi.credit}
+                          {fi?.creditUrl && (
+                            <>
+                              {" "}
+                              <a
+                                href={fi.creditUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline transition-colors hover:text-dnews-accent"
+                              >
+                                ({fi.creditUrl})
+                              </a>
+                            </>
+                          )}
+                        </span>
+                      )}
+                      {fi?.credit && fi?.source && <span className="mx-0.5">|</span>}
+                      {fi?.source && <span>Source: {fi.source}</span>}
+                    </div>
+                  )}
+                  {fi?.copyright && (
+                    <p className="mt-1 text-[10px] text-dnews-muted/70">
+                      &copy; {fi.copyright}
+                    </p>
+                  )}
                 </div>
-              )}
-
-              {hasCaption && (
-                <p className="mt-1 text-sm italic leading-relaxed text-dnews-gray">
-                  {fi?.caption}
-                </p>
-              )}
-
-              {fi?.copyright && (
-                <p className="mt-1 text-[11px] text-dnews-muted">
-                  &copy; {fi.copyright}
-                </p>
               )}
 
               {fi?.aiGenerated && fi?.aiDisclosure && (
