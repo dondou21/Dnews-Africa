@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Search, Download, Trash2, Edit, Users, UserCheck, Clock, Ban, UserX } from "lucide-react";
+import {
+  Search, Download, Trash2, Edit, Eye, Mail, Send,
+  Users, UserCheck, Clock, Ban, UserX, TrendingUp,
+  CheckCircle, XCircle,
+} from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
@@ -10,7 +14,7 @@ import Modal from "@/components/dashboard/Modal";
 import LoadingState from "@/components/dashboard/LoadingState";
 import EmptyState from "@/components/dashboard/EmptyState";
 import RoleGuard from "@/components/dashboard/RoleGuard";
-import { get, patch, del } from "@dnews/api-client";
+import { get, patch, del, post } from "@dnews/api-client";
 import type {
   NewsletterSubscriber,
   NewsletterSubscribersResponse,
@@ -67,6 +71,9 @@ function NewsletterPageContent() {
 
   const [deleteTarget, setDeleteTarget] = useState<NewsletterSubscriber | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const [viewTarget, setViewTarget] = useState<NewsletterSubscriber | null>(null);
+  const [actionLoading, setActionLoading] = useState("");
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -174,6 +181,46 @@ function NewsletterPageContent() {
     }
   };
 
+  const handleResendConfirmation = async (sub: NewsletterSubscriber) => {
+    setActionLoading("resend-" + sub.id);
+    try {
+      await post(`/newsletter/subscribers/${sub.id}/resend-confirmation`, {});
+      setSuccess("Confirmation email resent.");
+    } catch {
+      setError("Failed to resend confirmation.");
+    } finally {
+      setActionLoading("");
+    }
+  };
+
+  const handleActivate = async (sub: NewsletterSubscriber) => {
+    setActionLoading("activate-" + sub.id);
+    try {
+      await patch(`/newsletter/subscribers/${sub.id}`, { status: "ACTIVE" });
+      setSuccess("Subscriber activated.");
+      fetchSubscribers();
+      fetchStats();
+    } catch {
+      setError("Failed to activate subscriber.");
+    } finally {
+      setActionLoading("");
+    }
+  };
+
+  const handleDeactivate = async (sub: NewsletterSubscriber) => {
+    setActionLoading("deactivate-" + sub.id);
+    try {
+      await patch(`/newsletter/subscribers/${sub.id}`, { status: "BLOCKED" });
+      setSuccess("Subscriber deactivated.");
+      fetchSubscribers();
+      fetchStats();
+    } catch {
+      setError("Failed to deactivate subscriber.");
+    } finally {
+      setActionLoading("");
+    }
+  };
+
   const handleExport = () => {
     const headers = ["Email", "Name", "Status", "Verified", "Source", "Subscribed Date"];
     const rows = subscribers.map((s) => [
@@ -199,26 +246,20 @@ function NewsletterPageContent() {
       key: "email",
       header: "Email",
       render: (s) => (
-        <div>
-          <p className="text-sm font-medium text-dnews-dark">{s.email}</p>
-          {s.name && <p className="text-xs text-dnews-muted">{s.name}</p>}
-        </div>
+        <p className="text-sm font-medium text-dnews-dark">{s.email}</p>
+      ),
+    },
+    {
+      key: "name",
+      header: "Name",
+      render: (s) => (
+        <span className="text-sm text-dnews-gray">{s.name || "—"}</span>
       ),
     },
     {
       key: "status",
       header: "Status",
       render: (s) => <StatusBadge status={s.status} />,
-    },
-    {
-      key: "verified",
-      header: "Verified",
-      className: "text-center",
-      render: (s) => (
-        <span className={`text-xs font-medium ${s.verified ? "text-green-600" : "text-dnews-muted"}`}>
-          {s.verified ? "Yes" : "No"}
-        </span>
-      ),
     },
     {
       key: "source",
@@ -231,10 +272,19 @@ function NewsletterPageContent() {
     },
     {
       key: "subscribedAt",
-      header: "Date",
+      header: "Sub. Date",
       render: (s) => (
         <span className="whitespace-nowrap text-xs text-dnews-muted">
           {new Date(s.subscribedAt).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      key: "lastEmailSentAt",
+      header: "Last Email",
+      render: (s) => (
+        <span className="whitespace-nowrap text-xs text-dnews-muted">
+          {s.lastEmailSentAt ? new Date(s.lastEmailSentAt).toLocaleDateString() : "—"}
         </span>
       ),
     },
@@ -245,12 +295,49 @@ function NewsletterPageContent() {
       render: (s) => (
         <div className="flex items-center justify-end gap-1">
           <button
+            onClick={() => setViewTarget(s)}
+            className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+            title="View subscriber"
+          >
+            <Eye size={14} />
+          </button>
+          <button
             onClick={() => openEdit(s)}
             className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
             title="Edit subscriber"
           >
             <Edit size={14} />
           </button>
+          {s.status === "ACTIVE" && (
+            <button
+              onClick={() => handleDeactivate(s)}
+              disabled={actionLoading === "deactivate-" + s.id}
+              className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-amber-600 disabled:opacity-40"
+              title="Deactivate subscriber"
+            >
+              <XCircle size={14} />
+            </button>
+          )}
+          {(s.status === "PENDING" || s.status === "BLOCKED") && (
+            <button
+              onClick={() => handleActivate(s)}
+              disabled={actionLoading === "activate-" + s.id}
+              className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-green-600 disabled:opacity-40"
+              title="Activate subscriber"
+            >
+              <CheckCircle size={14} />
+            </button>
+          )}
+          {s.status === "PENDING" && (
+            <button
+              onClick={() => handleResendConfirmation(s)}
+              disabled={actionLoading === "resend-" + s.id}
+              className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent disabled:opacity-40"
+              title="Resend confirmation"
+            >
+              <Send size={14} />
+            </button>
+          )}
           <button
             onClick={() => setDeleteTarget(s)}
             className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-red"
@@ -287,18 +374,20 @@ function NewsletterPageContent() {
       </div>
 
       {statsLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-7">
+          {Array.from({ length: 7 }).map((_, i) => (
             <div key={i} className="h-24 animate-pulse rounded-sm bg-dnews-border/50" />
           ))}
         </div>
       ) : stats ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-7">
           <StatsCard label="Total" value={stats.total} icon={Users} variant="default" />
           <StatsCard label="Active" value={stats.active} icon={UserCheck} variant="default" />
           <StatsCard label="Pending" value={stats.pending} icon={Clock} variant="red" />
           <StatsCard label="Blocked" value={stats.blocked} icon={Ban} variant="red" />
           <StatsCard label="Unsubscribed" value={stats.unsubscribed} icon={UserX} variant="red" />
+          <StatsCard label="Growth (Week)" value={stats.growthThisWeek} icon={TrendingUp} variant="default" />
+          <StatsCard label="Growth (Month)" value={stats.growthThisMonth} icon={TrendingUp} variant="default" />
         </div>
       ) : null}
 
@@ -469,6 +558,66 @@ function NewsletterPageContent() {
           </span>
           ? This will mark them as unsubscribed.
         </p>
+      </Modal>
+
+      <Modal
+        open={!!viewTarget}
+        onClose={() => setViewTarget(null)}
+        title="Subscriber Details"
+        size="sm"
+      >
+        {viewTarget && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Email</label>
+                <p className="text-sm text-dnews-dark break-all">{viewTarget.email}</p>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Name</label>
+                <p className="text-sm text-dnews-dark">{viewTarget.name || "—"}</p>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Status</label>
+                <StatusBadge status={viewTarget.status} />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Source</label>
+                <p className="text-sm text-dnews-dark">{viewTarget.source ? viewTarget.source.replace("_", " ") : "—"}</p>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Language</label>
+                <p className="text-sm text-dnews-dark">{viewTarget.preferredLanguage || "en"}</p>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Verified</label>
+                <p className="text-sm text-dnews-dark">{viewTarget.verified ? "Yes" : "No"}</p>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Subscribed</label>
+                <p className="text-sm text-dnews-dark">{new Date(viewTarget.subscribedAt).toLocaleDateString()}</p>
+              </div>
+              {viewTarget.confirmedAt && (
+                <div>
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Confirmed</label>
+                  <p className="text-sm text-dnews-dark">{new Date(viewTarget.confirmedAt).toLocaleDateString()}</p>
+                </div>
+              )}
+              {viewTarget.lastEmailSentAt && (
+                <div>
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Last Email</label>
+                  <p className="text-sm text-dnews-dark">{new Date(viewTarget.lastEmailSentAt).toLocaleDateString()}</p>
+                </div>
+              )}
+              {viewTarget.ipAddress && (
+                <div className="col-span-2">
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">IP Address</label>
+                  <p className="text-sm text-dnews-dark font-mono">{viewTarget.ipAddress}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -534,6 +534,8 @@ export interface NewsletterStats {
   pending: number;
   blocked: number;
   unsubscribed: number;
+  growthThisWeek: number;
+  growthThisMonth: number;
 }
 
 // ============================================================

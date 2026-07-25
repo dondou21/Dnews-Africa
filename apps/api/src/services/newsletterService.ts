@@ -282,8 +282,54 @@ export const newsletterService = {
     return updated;
   },
 
+  async resendConfirmation(id: string) {
+    const subscriber = await newsletterRepository.findById(id);
+
+    if (!subscriber) {
+      throw new AppError("Subscriber not found", 404);
+    }
+
+    if (subscriber.status !== "PENDING") {
+      throw new AppError("Subscriber is not in pending status", 400);
+    }
+
+    const verificationToken = generateToken();
+    const verificationExpires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+    await newsletterRepository.update(id, {
+      verificationToken,
+      verificationExpires,
+      verified: false,
+    });
+
+    try {
+      await emailService.sendVerificationEmail(subscriber.email, verificationToken);
+    } catch {
+      logger.error("NewsletterService", "Failed to resend verification email", { email: subscriber.email });
+      throw new AppError("Failed to send confirmation email", 500);
+    }
+
+    logger.info("NewsletterService", "Confirmation email resent", { id, email: subscriber.email });
+  },
+
   async getStats() {
     const [total, active, pending, blocked, unsubscribed] = await newsletterRepository.countByStatus();
-    return { total, active, pending, blocked, unsubscribed };
+
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [weeklyTotal, weeklyActive] = await newsletterRepository.countByDateRange(weekAgo);
+    const [monthlyTotal, monthlyActive] = await newsletterRepository.countByDateRange(monthAgo);
+
+    return {
+      total,
+      active,
+      pending,
+      blocked,
+      unsubscribed,
+      growthThisWeek: weeklyActive,
+      growthThisMonth: monthlyActive,
+    };
   },
 };

@@ -145,4 +145,14 @@ export const newsletterController = {
       next(error);
     }
   },
+
+  async resendConfirmation(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await newsletterService.resendConfirmation(id);
+      res.json({ status: "success", data: null });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

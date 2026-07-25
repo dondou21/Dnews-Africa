@@ -75,4 +75,12 @@ export const newsletterRepository = {
       prisma.newsletterSubscriber.count({ where: { status: "BLOCKED" } }),
       prisma.newsletterSubscriber.count({ where: { status: "UNSUBSCRIBED" } }),
     ]),
+
+  countByDateRange: (since: Date) =>
+    Promise.all([
+      prisma.newsletterSubscriber.count({ where: { createdAt: { gte: since } } }),
+      prisma.newsletterSubscriber.count({
+        where: { status: "ACTIVE", createdAt: { gte: since } },
+      }),
+    ]),
 };
