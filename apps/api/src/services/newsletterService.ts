@@ -4,6 +4,7 @@ import { newsletterRepository } from "../repositories/newsletterRepository";
 import { emailService } from "./emailService";
 import { AppError } from "../middlewares/errorHandler";
 import { logger } from "../utils/logger";
+import { config } from "../config";
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 
@@ -142,6 +143,13 @@ export const newsletterService = {
 
     logger.info("NewsletterService", "Email unsubscribed", { email });
 
+    try {
+      const resubscribeUrl = `${config.clientUrl}/newsletter/resubscribe?token=${subscriber.unsubscribeToken}`;
+      await emailService.sendUnsubscribeConfirmationEmail(email, resubscribeUrl);
+    } catch {
+      logger.error("NewsletterService", "Failed to send unsubscribe confirmation email", { email });
+    }
+
     return updated;
   },
 
@@ -246,6 +254,13 @@ export const newsletterService = {
 
     logger.info("NewsletterService", "Unsubscribed by token", { email: subscriber.email });
 
+    try {
+      const resubscribeUrl = `${config.clientUrl}/newsletter/resubscribe?token=${subscriber.unsubscribeToken}`;
+      await emailService.sendUnsubscribeConfirmationEmail(subscriber.email, resubscribeUrl);
+    } catch {
+      logger.error("NewsletterService", "Failed to send unsubscribe confirmation email", { email: subscriber.email });
+    }
+
     return updated;
   },
 
@@ -277,6 +292,12 @@ export const newsletterService = {
       await emailService.sendVerificationEmail(subscriber.email, verificationToken);
     } catch {
       logger.error("NewsletterService", "Failed to send resubscribe verification email", { email: subscriber.email });
+    }
+
+    try {
+      await emailService.sendResubscribeConfirmationEmail(subscriber.email);
+    } catch {
+      logger.error("NewsletterService", "Failed to send resubscribe confirmation email", { email: subscriber.email });
     }
 
     return updated;
