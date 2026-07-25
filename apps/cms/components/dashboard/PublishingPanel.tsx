@@ -1,13 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Calendar, Globe, Star, Zap, MessageCircle, AlertCircle } from "lucide-react";
+import { useMemo, useState, useCallback, useEffect } from "react";
+import { Calendar, Globe, Star, Zap, MessageCircle, AlertCircle, Clock } from "lucide-react";
 
 function getTodayDateString() {
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   now.setSeconds(0, 0);
   return now.toISOString().slice(0, 16);
+}
+
+function formatScheduleDisplay(dateStr: string): string {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
 }
 
 const TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -58,7 +67,15 @@ export default function PublishingPanel({
   showComments = true,
 }: PublishingPanelProps) {
   const canEdit = !isJournalist || !articleStatus || articleStatus === "DRAFT" || articleStatus === "IDEA" || articleStatus === "NEEDS_REVISION";
-  const minDate = useMemo(() => getTodayDateString(), []);
+  const todayStr = useMemo(() => getTodayDateString(), []);
+  const minDate = todayStr;
+
+  const handleScheduleToggle = (enabled: boolean) => {
+    onScheduleToggle(enabled);
+    if (enabled && !scheduledAt) {
+      onScheduledAtChange(todayStr);
+    }
+  };
 
   const handleScheduledAtChange = (val: string) => {
     onScheduledAtChange(val);
@@ -69,6 +86,11 @@ export default function PublishingPanel({
     if (isPastDate(scheduledAt)) return "The selected date and time is in the past. Please select a future date or time.";
     return null;
   }, [scheduleEnabled, scheduledAt]);
+
+  const scheduleDisplay = useMemo(() => {
+    if (!scheduleEnabled || !scheduledAt || scheduleError) return null;
+    return formatScheduleDisplay(scheduledAt);
+  }, [scheduleEnabled, scheduledAt, scheduleError]);
 
   return (
     <div className="rounded-sm border border-dnews-border bg-dnews-card">
@@ -88,10 +110,10 @@ export default function PublishingPanel({
             onChange={(e) => {
               const val = e.target.value;
               if (val === "SCHEDULED") {
-                onScheduleToggle(true);
+                handleScheduleToggle(true);
                 onStatusChange("DRAFT");
               } else {
-                onScheduleToggle(false);
+                handleScheduleToggle(false);
                 onStatusChange(val);
               }
             }}
@@ -123,6 +145,12 @@ export default function PublishingPanel({
                 <div className="flex items-start gap-1.5 rounded-sm border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-[10px] text-amber-800">
                   <AlertCircle size={11} className="mt-0.5 shrink-0 text-amber-500" />
                   <span>{scheduleError}</span>
+                </div>
+              )}
+              {scheduleDisplay && (
+                <div className="flex items-center gap-1.5 rounded-sm border border-dnews-border/50 bg-dnews-card px-2.5 py-1.5 text-[10px] text-dnews-dark">
+                  <Clock size={10} className="shrink-0 text-dnews-muted" />
+                  <span className="font-medium">{scheduleDisplay}</span>
                 </div>
               )}
               <div className="flex items-center gap-1 text-[10px] text-dnews-muted">
