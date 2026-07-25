@@ -46,6 +46,9 @@ export interface FeaturedImage {
   copyright?: string | null;
   location?: string | null;
   dateTaken?: string | null;
+  creditUrl?: string | null;
+  aiGenerated?: boolean | null;
+  aiDisclosure?: string | null;
 }
 
 export type ArticleStatus = "IDEA" | "DRAFT" | "IN_REVIEW" | "NEEDS_REVISION" | "APPROVED" | "SCHEDULED" | "PENDING_REVIEW" | "PUBLISHED" | "REJECTED" | "ARCHIVED";
@@ -130,6 +133,9 @@ export interface CreateArticleInput {
   featuredImageCopyright?: string;
   featuredImageLocation?: string;
   featuredImageDateTaken?: string;
+  featuredImageCreditUrl?: string;
+  featuredImageAiGenerated?: boolean;
+  featuredImageAiDisclosure?: string;
   categoryId: number;
   status?: ArticleStatus;
   isFeatured?: boolean;
@@ -498,12 +504,18 @@ export interface NewsletterSubscriber {
   verified: boolean;
   verificationToken: string | null;
   verificationExpires: string | null;
+  unsubscribeToken: string | null;
   source: NewsletterSource | null;
   preferences: Record<string, unknown> | null;
   subscribedAt: string;
+  confirmedAt: string | null;
   unsubscribedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  lastEmailSentAt: string | null;
+  preferredLanguage: string;
+  ipAddress: string | null;
+  userAgent: string | null;
 }
 
 export interface NewsletterSubscribersResponse {

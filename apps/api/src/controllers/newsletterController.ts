@@ -16,7 +16,13 @@ export const newsletterController = {
       if (!parsed.success) {
         throw new AppError(parsed.error.errors[0].message, 400);
       }
-      const subscriber = await newsletterService.subscribe(parsed.data);
+      const ipAddress = (req.ip || req.socket.remoteAddress || null) as string | null;
+      const userAgent = (req.headers["user-agent"] || null) as string | null;
+      const subscriber = await newsletterService.subscribe({
+        ...parsed.data,
+        ipAddress,
+        userAgent,
+      });
       res.status(201).json({ status: "success", data: subscriber });
     } catch (error) {
       next(error);

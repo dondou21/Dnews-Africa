@@ -192,6 +192,7 @@ model NewsletterSubscriber {
   email               String                        @unique
   name                String?
   subscribedAt        DateTime                      @default(now())
+  confirmedAt         DateTime?
   unsubscribedAt      DateTime?
   createdAt           DateTime                      @default(now())
   preferences         Json?
@@ -200,7 +201,12 @@ model NewsletterSubscriber {
   updatedAt           DateTime                      @updatedAt
   verificationExpires DateTime?
   verificationToken   String?
+  unsubscribeToken    String?
   verified            Boolean                       @default(false)
+  lastEmailSentAt     DateTime?
+  preferredLanguage   String                        @default("en")
+  ipAddress           String?
+  userAgent           String?
   campaignRecipients  NewsletterCampaignRecipient[]
 
   @@map("newsletter_subscribers")
@@ -487,6 +493,9 @@ model Article {
   featuredImageCopyright String?
   featuredImageLocation  String?
   featuredImageDateTaken DateTime?
+  featuredImageCreditUrl String?
+  featuredImageAiGenerated Boolean?          @default(false)
+  featuredImageAiDisclosure String?
   isBreaking             Boolean             @default(false)
   allowComments      Boolean             @default(true)
   authorName         String?

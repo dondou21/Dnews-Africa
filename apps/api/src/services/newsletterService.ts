@@ -7,8 +7,20 @@ import { logger } from "../utils/logger";
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 
+function generateToken(): string {
+  return crypto.randomBytes(32).toString("hex");
+}
+
 export const newsletterService = {
-  async subscribe(data: { email: string; name?: string; source?: string }) {
+  async subscribe(data: {
+    email: string;
+    name?: string;
+    firstName?: string;
+    source?: string;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+    preferredLanguage?: string;
+  }) {
     const existing = await newsletterRepository.findByEmail(data.email);
 
     if (existing) {
@@ -21,31 +33,43 @@ export const newsletterService = {
       }
     }
 
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationToken = generateToken();
+    const unsubscribeToken = generateToken();
     const verificationExpires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+    const displayName = data.name || data.firstName || null;
 
     let subscriber;
 
     if (existing && existing.status === "UNSUBSCRIBED") {
       subscriber = await newsletterRepository.update(existing.id, {
-        name: data.name || existing.name,
+        name: displayName || existing.name,
         status: "PENDING",
         verified: false,
         verificationToken,
         verificationExpires,
+        unsubscribeToken,
         source: (data.source as $Enums.NewsletterSource) || existing.source,
         subscribedAt: new Date(),
+        confirmedAt: null,
         unsubscribedAt: null,
+        ipAddress: data.ipAddress || null,
+        userAgent: data.userAgent || null,
+        preferredLanguage: data.preferredLanguage || "en",
       });
     } else {
       subscriber = await newsletterRepository.create({
         email: data.email,
-        name: data.name || null,
+        name: displayName,
         status: "PENDING",
         verified: false,
         verificationToken,
         verificationExpires,
+        unsubscribeToken,
         source: data.source as $Enums.NewsletterSource || null,
+        ipAddress: data.ipAddress || null,
+        userAgent: data.userAgent || null,
+        preferredLanguage: data.preferredLanguage || "en",
       });
     }
 
@@ -78,11 +102,18 @@ export const newsletterService = {
     const updated = await newsletterRepository.update(subscriber.id, {
       status: "ACTIVE",
       verified: true,
+      confirmedAt: new Date(),
       verificationToken: null,
       verificationExpires: null,
     });
 
     logger.info("NewsletterService", "Email verified", { email: subscriber.email });
+
+    try {
+      await emailService.sendWelcomeEmail(subscriber.email, subscriber.name || undefined);
+    } catch {
+      logger.error("NewsletterService", "Failed to send welcome email", { email: subscriber.email });
+    }
 
     return updated;
   },
