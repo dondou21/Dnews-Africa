@@ -1,14 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
-import { Calendar, Globe, Star, Zap, MessageCircle } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Calendar, Globe, Star, Zap, MessageCircle, AlertCircle } from "lucide-react";
 
-function getTomorrowDateString() {
+function getTodayDateString() {
   const now = new Date();
-  now.setDate(now.getDate() + 1);
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  now.setSeconds(0, 0);
   return now.toISOString().slice(0, 16);
 }
+
+const TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 interface PublishingPanelProps {
   status: string;
@@ -27,6 +29,14 @@ interface PublishingPanelProps {
   articleStatus?: string;
   showBreaking?: boolean;
   showComments?: boolean;
+}
+
+function isPastDate(dateStr: string): boolean {
+  if (!dateStr) return false;
+  const selected = new Date(dateStr);
+  const now = new Date();
+  now.setSeconds(0, 0);
+  return selected < now;
 }
 
 export default function PublishingPanel({
@@ -48,7 +58,17 @@ export default function PublishingPanel({
   showComments = true,
 }: PublishingPanelProps) {
   const canEdit = !isJournalist || !articleStatus || articleStatus === "DRAFT" || articleStatus === "IDEA" || articleStatus === "NEEDS_REVISION";
-  const minDate = useMemo(() => getTomorrowDateString(), []);
+  const minDate = useMemo(() => getTodayDateString(), []);
+
+  const handleScheduledAtChange = (val: string) => {
+    onScheduledAtChange(val);
+  };
+
+  const scheduleError = useMemo(() => {
+    if (!scheduleEnabled || !scheduledAt) return null;
+    if (isPastDate(scheduledAt)) return "The selected date and time is in the past. Please select a future date or time.";
+    return null;
+  }, [scheduleEnabled, scheduledAt]);
 
   return (
     <div className="rounded-sm border border-dnews-border bg-dnews-card">
@@ -96,12 +116,18 @@ export default function PublishingPanel({
                 type="datetime-local"
                 value={scheduledAt}
                 min={minDate}
-                onChange={(e) => onScheduledAtChange(e.target.value)}
+                onChange={(e) => handleScheduledAtChange(e.target.value)}
                 className="w-full rounded-sm border border-dnews-border bg-dnews-card px-2.5 py-1.5 text-xs text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
               />
+              {scheduleError && (
+                <div className="flex items-start gap-1.5 rounded-sm border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-[10px] text-amber-800">
+                  <AlertCircle size={11} className="mt-0.5 shrink-0 text-amber-500" />
+                  <span>{scheduleError}</span>
+                </div>
+              )}
               <div className="flex items-center gap-1 text-[10px] text-dnews-muted">
                 <Globe size={10} />
-                <span>Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+                <span>Timezone: {TIMEZONE}</span>
               </div>
             </div>
           </div>

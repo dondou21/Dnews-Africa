@@ -104,11 +104,10 @@ function ArticleDetailContent() {
             return;
           }
           const scheduleDateTime = new Date(`${scheduleDate}T${scheduleTime}`);
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          tomorrow.setHours(0, 0, 0, 0);
-          if (scheduleDateTime < tomorrow) {
-            setError("The publication date must be a future date.");
+          const now = new Date();
+          now.setSeconds(0, 0);
+          if (scheduleDateTime < now) {
+            setError("The publication date must be today or a future date. Past dates are not allowed.");
             setActionLoading(false);
             return;
           }
