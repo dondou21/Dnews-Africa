@@ -79,6 +79,7 @@ function EditCampaignForm() {
       plainText: null,
       excerpt: excerpt || null,
       featuredImage: featuredImage || null,
+      targetSegment: "active",
       status: "DRAFT",
       scheduledAt: null,
       sentAt: null,
