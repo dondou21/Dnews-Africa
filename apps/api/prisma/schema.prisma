@@ -499,6 +499,9 @@ model Article {
   featuredImageAiDisclosure String?
   isBreaking             Boolean             @default(false)
   allowComments      Boolean             @default(true)
+  sendNewsletter     Boolean             @default(true)
+  newsletterSentAt   DateTime?
+
   authorName         String?
   authorOrganization String?
   authorPosition     String?

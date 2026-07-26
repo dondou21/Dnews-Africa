@@ -2,6 +2,7 @@ import { Prisma, $Enums } from "@prisma/client";
 import { workflowRepository } from "../repositories/workflowRepository";
 import { articleRepository } from "../repositories/articleRepository";
 import { notificationService } from "./notificationService";
+import { articleNewsletterService } from "./articleNewsletterService";
 import { AppError } from "../middlewares/errorHandler";
 import prisma from "../utils/prisma";
 import type { AuthenticatedUser } from "../types/express";
@@ -303,6 +304,10 @@ export const workflowService = {
       article.authorId,
       `/articles/${article.slug}`,
     );
+
+    articleNewsletterService.sendArticleNewsletter(articleId).catch((err) => {
+      console.error(`[articleNewsletter] Failed to send for article ${articleId}:`, err);
+    });
 
     return result;
   },

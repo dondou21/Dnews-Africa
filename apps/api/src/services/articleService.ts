@@ -3,6 +3,7 @@ import { AppError } from "../middlewares/errorHandler";
 import { AuthenticatedUser } from "../types/express";
 import { formatArticle, formatArticleList } from "../utils/formatArticle";
 import prisma from "../utils/prisma";
+import { articleNewsletterService } from "./articleNewsletterService";
 import { cleanupOrphanedMedia } from "../utils/mediaCleanup";
 
 export const articleService = {
@@ -123,7 +124,15 @@ export const articleService = {
       updateData.authorId = auId;
     }
 
+    const wasPublished = existing.status === "PUBLISHED";
     const article = await articleRepository.update(id, updateData);
+
+    if (!wasPublished && article.status === "PUBLISHED") {
+      articleNewsletterService.sendArticleNewsletter(id).catch((err) => {
+        console.error(`[articleNewsletter] Failed to send for article ${id}:`, err);
+      });
+    }
+
     return formatArticle(article);
   },
 

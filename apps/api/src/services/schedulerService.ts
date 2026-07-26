@@ -1,4 +1,5 @@
 import prisma from "../utils/prisma";
+import { articleNewsletterService } from "./articleNewsletterService";
 
 const POLL_INTERVAL = 30_000;
 let intervalHandle: ReturnType<typeof setInterval> | null = null;
@@ -59,6 +60,9 @@ async function publishDueArticles(): Promise<void> {
           });
 
           console.log(`[scheduler] Published article "${article.title}" (${article.slug})`);
+          articleNewsletterService.sendArticleNewsletter(article.id).catch((err) => {
+            console.error(`[scheduler] Failed to send newsletter for article ${article.id}:`, err);
+          });
         } catch (err) {
           console.error(`[scheduler] Failed to publish article ${article.id}:`, err);
         }
