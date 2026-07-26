@@ -8,35 +8,47 @@ interface SendEmailParams {
   html: string;
 }
 
-async function sendEmail(params: SendEmailParams): Promise<void> {
-  if (config.isProduction && config.resendApiKey) {
-    try {
-      const { Resend } = await import("resend");
-      const resend = new Resend(config.resendApiKey);
-      await resend.emails.send({
-        from: config.emailFrom || "noreply@dnewsafrica.com",
-        to: params.to,
-        subject: params.subject,
-        html: params.html,
-      });
-      logger.info("EmailService", "Email sent", { to: params.to, subject: params.subject });
-    } catch (err) {
-      logger.error("EmailService", "Failed to send email", { to: params.to, error: String(err) });
-      throw err;
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1000;
+
+async function sendEmailWithRetry(params: SendEmailParams, attempt: number = 1): Promise<void> {
+  if (!config.isProduction || !config.resendApiKey) {
+    logger.info("EmailService", "Email skipped (dev mode or no API key)", { to: params.to, subject: params.subject });
+    return;
+  }
+
+  try {
+    const { Resend } = await import("resend");
+    const resend = new Resend(config.resendApiKey);
+    const result = await resend.emails.send({
+      from: config.emailFrom || "noreply@dnewsafrica.com",
+      to: params.to,
+      subject: params.subject,
+      html: params.html,
+    });
+    logger.info("EmailService", "Email sent", { to: params.to, subject: params.subject, id: (result as any)?.id });
+  } catch (err) {
+    const errorStr = String(err);
+    logger.error("EmailService", `Email send failed (attempt ${attempt}/${MAX_RETRIES})`, { to: params.to, subject: params.subject, error: errorStr });
+
+    if (attempt < MAX_RETRIES) {
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS * attempt));
+      return sendEmailWithRetry(params, attempt + 1);
     }
-  } else {
-    logger.info("EmailService", "Email skipped (dev mode)", { to: params.to, subject: params.subject });
+
+    logger.error("EmailService", "Email send failed after all retries", { to: params.to, subject: params.subject, error: errorStr });
+    throw err;
   }
 }
 
 export const emailService = {
   async sendCampaignEmail(email: string, _name: string | undefined, subject: string, html: string): Promise<void> {
-    await sendEmail({ to: email, subject, html });
+    await sendEmailWithRetry({ to: email, subject, html });
   },
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
     const verifyUrl = `${config.clientUrl}/newsletter/verify?token=${token}`;
-    await sendEmail({
+    await sendEmailWithRetry({
       to: email,
       subject: "Confirm your Dnews Africa subscription",
       html: buildVerificationEmail(verifyUrl),
@@ -47,7 +59,7 @@ export const emailService = {
     const unsubscribeUrl = unsubscribeToken
       ? `${config.clientUrl}/newsletter/unsubscribe?token=${unsubscribeToken}`
       : undefined;
-    await sendEmail({
+    await sendEmailWithRetry({
       to: email,
       subject: "Welcome to Dnews Africa!",
       html: buildWelcomeEmail(name, unsubscribeUrl),
@@ -55,7 +67,7 @@ export const emailService = {
   },
 
   async sendUnsubscribeConfirmationEmail(email: string, resubscribeUrl: string): Promise<void> {
-    await sendEmail({
+    await sendEmailWithRetry({
       to: email,
       subject: "You've been unsubscribed from Dnews Africa",
       html: buildUnsubscribeConfirmationEmail(resubscribeUrl),
@@ -63,7 +75,7 @@ export const emailService = {
   },
 
   async sendResubscribeConfirmationEmail(email: string): Promise<void> {
-    await sendEmail({
+    await sendEmailWithRetry({
       to: email,
       subject: "Welcome back to Dnews Africa!",
       html: buildResubscribeConfirmationEmail(),
