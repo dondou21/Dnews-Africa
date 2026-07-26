@@ -516,8 +516,43 @@ model Article {
   editorialApprovals EditorialApproval[]
   editorialComments  EditorialComment[]
   notifications      Notification[]
+  newsletterDeliveries ArticleNewsletterDelivery[]
 
   @@map("articles")
+}
+
+model ArticleNewsletterDelivery {
+  id              String                     @id @default(uuid())
+  articleId       String                     @unique
+  article         Article                    @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  status          String                     @default("PENDING")
+  totalRecipients Int                        @default(0)
+  totalSent       Int                        @default(0)
+  totalFailed     Int                        @default(0)
+  sentAt          DateTime?
+  lastAttemptAt   DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  recipients      ArticleNewsletterRecipient[]
+
+  @@map("article_newsletter_deliveries")
+}
+
+model ArticleNewsletterRecipient {
+  id            String    @id @default(uuid())
+  deliveryId    String
+  delivery      ArticleNewsletterDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+  subscriberId  String
+  email         String
+  name          String?
+  status        String    @default("PENDING")
+  sentAt        DateTime?
+  failedAt      DateTime?
+  errorMessage  String?
+  createdAt     DateTime  @default(now())
+
+  @@unique([deliveryId, subscriberId])
+  @@map("article_newsletter_recipients")
 }
 
 model SeoMetadata {
