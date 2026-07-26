@@ -1,6 +1,6 @@
 import { config } from "../config";
 import { logger } from "../utils/logger";
-import { buildWelcomeEmail, buildUnsubscribeConfirmationEmail, buildResubscribeConfirmationEmail } from "./emailTemplates";
+import { buildWelcomeEmail, buildUnsubscribeConfirmationEmail, buildResubscribeConfirmationEmail, buildArticleEmail, type ArticleEmailData } from "./emailTemplates";
 
 interface SendEmailParams {
   to: string;
@@ -70,6 +70,15 @@ export const emailService = {
       to: email,
       subject: "Welcome back to Dnews Africa!",
       html: buildResubscribeConfirmationEmail(),
+    });
+  },
+
+  async sendArticleEmail(email: string, article: ArticleEmailData, unsubscribeToken: string): Promise<void> {
+    const unsubscribeUrl = `${config.clientUrl}/newsletter/unsubscribe?token=${unsubscribeToken}`;
+    await sendEmailWithRetry({
+      to: email,
+      subject: article.title,
+      html: buildArticleEmail(article, unsubscribeUrl),
     });
   },
 };

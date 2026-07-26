@@ -185,6 +185,107 @@ export function buildWelcomeEmail(name?: string, unsubscribeUrl?: string): strin
   `, "Welcome to Dnews Africa!");
 }
 
+export interface ArticleEmailData {
+  title: string;
+  slug: string;
+  summary: string;
+  category?: string;
+  author?: string;
+  publishedAt?: string;
+  featuredImageUrl?: string;
+  featuredImageAlt?: string;
+}
+
+const brandRedHover = "#a93226";
+
+export function buildArticleEmail(article: ArticleEmailData, unsubscribeUrl: string): string {
+  const articleUrl = `https://dnewsafrica.com/articles/${article.slug}`;
+  const imageHtml = article.featuredImageUrl
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding:0;">
+            <img src="${article.featuredImageUrl}" alt="${article.featuredImageAlt || article.title}" width="600" style="display:block;width:100%;height:auto;max-width:600px;border:0;" />
+          </td>
+        </tr>
+       </table>`
+    : `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding:60px 40px;text-align:center;background:linear-gradient(135deg,${brandDark},#16213e);">
+            <h2 style="color:#ffffff;font-size:20px;margin:0;font-weight:700;font-family:Georgia,'Times New Roman',serif;">${article.title}</h2>
+          </td>
+        </tr>
+       </table>`;
+
+  const categoryHtml = article.category
+    ? `<span style="display:inline-block;background-color:${brandRed};color:#ffffff;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:2px;margin-bottom:12px;">${article.category}</span>`
+    : "";
+
+  const authorHtml = article.author
+    ? `<span style="color:${textMuted};font-size:13px;">By <strong style="color:${textDark};" class="dark-text">${article.author}</strong></span>`
+    : "";
+
+  const dateHtml = article.publishedAt
+    ? `<span style="color:${textLight};font-size:13px;margin-left:${article.author ? "12px" : "0"};">${article.publishedAt}</span>`
+    : "";
+
+  return wrapper(`
+    ${header()}
+    ${imageHtml}
+    <tr>
+      <td style="padding:28px 40px 8px;">
+        ${categoryHtml}
+        <h2 style="color:${brandDark};font-size:24px;margin:0 0 10px;font-weight:700;line-height:1.3;font-family:Georgia,'Times New Roman',serif;" class="dark-text">
+          <a href="${articleUrl}" target="_blank" style="color:${brandDark};text-decoration:none;" class="dark-text">${article.title}</a>
+        </h2>
+        <p style="color:${textMuted};font-size:15px;line-height:1.7;margin:0 0 16px;" class="dark-muted">${article.summary}</p>
+        <p style="margin:0 0 4px;font-size:13px;">
+          ${authorHtml}
+          ${dateHtml}
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 40px 32px;text-align:center;">
+        ${ctaButton(articleUrl, "Read Full Story")}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:0 40px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:20px 24px;background-color:#f9f9f9;border-radius:6px;">
+              <p style="color:${brandDark};font-size:13px;margin:0 0 6px;font-weight:600;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-text">Why am I receiving this email?</p>
+              <p style="color:${textLight};font-size:12px;line-height:1.5;margin:0;" class="dark-muted">
+                You are receiving this email because you are subscribed to the Dnews Africa newsletter. We send occasional updates when important stories are published.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:32px 40px 0;">
+        ${socialLinks()}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:0 40px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;border-radius:6px;border:1px solid ${borderColor};">
+          <tr>
+            <td style="padding:16px 20px;text-align:center;">
+              <p style="color:${textLight};font-size:12px;line-height:1.6;margin:0;">
+                If you no longer wish to receive these emails, you can
+                <a href="${unsubscribeUrl}" style="color:${brandRed};text-decoration:underline;">unsubscribe here</a>.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    ${footer()}
+  `, `New article: ${article.title}`);
+}
+
 export function buildUnsubscribeConfirmationEmail(unsubscribeUrl: string): string {
   return wrapper(`
     ${header()}
