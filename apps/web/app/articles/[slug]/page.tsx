@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import ArticleImage from "@/components/shared/ArticleImage";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -8,6 +8,7 @@ import { ArrowLeft, CalendarDays, Clock, Share2 } from "lucide-react";
 import { FaXTwitter, FaFacebookF } from "react-icons/fa6";
 import { get } from "@dnews/api-client";
 import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import { useRevalidateOnPublish } from "@/lib/useRevalidateOnPublish";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import AdSlot from "@/components/home/AdSlot";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
@@ -134,13 +135,21 @@ export default function ArticlePage() {
   const [related, setRelated] = useState<ArticleDetail[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const loadRelated = useCallback(async (s: string) => {
+    try {
+      const all = await get<ArticleDetail[]>("/articles/latest");
+      setRelated(all.filter((a) => a.slug !== s).slice(0, 3));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   useEffect(() => {
     async function load() {
       try {
         const data = await get<ArticleDetail>(`/articles/${slug}`);
         setArticle(data);
-        const all = await get<ArticleDetail[]>("/articles/latest");
-        setRelated(all.filter((a) => a.slug !== slug).slice(0, 3));
+        await loadRelated(slug);
       } catch {
         setArticle(null);
       } finally {
@@ -148,7 +157,11 @@ export default function ArticlePage() {
       }
     }
     load();
-  }, [slug]);
+  }, [slug, loadRelated]);
+
+  useRevalidateOnPublish(
+    useCallback(() => { loadRelated(slug); }, [loadRelated, slug])
+  );
 
   const readingTime = useMemo(() => {
     if (!article) return 1;

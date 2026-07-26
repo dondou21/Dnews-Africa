@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { get } from "@dnews/api-client";
 import ArticleCard from "@/components/articles/ArticleCard";
+import { useRevalidateOnPublish } from "@/lib/useRevalidateOnPublish";
 
 interface ArticleItem {
   id: string;
@@ -42,7 +43,7 @@ function SearchContent() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!q || !q.trim()) return;
     setLoading(true);
     get<{ articles: ArticleItem[] }>(
@@ -52,6 +53,14 @@ function SearchContent() {
       .catch(() => setArticles([]))
       .finally(() => setLoading(false));
   }, [q]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRevalidateOnPublish(
+    useCallback(() => { load(); }, [load])
+  );
 
   if (!q) {
     return (

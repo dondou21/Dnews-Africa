@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { get } from "@dnews/api-client";
 import ArticleCard from "./ArticleCard";
+import { useRevalidateOnPublish } from "@/lib/useRevalidateOnPublish";
 
 interface ArticleItem {
   id: string;
@@ -41,31 +42,40 @@ export default function CategoryPage({
   const [latestArticles, setLatestArticles] = useState<ArticleItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        if (categorySlug === "featured") {
-          const articles = await get<ArticleItem[]>("/articles/featured");
-          setArticles(articles);
-        } else {
-          const [catRes, latestRes] = await Promise.all([
-            get<ApiResponse>(`/articles?category=${categorySlug}&limit=20`),
-            get<ApiResponse>("/articles?limit=4").catch(() => null),
-          ]);
-          setArticles(catRes.articles);
-          if (latestRes) {
-            setLatestArticles(latestRes.articles);
-          }
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (categorySlug === "featured") {
+        const articles = await get<ArticleItem[]>("/articles/featured");
+        setArticles(articles);
+      } else {
+        const [catRes, latestRes] = await Promise.all([
+          get<ApiResponse>(`/articles?category=${categorySlug}&limit=20`),
+          get<ApiResponse>("/articles?limit=4").catch(() => null),
+        ]);
+        setArticles(catRes.articles);
+        if (latestRes) {
+          setLatestArticles(latestRes.articles);
         }
-      } catch {
-        setArticles([]);
-      } finally {
-        setLoading(false);
       }
+    } catch {
+      setArticles([]);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [categorySlug]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRevalidateOnPublish(
+    useCallback((event) => {
+      if (categorySlug === "featured" || categorySlug === event.payload.categorySlug) {
+        load();
+      }
+    }, [load, categorySlug])
+  );
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
