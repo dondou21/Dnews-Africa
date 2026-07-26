@@ -5,9 +5,12 @@ import { Calendar, Globe, Star, Zap, MessageCircle, AlertCircle, Clock } from "l
 
 function getTodayDateString() {
   const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  now.setSeconds(0, 0);
-  return now.toISOString().slice(0, 16);
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const h = String(now.getHours()).padStart(2, "0");
+  const min = String(now.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${d}T${h}:${min}`;
 }
 
 function formatScheduleDisplay(dateStr: string): string {
@@ -45,7 +48,7 @@ function isPastDate(dateStr: string): boolean {
   const selected = new Date(dateStr);
   const now = new Date();
   now.setSeconds(0, 0);
-  return selected < now;
+  return selected <= now;
 }
 
 export default function PublishingPanel({

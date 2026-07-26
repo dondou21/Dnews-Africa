@@ -116,7 +116,13 @@ function EditArticleForm() {
         }
         if (articleData.scheduledAt) {
           setScheduleEnabled(true);
-          setScheduledAt(new Date(articleData.scheduledAt).toISOString().slice(0, 16));
+          const d = new Date(articleData.scheduledAt);
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          const h = String(d.getHours()).padStart(2, "0");
+          const min = String(d.getMinutes()).padStart(2, "0");
+          setScheduledAt(`${y}-${m}-${day}T${h}:${min}`);
         }
         setTagsInput(
           articleData.tags.map((t) => t.tag.name).join(", ")
