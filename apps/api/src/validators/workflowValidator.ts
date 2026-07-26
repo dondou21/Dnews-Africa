@@ -6,7 +6,6 @@ export const submitForReviewSchema = z.object({
 
 export const approveArticleSchema = z.object({
   notes: z.string().optional(),
-  scheduleAt: z.string().datetime().optional(),
 });
 
 export const requestChangesSchema = z.object({
