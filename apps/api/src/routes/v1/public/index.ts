@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import healthRouter from "./health";
 import categoriesRouter from "./categories";
 import articlesRouter from "./articles";
@@ -11,6 +11,14 @@ import eventsRouter from "./events";
 
 const router = Router();
 
+function noCache(_req: Request, res: Response, next: NextFunction) {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+}
+
+router.use(noCache);
 router.use("/health", healthRouter);
 router.use("/categories", categoriesRouter);
 router.use("/articles", articlesRouter);
