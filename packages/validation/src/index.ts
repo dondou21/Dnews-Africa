@@ -9,8 +9,8 @@ function futureDate(val: string | undefined, ctx: z.RefinementCtx) {
   }
   const now = new Date();
   now.setSeconds(0, 0);
-  if (date < now) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "The publication date cannot be in the past. Select today or a future date." });
+  if (date <= now) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Scheduled time must be in the future. Select a time at least 1 minute ahead." });
   }
 }
 

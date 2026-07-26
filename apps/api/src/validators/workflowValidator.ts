@@ -26,11 +26,10 @@ export const scheduleArticleSchema = z.object({
   scheduledAt: z.string().datetime("Invalid datetime format"),
 }).superRefine((data, ctx) => {
   const date = new Date(data.scheduledAt);
-  const tomorrow = new Date();
-  tomorrow.setHours(0, 0, 0, 0);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  if (date < tomorrow) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "The publication date must be a future date.", path: ["scheduledAt"] });
+  const now = new Date();
+  now.setSeconds(0, 0);
+  if (date <= now) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Scheduled time must be in the future. Select a time at least 1 minute ahead.", path: ["scheduledAt"] });
   }
 });
 

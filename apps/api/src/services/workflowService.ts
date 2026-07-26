@@ -246,8 +246,10 @@ export const workflowService = {
     }
 
     const scheduleDate = new Date(scheduledAt);
-    if (scheduleDate <= new Date()) {
-      throw new AppError("Scheduled time must be in the future", 400);
+    const now = new Date();
+    now.setSeconds(0, 0);
+    if (scheduleDate <= now) {
+      throw new AppError("Scheduled time must be in the future. Select a time at least 1 minute ahead.", 400);
     }
 
     return prisma.$transaction(async (tx) => {
@@ -441,6 +443,18 @@ export const workflowService = {
 
     if (hasAuthorRole(user) && !["DRAFT", "IN_REVIEW", "NEEDS_REVISION"].includes(toStatus)) {
       throw new AppError("Authors can only transition to Draft and In Review statuses", 403);
+    }
+
+    if (toStatus === "SCHEDULED") {
+      if (!options?.scheduledAt) {
+        throw new AppError("Scheduled time is required when scheduling an article", 400);
+      }
+      const scheduleDate = new Date(options.scheduledAt);
+      const now = new Date();
+      now.setSeconds(0, 0);
+      if (scheduleDate <= now) {
+        throw new AppError("Scheduled time must be in the future. Select a time at least 1 minute ahead.", 400);
+      }
     }
 
     const updateData: Record<string, unknown> = { status: toStatus, changeReason: options?.notes ?? null };

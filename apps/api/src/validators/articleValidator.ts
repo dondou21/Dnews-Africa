@@ -7,11 +7,10 @@ const futureDate = (val: string | undefined, ctx: z.RefinementCtx) => {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid date format" });
     return;
   }
-  const tomorrow = new Date();
-  tomorrow.setHours(0, 0, 0, 0);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  if (date < tomorrow) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "The publication date must be a future date." });
+  const now = new Date();
+  now.setSeconds(0, 0);
+  if (date <= now) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Scheduled time must be in the future. Select a time at least 1 minute ahead." });
   }
 };
 
