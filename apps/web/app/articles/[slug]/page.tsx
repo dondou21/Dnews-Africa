@@ -490,7 +490,7 @@ export default function ArticlePage() {
                                 src={rImg}
                                 alt={r.featuredImage?.alt || r.title}
                                 fill
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
                                 sizes="300px"
                               />
                             </div>

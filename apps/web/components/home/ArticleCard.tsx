@@ -101,21 +101,21 @@ export default function ArticleCard({ article, variant = "default", priority }: 
   return (
     <article className="group flex flex-col">
       <Link href={`/articles/${article.slug}`}>
-        <div className="relative mb-3 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-          <Image
-            src={imgSrc}
-            alt={imgAlt}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            loading={priority ? undefined : "lazy"}
-            priority={priority}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = FALLBACK_IMAGE;
-            }}
-          />
-        </div>
+          <div className="relative mb-3 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
+            <Image
+              src={imgSrc}
+              alt={imgAlt}
+              fill
+              className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              loading={priority ? undefined : "lazy"}
+              priority={priority}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = FALLBACK_IMAGE;
+              }}
+            />
+          </div>
         <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
           {article.category?.name || ""}
         </span>

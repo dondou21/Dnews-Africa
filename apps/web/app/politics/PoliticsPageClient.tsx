@@ -185,20 +185,20 @@ export default function PoliticsPageClient() {
                           src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
                           alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = FALLBACK_IMAGE;
-                          }}
-                        />
-                      </div>
-                      <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
-                        {article.category?.name || ""}
-                      </span>
-                      <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
-                        {article.title}
-                      </h3>
+                        className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = FALLBACK_IMAGE;
+                        }}
+                      />
+                    </div>
+                    <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
+                      {article.category?.name || ""}
+                    </span>
+                    <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
+                      {article.title}
+                    </h3>
                       <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
                         {extractExcerpt(article.summary, article.content)}
                       </p>
@@ -247,7 +247,7 @@ export default function PoliticsPageClient() {
                           src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
                           alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 768px) 100vw, 50vw"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;

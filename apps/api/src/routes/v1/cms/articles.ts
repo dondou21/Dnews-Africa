@@ -12,6 +12,7 @@ router.get("/admin/all", authenticate, requireRole("Admin", "Editor", "Journalis
 router.get("/admin/:id", authenticate, requireRole("Admin", "Editor", "Journalist"), articleController.getById);
 router.get("/featured", articleController.getFeatured);
 router.get("/latest", articleController.getLatest);
+router.get("/newsletter/deliveries", authenticate, requireRole("Admin", "Editor"), articleNewsletterController.listDeliveries);
 router.get("/:slug", articleController.getBySlug);
 router.post("/", authenticate, requireRole("Admin", "Editor", "Journalist"), articleController.create);
 router.post("/:id/submit", authenticate, requireRole("Journalist"), articleController.submitForReview);

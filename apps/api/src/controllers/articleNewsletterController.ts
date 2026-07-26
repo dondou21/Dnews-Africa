@@ -8,6 +8,63 @@ import { emailService } from "../services/emailService";
 import prisma from "../utils/prisma";
 
 export const articleNewsletterController = {
+  listDeliveries: asyncHandler(async (req: Request, res: Response) => {
+    const query = z.object({
+      page: z.coerce.number().int().positive().optional().default(1),
+      limit: z.coerce.number().int().positive().max(100).optional().default(20),
+      search: z.string().optional(),
+      status: z.string().optional(),
+    }).parse(req.query);
+
+    const where: any = {};
+    if (query.search) {
+      where.article = { title: { contains: query.search, mode: "insensitive" } };
+    }
+    if (query.status && query.status !== "ALL") {
+      where.status = query.status;
+    }
+
+    const [deliveries, total] = await Promise.all([
+      prisma.articleNewsletterDelivery.findMany({
+        where,
+        include: {
+          article: { select: { id: true, title: true, slug: true, publishedAt: true, status: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+      prisma.articleNewsletterDelivery.count({ where }),
+    ]);
+
+    res.json({
+      data: deliveries.map((d) => ({
+        id: d.id,
+        articleId: d.articleId,
+        articleTitle: d.article.title,
+        articleSlug: d.article.slug,
+        articlePublishedAt: d.article.publishedAt,
+        articleStatus: d.article.status,
+        status: d.status,
+        totalRecipients: d.totalRecipients,
+        totalSent: d.totalSent,
+        totalFailed: d.totalFailed,
+        sentAt: d.sentAt,
+        lastAttemptAt: d.lastAttemptAt,
+        createdAt: d.createdAt,
+        deliveryPercentage: d.totalRecipients > 0
+          ? Math.round((d.totalSent / d.totalRecipients) * 100)
+          : 0,
+      })),
+      pagination: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    });
+  }),
+
   preview: asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
