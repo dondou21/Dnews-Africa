@@ -77,7 +77,7 @@ export const newsletterService = {
 
     logger.info("NewsletterService", "New subscription activated", { email: data.email, status: "ACTIVE" });
 
-    emailService.sendWelcomeEmail(data.email, displayName || undefined)
+    emailService.sendWelcomeEmail(data.email, displayName || undefined, unsubscribeToken)
       .then(() => logger.info("NewsletterService", "Welcome email sent", { email: data.email }))
       .catch((err: unknown) => logger.error("NewsletterService", "Failed to send welcome email", { email: data.email, error: String(err) }));
 
@@ -251,7 +251,7 @@ export const newsletterService = {
 
     logger.info("NewsletterService", "Resubscribe activated", { email: subscriber.email });
 
-    emailService.sendWelcomeEmail(subscriber.email, subscriber.name || undefined)
+    emailService.sendWelcomeEmail(subscriber.email, subscriber.name || undefined, unsubscribeToken)
       .then(() => logger.info("NewsletterService", "Welcome email sent on resubscribe", { email: subscriber.email }))
       .catch((err: unknown) => logger.error("NewsletterService", "Failed to send welcome email on resubscribe", { email: subscriber.email, error: String(err) }));
 

@@ -127,53 +127,80 @@ export function buildVerificationEmail(verifyUrl: string): string {
   `, "Confirm your subscription to Dnews Africa");
 }
 
-export function buildWelcomeEmail(name?: string): string {
-  const greeting = name ? `Hi ${name},` : "Hello,";
+export function buildWelcomeEmail(name?: string, unsubscribeUrl?: string): string {
+  const greeting = name
+    ? `Hello ${name},`
+    : "Hello Reader,";
+  const contentCategories = [
+    ["Breaking News", "Real-time updates on major stories across Africa"],
+    ["Politics", "In-depth analysis of political developments across the continent"],
+    ["Business", "Markets, trade, and economic insights"],
+    ["Technology", "Africa's growing tech ecosystem and digital transformation"],
+    ["Sports", "Coverage of African athletics, AFCON, and global events"],
+    ["Health", "Health coverage and public health developments"],
+    ["Entertainment", "Music, film, television, and cultural trends"],
+    ["Culture", "Arts, literature, fashion, and cultural movements"],
+  ];
+
+  const categoryRows = contentCategories.map(([title, desc]) => `
+              <tr>
+                <td style="padding:8px 0;border-bottom:1px solid ${borderColor};">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td width="20" style="vertical-align:top;padding-top:1px;"><span style="color:${brandRed};font-size:18px;line-height:1;">&bull;</span></td>
+                      <td>
+                        <p style="margin:0;color:${brandDark};font-size:14px;line-height:1.6;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-text"><strong>${title}</strong> &mdash; ${desc}</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>`).join("");
+
   return wrapper(`
     ${header()}
     <tr>
-      <td style="padding:40px 40px 0;">
-        <h2 style="color:${brandDark};font-size:22px;margin:0 0 8px;font-weight:700;font-family:Georgia,'Times New Roman',serif;" class="dark-text">Welcome to Dnews Africa</h2>
-        <p style="color:${textMuted};font-size:15px;line-height:1.7;margin:0 0 6px;" class="dark-muted">${greeting}</p>
-        <p style="color:${textMuted};font-size:15px;line-height:1.7;margin:0 0 24px;" class="dark-muted">
-          Thank you for joining our community. You're now confirmed and will receive the best of African journalism delivered directly to your inbox.
+      <td style="padding:40px 40px 16px;">
+        <p style="color:${textMuted};font-size:16px;line-height:1.7;margin:0 0 4px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-muted">${greeting}</p>
+        <p style="color:${textMuted};font-size:16px;line-height:1.7;margin:0 0 20px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-muted">
+          Welcome to Dnews Africa! Thank you for joining our community of readers who stay informed about the stories that shape the continent.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:0 40px 8px;">
+        <h2 style="color:${brandDark};font-size:20px;margin:0 0 6px;font-weight:700;font-family:Georgia,'Times New Roman',serif;" class="dark-text">What You'll Receive</h2>
+        <p style="color:${textMuted};font-size:14px;line-height:1.6;margin:0 0 20px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-muted">
+          As a subscriber, you'll get the following delivered directly to your inbox:
         </p>
       </td>
     </tr>
     <tr>
       <td style="padding:0 40px;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f8f8;border-radius:6px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f8f8;border-radius:8px;">
           <tr>
-            <td style="padding:24px 28px;">
-              <h3 style="color:${brandDark};font-size:14px;margin:0 0 16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;" class="dark-text">What You'll Receive</h3>
-              ${[
-                ["Breaking News", "Real-time updates on major stories across Africa"],
-                ["Politics & Policy", "In-depth analysis of political developments"],
-                ["Business & Economy", "Markets, trade, and economic insights"],
-                ["Technology & Innovation", "Africa's growing tech ecosystem"],
-                ["Sports", "Coverage of African athletics and global events"],
-                ["Culture & Arts", "Music, film, literature, and cultural trends"],
-                ["Weekly Highlights", "Curated top stories every week"],
-                ["Exclusive Editorials", "Expert opinions and investigative reports"],
-              ].map(([title, desc]) => `
-              <tr>
-                <td style="padding:6px 0;border-bottom:1px solid #e8e8e8;">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td width="16" style="vertical-align:top;padding-top:2px;"><span style="color:${brandRed};font-size:16px;">&bull;</span></td>
-                      <td><p style="margin:0;color:${brandDark};font-size:14px;line-height:1.5;" class="dark-text"><strong>${title}:</strong> ${desc}</p></td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>`).join("")}
+            <td style="padding:20px 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                ${categoryRows}
+              </table>
             </td>
           </tr>
         </table>
       </td>
     </tr>
     <tr>
-      <td style="padding:32px 40px 0;text-align:center;">
-        ${ctaButton("https://dnewsafrica.com", "Explore Dnews Africa")}
+      <td style="padding:0 40px 20px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f8f8;border-radius:0 0 8px 8px;">
+          <tr>
+            <td style="padding:0 24px 20px;">
+              <p style="color:${brandDark};font-size:14px;line-height:1.6;margin:0;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-text"><strong>Plus:</strong> Weekly Editorial Picks and Special Reports curated by our editors.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:24px 40px 0;text-align:center;">
+        ${ctaButton("https://dnewsafrica.com", "Visit Dnews Africa")}
       </td>
     </tr>
     <tr>
@@ -181,7 +208,7 @@ export function buildWelcomeEmail(name?: string): string {
         ${socialLinks()}
       </td>
     </tr>
-    ${footer("https://dnewsafrica.com/newsletter/unsubscribe")}
+    ${footer(unsubscribeUrl)}
   `, "Welcome to Dnews Africa!");
 }
 

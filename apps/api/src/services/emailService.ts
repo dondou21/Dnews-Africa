@@ -43,11 +43,14 @@ export const emailService = {
     });
   },
 
-  async sendWelcomeEmail(email: string, name?: string): Promise<void> {
+  async sendWelcomeEmail(email: string, name?: string, unsubscribeToken?: string): Promise<void> {
+    const unsubscribeUrl = unsubscribeToken
+      ? `${config.clientUrl}/newsletter/unsubscribe?token=${unsubscribeToken}`
+      : undefined;
     await sendEmail({
       to: email,
       subject: "Welcome to Dnews Africa!",
-      html: buildWelcomeEmail(name),
+      html: buildWelcomeEmail(name, unsubscribeUrl),
     });
   },
 
