@@ -100,33 +100,6 @@ function socialLinks(): string {
   </table>`;
 }
 
-export function buildVerificationEmail(verifyUrl: string): string {
-  return wrapper(`
-    ${header()}
-    <tr>
-      <td style="padding:40px 40px 20px;">
-        <h2 style="color:${brandDark};font-size:22px;margin:0 0 8px;font-weight:700;font-family:Georgia,'Times New Roman',serif;" class="dark-text">Confirm your subscription</h2>
-        <p style="color:${textMuted};font-size:15px;line-height:1.7;margin:0 0 24px;" class="dark-muted">
-          Welcome to Dnews Africa. You're almost there — click the button below to verify your email address and start receiving the latest African stories delivered to your inbox.
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:0 40px 32px;text-align:center;">
-        ${ctaButton(verifyUrl, "Verify Subscription")}
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:0 40px 20px;">
-        <p style="color:${textLight};font-size:13px;line-height:1.5;margin:0;">
-          If you didn't subscribe to Dnews Africa, you can safely ignore this email.
-        </p>
-      </td>
-    </tr>
-    ${footer()}
-  `, "Confirm your subscription to Dnews Africa");
-}
-
 export function buildWelcomeEmail(name?: string, unsubscribeUrl?: string): string {
   const greeting = name
     ? `Hello ${name},`

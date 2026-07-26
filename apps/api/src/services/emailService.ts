@@ -1,6 +1,6 @@
 import { config } from "../config";
 import { logger } from "../utils/logger";
-import { buildVerificationEmail, buildWelcomeEmail, buildUnsubscribeConfirmationEmail, buildResubscribeConfirmationEmail } from "./emailTemplates";
+import { buildWelcomeEmail, buildUnsubscribeConfirmationEmail, buildResubscribeConfirmationEmail } from "./emailTemplates";
 
 interface SendEmailParams {
   to: string;
@@ -44,15 +44,6 @@ async function sendEmailWithRetry(params: SendEmailParams, attempt: number = 1):
 export const emailService = {
   async sendCampaignEmail(email: string, _name: string | undefined, subject: string, html: string): Promise<void> {
     await sendEmailWithRetry({ to: email, subject, html });
-  },
-
-  async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const verifyUrl = `${config.clientUrl}/newsletter/verify?token=${token}`;
-    await sendEmailWithRetry({
-      to: email,
-      subject: "Confirm your Dnews Africa subscription",
-      html: buildVerificationEmail(verifyUrl),
-    });
   },
 
   async sendWelcomeEmail(email: string, name?: string, unsubscribeToken?: string): Promise<void> {
