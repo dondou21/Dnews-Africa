@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Calendar, Globe, Star, Zap, MessageCircle, AlertCircle, Clock } from "lucide-react";
+import { Calendar, Globe, Star, Zap, MessageCircle, AlertCircle, Clock, Mail } from "lucide-react";
 
 function getTodayDateString() {
   const now = new Date();
@@ -41,6 +41,9 @@ interface PublishingPanelProps {
   articleStatus?: string;
   showBreaking?: boolean;
   showComments?: boolean;
+  sendNewsletter?: boolean;
+  onSendNewsletterChange?: (val: boolean) => void;
+  articleId?: string;
 }
 
 function isPastDate(dateStr: string): boolean {
@@ -68,6 +71,9 @@ export default function PublishingPanel({
   articleStatus,
   showBreaking = true,
   showComments = true,
+  sendNewsletter = true,
+  onSendNewsletterChange,
+  articleId,
 }: PublishingPanelProps) {
   const canEdit = !isJournalist || !articleStatus || articleStatus === "DRAFT" || articleStatus === "IDEA" || articleStatus === "NEEDS_REVISION";
   const minDate = getTodayDateString();
@@ -206,6 +212,25 @@ export default function PublishingPanel({
                 <span className="text-xs text-dnews-dark">Allow Comments</span>
               </label>
             )}
+          </div>
+        </div>
+
+        <div className="border-t border-dnews-border pt-4">
+          <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-dnews-gray">
+            Newsletter
+          </label>
+          <div className="space-y-2.5">
+            <label className="flex cursor-pointer items-center gap-2.5">
+              <input
+                type="checkbox"
+                checked={sendNewsletter}
+                onChange={(e) => onSendNewsletterChange?.(e.target.checked)}
+                disabled={!onSendNewsletterChange}
+                className="h-3.5 w-3.5 accent-dnews-accent"
+              />
+              <Mail size={12} className="text-dnews-muted" />
+              <span className="text-xs text-dnews-dark">Send newsletter when published</span>
+            </label>
           </div>
         </div>
       </div>

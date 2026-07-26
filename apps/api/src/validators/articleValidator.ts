@@ -35,6 +35,7 @@ const articleBaseSchema = z.object({
   isBreaking: z.boolean().optional(),
   allowComments: z.boolean().optional(),
   isTrending: z.boolean().optional(),
+  sendNewsletter: z.boolean().optional(),
   publishedAt: z.string().optional(),
   scheduledAt: z.string().optional(),
   tags: z.array(z.string().min(1)).optional(),

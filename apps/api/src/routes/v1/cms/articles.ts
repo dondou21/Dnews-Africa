@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { articleController } from "../../../controllers/articleController";
+import { articleNewsletterController } from "../../../controllers/articleNewsletterController";
 import { commentController } from "../../../controllers/commentController";
 import { authenticate } from "../../../middlewares/authMiddleware";
 import { requireRole } from "../../../middlewares/requireRole";
@@ -19,5 +20,9 @@ router.delete("/:id", authenticate, requireRole("Admin", "Editor", "Journalist")
 
 router.get("/:id/comments", commentController.getByArticle);
 router.post("/:id/comments", commentController.create);
+
+router.post("/:id/newsletter/test", authenticate, requireRole("Admin", "Editor"), articleNewsletterController.sendTest);
+router.get("/:id/newsletter/preview", authenticate, requireRole("Admin", "Editor", "Journalist"), articleNewsletterController.preview);
+router.get("/:id/newsletter/delivery", authenticate, requireRole("Admin", "Editor"), articleNewsletterController.getDelivery);
 
 export default router;

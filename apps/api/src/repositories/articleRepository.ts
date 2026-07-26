@@ -57,6 +57,7 @@ export interface CreateArticleInput {
   isBreaking?: boolean;
   allowComments?: boolean;
   isTrending?: boolean;
+  sendNewsletter?: boolean;
   publishedAt?: string;
   scheduledAt?: string;
   tags?: string[];
@@ -81,6 +82,7 @@ export interface UpdateArticleInput {
   isBreaking?: boolean;
   allowComments?: boolean;
   isTrending?: boolean;
+  sendNewsletter?: boolean;
   publishedAt?: string;
   scheduledAt?: string;
   tags?: string[];
@@ -343,6 +345,7 @@ export const articleRepository = {
         isBreaking: articleFields.isBreaking,
         allowComments: articleFields.allowComments,
         isTrending: articleFields.isTrending,
+        sendNewsletter: articleFields.sendNewsletter,
         publishedAt,
         scheduledAt,
         tags: tagIds.length

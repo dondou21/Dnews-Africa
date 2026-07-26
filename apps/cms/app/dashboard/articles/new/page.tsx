@@ -52,6 +52,7 @@ function NewArticleForm() {
   const [isFeatured, setIsFeatured] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
   const [allowComments, setAllowComments] = useState(true);
+  const [sendNewsletter, setSendNewsletter] = useState(true);
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [authorType, setAuthorType] = useState<"user" | "manual">("user");
@@ -125,6 +126,7 @@ function NewArticleForm() {
         isFeatured,
         isBreaking,
         allowComments,
+        sendNewsletter,
         tags,
         scheduledAt: scheduleEnabled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
       };
@@ -344,6 +346,8 @@ function NewArticleForm() {
               allowComments={allowComments}
               onAllowCommentsChange={setAllowComments}
               isJournalist={isJournalist}
+              sendNewsletter={sendNewsletter}
+              onSendNewsletterChange={setSendNewsletter}
             />
 
             <button

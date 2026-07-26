@@ -67,6 +67,8 @@ export interface Article {
   isBreaking: boolean;
   allowComments: boolean;
   isTrending: boolean;
+  sendNewsletter: boolean;
+  newsletterSentAt: string | null;
   publishedAt: string | null;
   scheduledAt: string | null;
   submittedAt: string | null;

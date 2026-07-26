@@ -61,6 +61,7 @@ function EditArticleForm() {
   const [isFeatured, setIsFeatured] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
   const [allowComments, setAllowComments] = useState(true);
+  const [sendNewsletter, setSendNewsletter] = useState(true);
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [authorType, setAuthorType] = useState<"user" | "manual">("user");
@@ -107,6 +108,7 @@ function EditArticleForm() {
         setIsFeatured(articleData.isFeatured);
         setIsBreaking(articleData.isBreaking ?? false);
         setAllowComments(articleData.allowComments ?? true);
+        setSendNewsletter(articleData.sendNewsletter ?? true);
         setAuthorUserId(articleData.authorId);
         if (articleData.authorName) {
           setAuthorType("manual");
@@ -184,6 +186,7 @@ function EditArticleForm() {
         isFeatured,
         isBreaking,
         allowComments,
+        sendNewsletter,
         tags,
         scheduledAt: scheduleEnabled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
       };
@@ -504,6 +507,9 @@ function EditArticleForm() {
               onAllowCommentsChange={setAllowComments}
               isJournalist={isJournalist}
               articleStatus={articleStatus}
+              sendNewsletter={sendNewsletter}
+              onSendNewsletterChange={setSendNewsletter}
+              articleId={id}
             />
 
             {isJournalist && article?.status === "DRAFT" && (
