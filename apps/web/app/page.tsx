@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import RightSidebar from "@/components/home/RightSidebar";
 import AdSlot from "@/components/home/AdSlot";
 import ArticleCard from "@/components/home/ArticleCard";
 import { get } from "@dnews/api-client";
 import SectionHeader from "@/components/home/SectionHeader";
+import { useRevalidateOnPublish } from "@/lib/useRevalidateOnPublish";
 import type { CategoryWithCount } from "@dnews/types";
 
 interface ArticleItem {
@@ -72,32 +73,32 @@ function useApiArticles() {
   const [categorySlugMap, setCategorySlugMap] = useState<Record<string, Set<string>>>({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const [allRes, featuredRes, cats] = await Promise.all([
-          get<ApiResponse>("/articles?limit=30"),
-          get<ArticleItem[]>("/articles/featured"),
-          get<CategoryWithCount[]>("/categories"),
-        ]);
-        if (cancelled) return;
-        setAllArticles(allRes.articles || []);
-        setFeaturedArticles(featuredRes || []);
-        setCategorySlugMap(buildCategorySlugMap(cats));
-        const latest = allRes.articles || [];
-        setTrending(latest.filter((a) => a.isFeatured || a.featuredImage).slice(0, 5));
-      } catch (err) {
-        if (!cancelled) {
-          console.error("Failed to fetch homepage articles:", err);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const [allRes, featuredRes, cats] = await Promise.all([
+        get<ApiResponse>("/articles?limit=30"),
+        get<ArticleItem[]>("/articles/featured"),
+        get<CategoryWithCount[]>("/categories"),
+      ]);
+      setAllArticles(allRes.articles || []);
+      setFeaturedArticles(featuredRes || []);
+      setCategorySlugMap(buildCategorySlugMap(cats));
+      const latest = allRes.articles || [];
+      setTrending(latest.filter((a) => a.isFeatured || a.featuredImage).slice(0, 5));
+    } catch (err) {
+      console.error("Failed to fetch homepage articles:", err);
+    } finally {
+      setLoading(false);
     }
-    load();
-    return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useRevalidateOnPublish(
+    useCallback(() => { load(); }, [load])
+  );
 
   function articlesInSection(sectionSlugs: string[], exclude: Set<string> = new Set()): ArticleItem[] {
     const allowed = new Set(sectionSlugs);

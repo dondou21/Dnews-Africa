@@ -7,6 +7,7 @@ import tagsRouter from "./tags";
 import contactRouter from "./contact";
 import newsletterRouter from "./newsletter";
 import commentsRouter from "./comments";
+import eventsRouter from "./events";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use("/tags", tagsRouter);
 router.use("/contact", contactRouter);
 router.use("/newsletter", newsletterRouter);
 router.use("/comments", commentsRouter);
+router.use("/events", eventsRouter);
 
 export default router;

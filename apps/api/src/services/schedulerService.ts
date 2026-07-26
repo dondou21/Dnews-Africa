@@ -1,5 +1,6 @@
 import prisma from "../utils/prisma";
 import { articleNewsletterService } from "./articleNewsletterService";
+import { eventService } from "./eventService";
 
 const POLL_INTERVAL = 30_000;
 let intervalHandle: ReturnType<typeof setInterval> | null = null;
@@ -27,7 +28,7 @@ async function publishDueArticles(): Promise<void> {
         status: "SCHEDULED",
         scheduledAt: { lte: new Date() },
       },
-      select: { id: true, title: true, slug: true },
+      select: { id: true, title: true, slug: true, isFeatured: true, categoryId: true, scheduledAt: true },
     });
 
     if (dueArticles.length > 0) {
@@ -62,6 +63,18 @@ async function publishDueArticles(): Promise<void> {
           console.log(`[scheduler] Published article "${article.title}" (${article.slug})`);
           articleNewsletterService.sendArticleNewsletter(article.id).catch((err) => {
             console.error(`[scheduler] Failed to send newsletter for article ${article.id}:`, err);
+          });
+          const catSlug = article.categoryId
+            ? (await prisma.category.findUnique({ where: { id: article.categoryId }, select: { slug: true } }))?.slug
+            : undefined;
+
+          eventService.emitArticleEvent("article:published", {
+            articleId: article.id,
+            slug: article.slug,
+            title: article.title,
+            categorySlug: catSlug,
+            isFeatured: article.isFeatured,
+            publishedAt: article.scheduledAt?.toISOString(),
           });
         } catch (err) {
           console.error(`[scheduler] Failed to publish article ${article.id}:`, err);

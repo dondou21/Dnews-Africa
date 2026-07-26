@@ -4,6 +4,7 @@ import { AuthenticatedUser } from "../types/express";
 import { formatArticle, formatArticleList } from "../utils/formatArticle";
 import prisma from "../utils/prisma";
 import { articleNewsletterService } from "./articleNewsletterService";
+import { eventService } from "./eventService";
 import { cleanupOrphanedMedia } from "../utils/mediaCleanup";
 
 export const articleService = {
@@ -130,6 +131,18 @@ export const articleService = {
     if (!wasPublished && article.status === "PUBLISHED") {
       articleNewsletterService.sendArticleNewsletter(id).catch((err) => {
         console.error(`[articleNewsletter] Failed to send for article ${id}:`, err);
+      });
+      const catSlug = existing.categoryId
+        ? (await prisma.category.findUnique({ where: { id: existing.categoryId }, select: { slug: true } }))?.slug
+        : undefined;
+
+      eventService.emitArticleEvent("article:published", {
+        articleId: id,
+        slug: article.slug,
+        title: article.title,
+        categorySlug: catSlug,
+        isFeatured: article.isFeatured,
+        publishedAt: article.publishedAt?.toISOString(),
       });
     }
 

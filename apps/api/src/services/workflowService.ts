@@ -3,6 +3,7 @@ import { workflowRepository } from "../repositories/workflowRepository";
 import { articleRepository } from "../repositories/articleRepository";
 import { notificationService } from "./notificationService";
 import { articleNewsletterService } from "./articleNewsletterService";
+import { eventService } from "./eventService";
 import { AppError } from "../middlewares/errorHandler";
 import prisma from "../utils/prisma";
 import type { AuthenticatedUser } from "../types/express";
@@ -307,6 +308,19 @@ export const workflowService = {
 
     articleNewsletterService.sendArticleNewsletter(articleId).catch((err) => {
       console.error(`[articleNewsletter] Failed to send for article ${articleId}:`, err);
+    });
+
+    const category = article.categoryId
+      ? await prisma.category.findUnique({ where: { id: article.categoryId }, select: { slug: true } })
+      : null;
+
+    eventService.emitArticleEvent("article:published", {
+      articleId,
+      slug: article.slug,
+      title: article.title,
+      categorySlug: category?.slug ?? undefined,
+      isFeatured: article.isFeatured,
+      publishedAt: result.publishedAt?.toISOString(),
     });
 
     return result;
