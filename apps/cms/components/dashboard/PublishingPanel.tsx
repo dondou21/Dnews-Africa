@@ -70,13 +70,12 @@ export default function PublishingPanel({
   showComments = true,
 }: PublishingPanelProps) {
   const canEdit = !isJournalist || !articleStatus || articleStatus === "DRAFT" || articleStatus === "IDEA" || articleStatus === "NEEDS_REVISION";
-  const todayStr = useMemo(() => getTodayDateString(), []);
-  const minDate = todayStr;
+  const minDate = getTodayDateString();
 
   const handleScheduleToggle = (enabled: boolean) => {
     onScheduleToggle(enabled);
     if (enabled && !scheduledAt) {
-      onScheduledAtChange(todayStr);
+      onScheduledAtChange(getTodayDateString());
     }
   };
 
