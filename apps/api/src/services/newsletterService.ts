@@ -6,8 +6,6 @@ import { AppError } from "../middlewares/errorHandler";
 import { logger } from "../utils/logger";
 import { config } from "../config";
 
-const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
-
 function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
@@ -32,7 +30,7 @@ export const newsletterService = {
 
     if (existing) {
       if (existing.status === "ACTIVE" || existing.status === "PENDING") {
-        throw new AppError("Email is already subscribed", 409);
+        return { id: "duplicate", email: data.email, status: existing.status };
       }
 
       if (existing.status === "BLOCKED") {
@@ -40,10 +38,7 @@ export const newsletterService = {
       }
     }
 
-    const verificationToken = generateToken();
     const unsubscribeToken = generateToken();
-    const verificationExpires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
-
     const displayName = data.name || data.firstName || null;
 
     let subscriber;
@@ -51,14 +46,14 @@ export const newsletterService = {
     if (existing && existing.status === "UNSUBSCRIBED") {
       subscriber = await newsletterRepository.update(existing.id, {
         name: displayName || existing.name,
-        status: "PENDING",
-        verified: false,
-        verificationToken,
-        verificationExpires,
+        status: "ACTIVE",
+        verified: true,
+        verificationToken: null,
+        verificationExpires: null,
         unsubscribeToken,
         source: (data.source as $Enums.NewsletterSource) || existing.source,
         subscribedAt: new Date(),
-        confirmedAt: null,
+        confirmedAt: new Date(),
         unsubscribedAt: null,
         ipAddress: data.ipAddress || null,
         userAgent: data.userAgent || null,
@@ -68,10 +63,10 @@ export const newsletterService = {
       subscriber = await newsletterRepository.create({
         email: data.email,
         name: displayName,
-        status: "PENDING",
-        verified: false,
-        verificationToken,
-        verificationExpires,
+        status: "ACTIVE",
+        verified: true,
+        verificationToken: null,
+        verificationExpires: null,
         unsubscribeToken,
         source: data.source as $Enums.NewsletterSource || null,
         ipAddress: data.ipAddress || null,
@@ -80,49 +75,17 @@ export const newsletterService = {
       });
     }
 
-    logger.info("NewsletterService", "New subscription", { email: data.email });
+    logger.info("NewsletterService", "New subscription activated", { email: data.email, status: "ACTIVE" });
 
-    try {
-      await emailService.sendVerificationEmail(data.email, verificationToken);
-    } catch {
-      logger.error("NewsletterService", "Failed to send verification email", { email: data.email });
-    }
+    emailService.sendWelcomeEmail(data.email, displayName || undefined)
+      .then(() => logger.info("NewsletterService", "Welcome email sent", { email: data.email }))
+      .catch((err: unknown) => logger.error("NewsletterService", "Failed to send welcome email", { email: data.email, error: String(err) }));
 
-    return subscriber;
+    return { ...subscriber, welcomeEmailSent: true };
   },
 
-  async verify(token: string) {
-    const subscriber = await newsletterRepository.findByVerificationToken(token);
-
-    if (!subscriber) {
-      throw new AppError("Invalid verification token", 400);
-    }
-
-    if (subscriber.verified) {
-      throw new AppError("Email is already verified", 400);
-    }
-
-    if (subscriber.verificationExpires && new Date() > subscriber.verificationExpires) {
-      throw new AppError("Verification token has expired", 400);
-    }
-
-    const updated = await newsletterRepository.update(subscriber.id, {
-      status: "ACTIVE",
-      verified: true,
-      confirmedAt: new Date(),
-      verificationToken: null,
-      verificationExpires: null,
-    });
-
-    logger.info("NewsletterService", "Email verified", { email: subscriber.email });
-
-    try {
-      await emailService.sendWelcomeEmail(subscriber.email, subscriber.name || undefined);
-    } catch {
-      logger.error("NewsletterService", "Failed to send welcome email", { email: subscriber.email });
-    }
-
-    return updated;
+  async verify(_token: string) {
+    throw new AppError("Email verification is no longer required. Your subscription is activated immediately.", 400);
   },
 
   async unsubscribeByEmail(email: string) {
@@ -275,62 +238,28 @@ export const newsletterService = {
       throw new AppError("Email is already active", 400);
     }
 
-    const verificationToken = generateToken();
-    const verificationExpires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+    const unsubscribeToken = generateToken();
 
     const updated = await newsletterRepository.update(subscriber.id, {
-      status: "PENDING",
-      verified: false,
-      verificationToken,
-      verificationExpires,
+      status: "ACTIVE",
+      verified: true,
+      verificationToken: null,
+      verificationExpires: null,
+      unsubscribeToken,
       unsubscribedAt: null,
     });
 
-    logger.info("NewsletterService", "Resubscribe initiated", { email: subscriber.email });
+    logger.info("NewsletterService", "Resubscribe activated", { email: subscriber.email });
 
-    try {
-      await emailService.sendVerificationEmail(subscriber.email, verificationToken);
-    } catch {
-      logger.error("NewsletterService", "Failed to send resubscribe verification email", { email: subscriber.email });
-    }
-
-    try {
-      await emailService.sendResubscribeConfirmationEmail(subscriber.email);
-    } catch {
-      logger.error("NewsletterService", "Failed to send resubscribe confirmation email", { email: subscriber.email });
-    }
+    emailService.sendWelcomeEmail(subscriber.email, subscriber.name || undefined)
+      .then(() => logger.info("NewsletterService", "Welcome email sent on resubscribe", { email: subscriber.email }))
+      .catch((err: unknown) => logger.error("NewsletterService", "Failed to send welcome email on resubscribe", { email: subscriber.email, error: String(err) }));
 
     return updated;
   },
 
-  async resendConfirmation(id: string) {
-    const subscriber = await newsletterRepository.findById(id);
-
-    if (!subscriber) {
-      throw new AppError("Subscriber not found", 404);
-    }
-
-    if (subscriber.status !== "PENDING") {
-      throw new AppError("Subscriber is not in pending status", 400);
-    }
-
-    const verificationToken = generateToken();
-    const verificationExpires = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
-
-    await newsletterRepository.update(id, {
-      verificationToken,
-      verificationExpires,
-      verified: false,
-    });
-
-    try {
-      await emailService.sendVerificationEmail(subscriber.email, verificationToken);
-    } catch {
-      logger.error("NewsletterService", "Failed to resend verification email", { email: subscriber.email });
-      throw new AppError("Failed to send confirmation email", 500);
-    }
-
-    logger.info("NewsletterService", "Confirmation email resent", { id, email: subscriber.email });
+  async resendConfirmation(_id: string) {
+    throw new AppError("Email confirmation is no longer required. All subscriptions are activated immediately.", 400);
   },
 
   async getByUnsubscribeToken(token: string) {

@@ -23,18 +23,33 @@ export const newsletterController = {
       const ipAddress = (req.ip || req.socket.remoteAddress || null) as string | null;
       const userAgent = (req.headers["user-agent"] || null) as string | null;
 
-      const subscriber = await newsletterService.subscribe({
+      const result = await newsletterService.subscribe({
         ...parsed.data,
         ipAddress,
         userAgent,
       });
 
-      if (subscriber && "id" in subscriber && subscriber.id === "blocked") {
-        res.json({ status: "success", data: { message: "Subscription received" } });
-        return;
+      if (result && "id" in result) {
+        if (result.id === "blocked") {
+          res.json({ status: "success", data: { message: "Subscription received" } });
+          return;
+        }
+        if (result.id === "duplicate") {
+          res.status(200).json({
+            status: "success",
+            data: { alreadySubscribed: true, message: "You are already subscribed to the Dnews Africa newsletter." },
+          });
+          return;
+        }
       }
 
-      res.status(201).json({ status: "success", data: subscriber });
+      res.status(201).json({
+        status: "success",
+        data: {
+          message: "Welcome to Dnews Africa! Your subscription is now active. We've sent a welcome email to your inbox with everything you need to get started.",
+          subscriber: result,
+        },
+      });
     } catch (error) {
       next(error);
     }

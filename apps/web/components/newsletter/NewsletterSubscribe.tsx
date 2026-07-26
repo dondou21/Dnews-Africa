@@ -44,18 +44,18 @@ export default function NewsletterSubscribe({
       const body: Record<string, unknown> = { email: email.trim(), source };
       if (firstName.trim()) body.name = firstName.trim();
       if (honeypot) body._hp = honeypot;
-      await post("/newsletter/subscribe", body);
-      setSuccess(true);
+      const result = await post<{ alreadySubscribed?: boolean; message?: string }>("/newsletter/subscribe", body);
+      if (result?.alreadySubscribed) {
+        setIsDuplicate(true);
+        setError("You are already subscribed to the Dnews Africa newsletter.");
+      } else {
+        setSuccess(true);
+      }
       setEmail("");
       setFirstName("");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Subscription failed. Please try again.";
-      if (msg.toLowerCase().includes("already subscribed")) {
-        setIsDuplicate(true);
-        setError("This email is already subscribed to our newsletter.");
-      } else {
-        setError(msg);
-      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -73,15 +73,11 @@ export default function NewsletterSubscribe({
             />
             <div>
               <p className="text-sm font-semibold text-green-800 dark:text-green-300">
-                Check your inbox!
+                Welcome to Dnews Africa!
               </p>
               <p className="mt-1.5 text-xs leading-relaxed text-green-700 dark:text-green-400">
-                A confirmation email has been sent to{" "}
-                <span className="font-medium">{email}</span>. Please click the
-                verification link to complete your subscription.
-              </p>
-              <p className="mt-2 text-xs text-green-600 dark:text-green-400">
-                Didn&apos;t receive it? Check your spam folder.
+                Your subscription is now active. We&apos;ve sent a welcome
+                email to your inbox with everything you need to get started.
               </p>
             </div>
           </div>
