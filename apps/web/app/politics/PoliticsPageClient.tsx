@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "@/components/shared/AppImage";
+import ArticleImage from "@/components/shared/ArticleImage";
 import { get } from "@dnews/api-client";
-import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import { getFeaturedImageUrl } from "@/lib/image";
 import SectionHeader from "@/components/home/SectionHeader";
 import ArticleListItem from "@/components/home/ArticleListItem";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
@@ -44,8 +44,6 @@ function formatDate(dateStr: string | null): string {
     return dateStr;
   }
 }
-
-const FALLBACK_IMG = "/images/placeholder-news.svg";
 
 export default function PoliticsPageClient() {
   const [articles, setArticles] = useState<ArticleItem[]>([]);
@@ -139,20 +137,13 @@ export default function PoliticsPageClient() {
                 <SectionHeader title="Featured Story" />
                 <article className="group">
                   <Link href={`/articles/${featured.slug}`}>
-                    <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-                      <Image
-                        src={getFeaturedImageUrl(featured.featuredImage, featured.coverImageUrl)}
-                        alt={featured.featuredImage?.alt || featured.coverImageAlt || featured.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 1024px) 100vw, 780px"
-                        priority
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = FALLBACK_IMAGE;
-                        }}
-                      />
-                    </div>
+                    <ArticleImage
+                      src={getFeaturedImageUrl(featured.featuredImage, featured.coverImageUrl)}
+                      alt={featured.featuredImage?.alt || featured.coverImageAlt || featured.title}
+                      layout="hero"
+                      priority
+                      containerClassName="mb-4"
+                    />
                     <span className="mb-2 inline-block rounded bg-dnews-red px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
                       {featured.category?.name || "Politics"}
                     </span>
@@ -180,23 +171,13 @@ export default function PoliticsPageClient() {
                 {otherArticles.slice(0, 6).map((article) => (
                   <article key={article.id} className="group">
                     <Link href={`/articles/${article.slug}`}>
-                      <div className="relative mb-3 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-                        <Image
-                          src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
-                          alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
-                          fill
-                        className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = FALLBACK_IMAGE;
-                        }}
+                      <ArticleImage
+                        src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
+                        alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
+                        layout="card"
+                        containerClassName="mb-3"
                       />
-                    </div>
-                    <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
-                      {article.category?.name || ""}
-                    </span>
-                    <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
+                      <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
                       {article.title}
                     </h3>
                       <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
@@ -242,19 +223,12 @@ export default function PoliticsPageClient() {
                 {editorsPicks.map((article) => (
                   <article key={article.id} className="group">
                     <Link href={`/articles/${article.slug}`}>
-                      <div className="relative mb-3 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-                        <Image
-                          src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
-                          alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
-                          fill
-                          className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = FALLBACK_IMAGE;
-                          }}
-                        />
-                      </div>
+                      <ArticleImage
+                        src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
+                        alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
+                        layout="card"
+                        containerClassName="mb-3"
+                      />
                       <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
                         {article.title}
                       </h3>

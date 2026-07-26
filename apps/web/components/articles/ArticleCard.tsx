@@ -1,6 +1,6 @@
-import Image from "@/components/shared/AppImage";
+import ArticleImage from "@/components/shared/ArticleImage";
 import Link from "next/link";
-import { resolveImageUrl, getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import { getFeaturedImageUrl } from "@/lib/image";
 import { extractExcerpt } from "@/lib/excerpt";
 
 interface ArticleItem {
@@ -28,20 +28,12 @@ export default function ArticleCard({ article }: { article: ArticleItem }) {
   return (
     <article className="group overflow-hidden rounded-sm border border-dnews-border bg-dnews-card transition-shadow hover:shadow-md">
       <Link href={`/articles/${article.slug}`}>
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-dnews-light-gray">
-          <Image
-            src={imgSrc}
-            alt={imgAlt}
-            fill
-          className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+        <ArticleImage
+          src={imgSrc}
+          alt={imgAlt}
+          layout="card"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            loading="lazy"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = FALLBACK_IMAGE;
-            }}
-          />
-        </div>
+        />
       </Link>
       <div className="p-4">
         <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-dnews-red">

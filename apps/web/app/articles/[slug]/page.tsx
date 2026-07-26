@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import Image from "@/components/shared/AppImage";
+import ArticleImage from "@/components/shared/ArticleImage";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, CalendarDays, Clock, Share2 } from "lucide-react";
@@ -305,20 +305,14 @@ export default function ArticlePage() {
               </div>
 
               {/* Featured Image */}
-              <div className="relative mt-6 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-                <Image
-                  src={imgUrl}
-                  alt={imgAlt}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 720px) 100vw, 720px"
-                  priority
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = FALLBACK_IMAGE;
-                  }}
-                />
-              </div>
+              <ArticleImage
+                src={imgUrl}
+                alt={imgAlt}
+                layout="hero"
+                priority
+                containerClassName="mt-6"
+                sizes="(max-width: 720px) 100vw, 720px"
+              />
 
               {(hasCredits || hasCaption) && (
                 <div className="mt-3 border-l-2 border-dnews-border/50 pl-4">
@@ -485,15 +479,13 @@ export default function ArticlePage() {
                       return (
                         <div key={r.id} className="group">
                           <Link href={`/articles/${r.slug}`}>
-                            <div className="relative mb-2 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-                              <Image
-                                src={rImg}
-                                alt={r.featuredImage?.alt || r.title}
-                                fill
-                                className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
-                                sizes="300px"
-                              />
-                            </div>
+                            <ArticleImage
+                              src={rImg}
+                              alt={r.featuredImage?.alt || r.title}
+                              layout="card"
+                              containerClassName="mb-2"
+                              sizes="300px"
+                            />
                           </Link>
                           <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-dnews-accent">
                             {r.category.name}

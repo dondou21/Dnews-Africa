@@ -1,6 +1,6 @@
-import Image from "@/components/shared/AppImage";
+import ArticleImage from "@/components/shared/ArticleImage";
 import Link from "next/link";
-import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import { getFeaturedImageUrl } from "@/lib/image";
 import { extractExcerpt, extractFirstSentence } from "@/lib/excerpt";
 
 interface ArticleItem {
@@ -56,20 +56,13 @@ export default function ArticleCard({ article, variant = "default", priority }: 
     return (
       <article className="group border-b border-dnews-border pb-6">
         <Link href={`/articles/${article.slug}`}>
-          <div className="relative mb-5 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-            <Image
-              src={imgSrc}
-              alt={imgAlt}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 1024px) 100vw, 780px"
-              priority={priority}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = FALLBACK_IMAGE;
-              }}
-            />
-          </div>
+          <ArticleImage
+            src={imgSrc}
+            alt={imgAlt}
+            layout="hero"
+            priority={priority}
+            containerClassName="mb-5"
+          />
           <div>
             <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
               {article.category?.name || ""}
@@ -101,21 +94,13 @@ export default function ArticleCard({ article, variant = "default", priority }: 
   return (
     <article className="group flex flex-col">
       <Link href={`/articles/${article.slug}`}>
-          <div className="relative mb-3 aspect-[16/9] w-full overflow-hidden rounded-sm bg-dnews-light-gray">
-            <Image
-              src={imgSrc}
-              alt={imgAlt}
-              fill
-              className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 50vw"
-              loading={priority ? undefined : "lazy"}
-              priority={priority}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = FALLBACK_IMAGE;
-              }}
-            />
-          </div>
+          <ArticleImage
+            src={imgSrc}
+            alt={imgAlt}
+            layout="card"
+            priority={priority}
+            containerClassName="mb-3"
+          />
         <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
           {article.category?.name || ""}
         </span>

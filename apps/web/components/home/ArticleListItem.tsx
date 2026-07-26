@@ -1,4 +1,4 @@
-import Image from "@/components/shared/AppImage";
+import ArticleImage from "@/components/shared/ArticleImage";
 import Link from "next/link";
 import { getFeaturedImageUrl } from "@/lib/image";
 import { extractExcerpt } from "@/lib/excerpt";
@@ -42,25 +42,12 @@ export default function ArticleListItem({ article }: { article: ArticleItem }) {
 
   return (
     <article className="flex gap-4 border-b border-dnews-border pb-4">
-      <Link
-        href={`/articles/${article.slug}`}
-        className="relative h-20 w-24 shrink-0 overflow-hidden rounded-sm bg-dnews-light-gray"
-      >
-        <Image
-          src={imgSrc}
-          alt={imgAlt}
-          fill
-          className="object-cover object-top transition-transform duration-300 hover:scale-110"
-          sizes="96px"
-          loading="lazy"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            if (target.src !== "/images/placeholder-news.svg") {
-              target.src = "/images/placeholder-news.svg";
-            }
-          }}
-        />
-      </Link>
+      <ArticleImage
+        src={imgSrc}
+        alt={imgAlt}
+        layout="list"
+        className="transition-transform duration-300 hover:scale-110"
+      />
       <div className="min-w-0 flex-1">
         <div className={`mb-1 text-[11px] font-semibold uppercase tracking-wider ${colorClass}`}>
           {article.category.name}
