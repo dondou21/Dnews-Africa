@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, CheckCircle, XCircle, Clock, Loader2, ExternalLink } from "lucide-react";
+import { Search, Clock, ExternalLink } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
-import StatusBadge from "@/components/dashboard/StatusBadge";
 import Pagination from "@/components/dashboard/Pagination";
 import LoadingState from "@/components/dashboard/LoadingState";
 import EmptyState from "@/components/dashboard/EmptyState";
