@@ -11,7 +11,7 @@
     "cms:dev": "turbo dev --filter=@dnews/cms"
   },
   "devDependencies": {
-    "turbo": "^2.5.0",
+    "turbo": "^2.10.7",
     "typescript": "^5"
   },
   "packageManager": "pnpm@10.10.0"

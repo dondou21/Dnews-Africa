@@ -85,8 +85,8 @@ function DeliveriesContent() {
       if (search) params.set("search", search);
       if (statusFilter !== "ALL") params.set("status", statusFilter);
       const result = await get<DeliveryResponse>(`/articles/newsletter/deliveries?${params}`);
-      setDeliveries(result.data);
-      setPagination(result.pagination);
+      setDeliveries(result.data ?? []);
+      setPagination(result.pagination ?? { page: 1, limit: 20, total: 0, totalPages: 0 });
     } catch {
       setError("Failed to load deliveries.");
     } finally {
