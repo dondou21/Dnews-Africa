@@ -195,7 +195,7 @@ export default function Home() {
 
           {secondaryArticles.length > 0 && (
             <section className="mb-8">
-              <div className="grid gap-6 sm:grid-cols-2">
+              <div className="grid gap-6 sm:grid-cols-2 items-start">
                 {secondaryArticles.map((article, idx) => (
                   <ArticleCard
                     key={article.id}
@@ -230,7 +230,7 @@ export default function Home() {
             {latest.length === 0 ? (
               <p className="text-sm text-dnews-muted">No articles published yet.</p>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2">
+              <div className="grid gap-6 sm:grid-cols-2 items-start">
                 {latest.map((article) => (
                   <ArticleCard key={article.id} article={article} />
                 ))}
@@ -256,7 +256,7 @@ function SectionArticles({ title, articles }: { title: string; articles: Article
   return (
     <section>
       <SectionHeader title={title} />
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2 items-start">
         {articles.map((article) => (
           <ArticleCard key={article.id} article={article} />
         ))}

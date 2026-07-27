@@ -97,7 +97,7 @@ function SearchContent() {
           ))}
         </div>
       ) : articles.length > 0 ? (
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start">
           {articles.map((article) => (
             <ArticleCard key={article.id} article={article} />
           ))}

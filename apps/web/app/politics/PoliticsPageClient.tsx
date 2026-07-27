@@ -167,7 +167,7 @@ export default function PoliticsPageClient() {
 
             <section>
               <SectionHeader title="Latest Political News" />
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start">
                 {otherArticles.slice(0, 6).map((article) => (
                   <article key={article.id} className="group">
                     <Link href={`/articles/${article.slug}`}>
@@ -219,7 +219,7 @@ export default function PoliticsPageClient() {
 
             <section>
               <SectionHeader title="Editor&apos;s Picks" />
-              <div className="grid gap-6 sm:grid-cols-2">
+              <div className="grid gap-6 sm:grid-cols-2 items-start">
                 {editorsPicks.map((article) => (
                   <article key={article.id} className="group">
                     <Link href={`/articles/${article.slug}`}>
