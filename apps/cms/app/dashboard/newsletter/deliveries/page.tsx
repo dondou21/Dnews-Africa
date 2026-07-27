@@ -80,13 +80,14 @@ function DeliveriesContent() {
 
   async function load() {
     setLoading(true);
+    setError("");
     try {
       const params = new URLSearchParams({ page: String(page), limit: "20" });
       if (search) params.set("search", search);
       if (statusFilter !== "ALL") params.set("status", statusFilter);
       const result = await get<DeliveryResponse>(`/articles/newsletter/deliveries?${params}`);
-      setDeliveries(result.data ?? []);
-      setPagination(result.pagination ?? { page: 1, limit: 20, total: 0, totalPages: 0 });
+      setDeliveries(Array.isArray(result?.data) ? result.data : []);
+      setPagination(result?.pagination ?? { page: 1, limit: 20, total: 0, totalPages: 0 });
     } catch {
       setError("Failed to load deliveries.");
     } finally {
@@ -97,6 +98,8 @@ function DeliveriesContent() {
   useEffect(() => { load(); }, [page, statusFilter]);
 
   function handleSearch() { setPage(1); load(); }
+
+  const safeDeliveries = Array.isArray(deliveries) ? deliveries : [];
 
   const columns: Column<Delivery>[] = [
     {
@@ -210,15 +213,15 @@ function DeliveriesContent() {
         <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
           <p className="text-xs font-medium text-dnews-red">{error}</p>
         </div>
-      ) : deliveries.length === 0 ? (
+      ) : safeDeliveries.length === 0 ? (
         <EmptyState icon={Clock} title="No deliveries yet" description="Newsletter deliveries will appear here after articles are published." />
       ) : (
         <>
-          <DataTable columns={columns} data={deliveries} keyExtractor={(d) => d.id} />
-          {pagination.totalPages > 1 && (
+          <DataTable columns={columns} data={safeDeliveries} keyExtractor={(d) => d.id} />
+          {pagination?.totalPages > 1 && (
             <Pagination
-              page={pagination.page}
-              totalPages={pagination.totalPages}
+              page={pagination?.page ?? 1}
+              totalPages={pagination?.totalPages ?? 1}
               onPageChange={setPage}
             />
           )}
