@@ -55,7 +55,7 @@ export default function StatsCard({
     return (
       <a
         href={href}
-        className="block rounded-sm border border-dnews-border bg-dnews-card p-5 transition-shadow hover:shadow-md cursor-pointer"
+        className="block rounded-sm border border-dnews-border bg-dnews-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dnews-accent"
       >
         {cardContent}
       </a>
@@ -63,7 +63,7 @@ export default function StatsCard({
   }
 
   return (
-    <div className="rounded-sm border border-dnews-border bg-dnews-card p-5 transition-shadow hover:shadow-md">
+    <div className="rounded-sm border border-dnews-border bg-dnews-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
       {cardContent}
     </div>
   );

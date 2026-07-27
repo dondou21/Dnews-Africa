@@ -15,6 +15,9 @@ import {
   Calendar,
   Clock,
   ExternalLink,
+  Tags,
+  ShieldCheck,
+  MessageSquare,
 } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";
@@ -134,27 +137,56 @@ function DashboardOverviewContent() {
       label: "Categories",
       value: stats.categories.totalCategories,
       icon: LayoutDashboard,
+      href: "/dashboard/categories",
+    },
+    {
+      label: "Subcategories",
+      value: "—",
+      icon: LayoutDashboard,
+      href: "/dashboard/categories",
+    },
+    {
+      label: "Tags",
+      value: "—",
+      icon: Tags,
+      href: "/dashboard/tags",
     },
     {
       label: "Users",
       value: stats.users.totalUsers,
       icon: Users,
+      href: "/dashboard/users",
     },
     {
       label: "Media",
       value: stats.media.totalFiles,
       icon: Image,
+      href: "/dashboard/media",
     },
     {
       label: "Newsletter Subscribers",
       value: stats.newsletter.totalSubscribers,
       icon: Mail,
+      href: "/dashboard/newsletter",
+    },
+    {
+      label: "Comments",
+      value: stats.contact.unreadMessages,
+      icon: MessageSquare,
+      href: "/dashboard/messages",
     },
     {
       label: "Contact Messages",
       value: stats.contact.totalMessages,
       icon: MessageCircle,
       variant: "red" as const,
+      href: "/dashboard/messages",
+    },
+    {
+      label: "Roles",
+      value: "—",
+      icon: ShieldCheck,
+      href: "/dashboard/roles",
     },
   ];
 
@@ -232,8 +264,24 @@ function DashboardOverviewContent() {
           )}
           {["Admin", "Editor"].includes(role) && (
             <QuickActionCard
+              label="Manage Categories"
+              description="Organize content with categories and subcategories"
+              href="/dashboard/categories"
+              icon={LayoutDashboard}
+            />
+          )}
+          {["Admin", "Editor"].includes(role) && (
+            <QuickActionCard
+              label="Manage Tags"
+              description="Create and manage article tags"
+              href="/dashboard/tags"
+              icon={Tags}
+            />
+          )}
+          {["Admin", "Editor"].includes(role) && (
+            <QuickActionCard
               label="View Messages"
-              description="Check new contact messages"
+              description="Check new contact messages and comments"
               href="/dashboard/messages"
               icon={MessageCircle}
             />
@@ -244,6 +292,14 @@ function DashboardOverviewContent() {
               description="Upload and manage media files"
               href="/dashboard/media"
               icon={Image}
+            />
+          )}
+          {["Admin"].includes(role) && (
+            <QuickActionCard
+              label="Manage Users"
+              description="Manage user accounts and roles"
+              href="/dashboard/users"
+              icon={Users}
             />
           )}
         </div>
@@ -264,9 +320,9 @@ function QuickActionCard({
   icon: React.ComponentType<{ size?: number; className?: string }>;
 }) {
   return (
-    <a
+    <Link
       href={href}
-      className="group rounded-sm border border-dnews-border bg-dnews-card p-5 transition-all hover:border-dnews-accent hover:shadow-md"
+      className="group rounded-sm border border-dnews-border bg-dnews-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-dnews-accent hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dnews-accent"
     >
       <div className="mb-3 inline-flex rounded-lg bg-dnews-accent/10 p-3">
         <Icon size={22} className="text-dnews-accent" />
@@ -275,6 +331,6 @@ function QuickActionCard({
         {label}
       </h4>
       <p className="mt-1 text-sm text-dnews-muted">{description}</p>
-    </a>
+    </Link>
   );
 }
