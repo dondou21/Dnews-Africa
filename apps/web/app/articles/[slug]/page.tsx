@@ -322,7 +322,6 @@ export default function ArticlePage() {
                 src={imgUrl}
                 alt={imgAlt}
                 layout="hero"
-                objectFit="contain"
                 priority
                 containerClassName="mt-6"
                 sizes="(max-width: 720px) 100vw, 720px"
