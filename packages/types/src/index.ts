@@ -7,9 +7,10 @@ export interface ArticleCategory {
   name: string;
   slug: string;
   description?: string | null;
+  displayOrder?: number;
   parentId?: number | null;
-  parent?: Pick<ArticleCategory, "id" | "name" | "slug"> | null;
-  children?: Pick<ArticleCategory, "id" | "name" | "slug" | "description">[];
+  parent?: Pick<ArticleCategory, "id" | "name" | "slug" | "displayOrder"> | null;
+  children?: Pick<ArticleCategory, "id" | "name" | "slug" | "description" | "displayOrder">[];
 }
 
 export interface CategoryTreeNode {
@@ -103,9 +104,10 @@ export type Category = ArticleCategory;
 
 export interface CategoryWithCount extends Category {
   description: string | null;
+  displayOrder: number;
   parentId: number | null;
-  parent: Pick<ArticleCategory, "id" | "name" | "slug"> | null;
-  children: Pick<ArticleCategory, "id" | "name" | "slug" | "description">[];
+  parent: Pick<ArticleCategory, "id" | "name" | "slug" | "displayOrder"> | null;
+  children: Pick<ArticleCategory, "id" | "name" | "slug" | "description" | "displayOrder">[];
   _count: { articles: number; children: number };
   createdAt: string;
   updatedAt: string;

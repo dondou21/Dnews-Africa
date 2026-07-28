@@ -5,6 +5,7 @@ export const createCategorySchema = z.object({
   slug: z.string().min(1, "Slug is required"),
   description: z.string().optional(),
   parentId: z.number().int().positive().optional().nullable(),
+  displayOrder: z.number().int().min(0).optional(),
 });
 
 export const updateCategorySchema = createCategorySchema.partial();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, ChevronRight } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import Modal from "@/components/dashboard/Modal";
 import { get, post, patch, del } from "@dnews/api-client";
@@ -27,11 +27,15 @@ function CategoriesPageContent() {
   const [formName, setFormName] = useState("");
   const [formSlug, setFormSlug] = useState("");
   const [formDescription, setFormDescription] = useState("");
+  const [formParentId, setFormParentId] = useState<number | "">("");
+  const [formDisplayOrder, setFormDisplayOrder] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
   const [deleteTarget, setDeleteTarget] = useState<CategoryWithCount | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const parentCategories = categories.filter((c) => c.parentId === null && (!editing || c.id !== editing.id));
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -55,6 +59,8 @@ function CategoriesPageContent() {
     setFormName("");
     setFormSlug("");
     setFormDescription("");
+    setFormParentId("");
+    setFormDisplayOrder(0);
     setFormError("");
     setFormOpen(true);
   };
@@ -64,6 +70,8 @@ function CategoriesPageContent() {
     setFormName(cat.name);
     setFormSlug(cat.slug);
     setFormDescription(cat.description || "");
+    setFormParentId(cat.parentId ?? "");
+    setFormDisplayOrder(cat.displayOrder ?? 0);
     setFormError("");
     setFormOpen(true);
   };
@@ -86,20 +94,19 @@ function CategoriesPageContent() {
       return;
     }
     setSubmitting(true);
+    const payload: Record<string, unknown> = {
+      name: formName,
+      slug: formSlug,
+      description: formDescription || undefined,
+      parentId: formParentId !== "" ? Number(formParentId) : null,
+      displayOrder: formDisplayOrder,
+    };
     try {
       if (editing) {
-        await patch(`/categories/${editing.id}`, {
-          name: formName,
-          slug: formSlug,
-          description: formDescription || undefined,
-        });
+        await patch(`/categories/${editing.id}`, payload);
         setSuccess("Category updated successfully.");
       } else {
-        await post("/categories", {
-          name: formName,
-          slug: formSlug,
-          description: formDescription || undefined,
-        });
+        await post("/categories", payload);
         setSuccess("Category created successfully.");
       }
       setFormOpen(false);
@@ -134,15 +141,32 @@ function CategoriesPageContent() {
   }, [success]);
 
   const columns: Column<CategoryWithCount>[] = [
-    { key: "name", header: "Name", render: (c) => <span className="font-medium">{c.name}</span> },
+    {
+      key: "name",
+      header: "Name",
+      render: (c) => (
+        <div className="flex items-center gap-2">
+          {c.parentId && <ChevronRight size={14} className="shrink-0 text-dnews-muted" />}
+          <span className="font-medium">{c.name}</span>
+        </div>
+      ),
+    },
     { key: "slug", header: "Slug", render: (c) => <code className="text-xs text-dnews-muted">{c.slug}</code> },
     {
-      key: "description",
-      header: "Description",
+      key: "parent",
+      header: "Parent",
       render: (c) => (
-        <span className="text-xs text-dnews-gray line-clamp-1">
-          {c.description || "—"}
+        <span className="text-xs text-dnews-gray">
+          {c.parent ? c.parent.name : "—"}
         </span>
+      ),
+    },
+    {
+      key: "children",
+      header: "Subcategories",
+      className: "text-center",
+      render: (c) => (
+        <span className="text-sm font-medium">{c._count.children}</span>
       ),
     },
     {
@@ -283,6 +307,36 @@ function CategoriesPageContent() {
               placeholder="category-slug"
               required
               className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark font-mono placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+              Parent Category
+            </label>
+            <select
+              value={formParentId}
+              onChange={(e) => setFormParentId(e.target.value !== "" ? Number(e.target.value) : "")}
+              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
+            >
+              <option value="">— None (Top-level category) —</option>
+              {parentCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+              Display Order
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={formDisplayOrder}
+              onChange={(e) => setFormDisplayOrder(parseInt(e.target.value, 10) || 0)}
+              placeholder="0"
+              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
             />
           </div>
           <div>

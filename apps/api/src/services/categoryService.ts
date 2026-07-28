@@ -23,7 +23,7 @@ export const categoryService = {
     return category;
   },
 
-  async create(data: { name: string; slug: string; description?: string; parentId?: number | null }) {
+  async create(data: { name: string; slug: string; description?: string; parentId?: number | null; displayOrder?: number }) {
     const existing = await categoryRepository.findByName(data.name);
     if (existing) throw new AppError("Category with this name already exists", 409);
     const existingSlug = await categoryRepository.findBySlug(data.slug);
@@ -35,7 +35,7 @@ export const categoryService = {
     return categoryRepository.create(data);
   },
 
-  async update(id: number, data: { name?: string; slug?: string; description?: string; parentId?: number | null }) {
+  async update(id: number, data: { name?: string; slug?: string; description?: string; parentId?: number | null; displayOrder?: number }) {
     const category = await categoryRepository.findById(id);
     if (!category) throw new AppError("Category not found", 404);
 

@@ -1,20 +1,20 @@
 import prisma from "../utils/prisma";
 import { Prisma } from "@prisma/client";
 
-const categoryInclude = {
+const categoryInclude: Prisma.CategoryInclude = {
   _count: { select: { articles: true, children: true } },
-  parent: { select: { id: true, name: true, slug: true } },
+  parent: { select: { id: true, name: true, slug: true, displayOrder: true } },
   children: {
-    select: { id: true, name: true, slug: true, description: true },
-    orderBy: { name: "asc" as const },
+    select: { id: true, name: true, slug: true, description: true, displayOrder: true },
+    orderBy: [{ displayOrder: "asc" as const }, { name: "asc" as const }],
   },
-} satisfies Prisma.CategoryInclude;
+};
 
 export const categoryRepository = {
   findAll: () =>
     prisma.category.findMany({
       include: categoryInclude,
-      orderBy: [{ parentId: { sort: "asc", nulls: "first" } }, { name: "asc" }],
+      orderBy: [{ parentId: { sort: "asc", nulls: "first" } }, { displayOrder: "asc" }, { name: "asc" }],
     }),
 
   findById: (id: number) =>
@@ -69,13 +69,13 @@ export const categoryRepository = {
     return slugs;
   },
 
-  create: (data: { name: string; slug: string; description?: string; parentId?: number | null }) =>
+  create: (data: { name: string; slug: string; description?: string; parentId?: number | null; displayOrder?: number }) =>
     prisma.category.create({
       data,
       include: categoryInclude,
     }),
 
-  update: (id: number, data: { name?: string; slug?: string; description?: string; parentId?: number | null }) =>
+  update: (id: number, data: { name?: string; slug?: string; description?: string; parentId?: number | null; displayOrder?: number }) =>
     prisma.category.update({
       where: { id },
       data,
