@@ -40,6 +40,7 @@ const allNavItems: NavItem[] = [
   { href: "/dashboard/analytics/traffic", label: "Traffic Sources", icon: TrendingUp, roles: ["Admin", "Editor"] },
   { href: "/dashboard/analytics/reports", label: "Reports", icon: FileText, roles: ["Admin", "Editor"] },
   { href: "/dashboard/categories", label: "Categories", icon: FolderTree, roles: ["Admin", "Editor"] },
+  { href: "/dashboard/subcategories", label: "Subcategories", icon: FolderTree, roles: ["Admin", "Editor"] },
   { href: "/dashboard/tags", label: "Tags", icon: Tags, roles: ["Admin", "Editor"] },
   { href: "/dashboard/media", label: "Media", icon: Image, roles: ["Admin", "Editor", "Journalist"] },
   { href: "/dashboard/users", label: "Users", icon: Users, roles: ["Admin"] },

@@ -18,6 +18,7 @@ import {
   Tags,
   ShieldCheck,
   MessageSquare,
+  FolderTree,
 } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";
@@ -142,8 +143,8 @@ function DashboardOverviewContent() {
     {
       label: "Subcategories",
       value: "—",
-      icon: LayoutDashboard,
-      href: "/dashboard/categories",
+      icon: FolderTree,
+      href: "/dashboard/subcategories",
     },
     {
       label: "Tags",

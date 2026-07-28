@@ -8,9 +8,10 @@ export interface ArticleCategory {
   slug: string;
   description?: string | null;
   displayOrder?: number;
+  isActive?: boolean;
   parentId?: number | null;
   parent?: Pick<ArticleCategory, "id" | "name" | "slug" | "displayOrder"> | null;
-  children?: Pick<ArticleCategory, "id" | "name" | "slug" | "description" | "displayOrder">[];
+  children?: Pick<ArticleCategory, "id" | "name" | "slug" | "description" | "displayOrder" | "isActive">[];
 }
 
 export interface CategoryTreeNode {
@@ -105,9 +106,10 @@ export type Category = ArticleCategory;
 export interface CategoryWithCount extends Category {
   description: string | null;
   displayOrder: number;
+  isActive: boolean;
   parentId: number | null;
   parent: Pick<ArticleCategory, "id" | "name" | "slug" | "displayOrder"> | null;
-  children: Pick<ArticleCategory, "id" | "name" | "slug" | "description" | "displayOrder">[];
+  children: Pick<ArticleCategory, "id" | "name" | "slug" | "description" | "displayOrder" | "isActive">[];
   _count: { articles: number; children: number };
   createdAt: string;
   updatedAt: string;

@@ -5,7 +5,7 @@ const categoryInclude: Prisma.CategoryInclude = {
   _count: { select: { articles: true, children: true } },
   parent: { select: { id: true, name: true, slug: true, displayOrder: true } },
   children: {
-    select: { id: true, name: true, slug: true, description: true, displayOrder: true },
+    select: { id: true, name: true, slug: true, description: true, displayOrder: true, isActive: true },
     orderBy: [{ displayOrder: "asc" as const }, { name: "asc" as const }],
   },
 };
@@ -69,13 +69,13 @@ export const categoryRepository = {
     return slugs;
   },
 
-  create: (data: { name: string; slug: string; description?: string; parentId?: number | null; displayOrder?: number }) =>
+  create: (data: { name: string; slug: string; description?: string; parentId?: number | null; displayOrder?: number; isActive?: boolean }) =>
     prisma.category.create({
       data,
       include: categoryInclude,
     }),
 
-  update: (id: number, data: { name?: string; slug?: string; description?: string; parentId?: number | null; displayOrder?: number }) =>
+  update: (id: number, data: { name?: string; slug?: string; description?: string; parentId?: number | null; displayOrder?: number; isActive?: boolean }) =>
     prisma.category.update({
       where: { id },
       data,
