@@ -64,6 +64,11 @@ export const articleService = {
     const { authorUserId, ...rest } = data;
     const createData = { ...rest, authorId: authorUserId || user.id } as CreateArticleInput;
 
+    if (createData.categoryId) {
+      const cat = await prisma.category.findUnique({ where: { id: createData.categoryId } });
+      if (!cat) throw new AppError("Category not found", 400);
+    }
+
     if (user.role.name !== "Admin" && user.role.name !== "Editor") {
       createData.status = "DRAFT";
     }
@@ -117,6 +122,11 @@ export const articleService = {
 
     if (data.status === "ARCHIVED" && user.role.name !== "Admin" && user.role.name !== "Editor") {
       throw new AppError("Only editors and admins can archive articles", 403);
+    }
+
+    if (data.categoryId) {
+      const cat = await prisma.category.findUnique({ where: { id: data.categoryId } });
+      if (!cat) throw new AppError("Category not found", 400);
     }
 
     const { authorUserId: auId, ...restData } = data;

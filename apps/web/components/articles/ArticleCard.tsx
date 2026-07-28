@@ -14,7 +14,7 @@ interface ArticleItem {
   featuredImage?: { url: string; alt: string | null } | null;
   publishedAt: string | null;
   createdAt: string;
-  category: { id: number; name: string; slug: string };
+  category: { id: number; name: string; slug: string; parentId: number | null; parent: { id: number; name: string; slug: string } | null };
   author: { id: string; firstName: string; lastName: string };
   authorName?: string | null;
   authorPosition?: string | null;
@@ -37,7 +37,7 @@ export default function ArticleCard({ article }: { article: ArticleItem }) {
       </Link>
       <div className="p-4">
         <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
-          {article.category.name}
+          {article.category.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category.name}
         </div>
         <h2 className="font-heading text-lg font-bold leading-snug text-dnews-dark">
           <Link

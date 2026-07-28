@@ -17,7 +17,7 @@ interface ArticleItem {
   featuredImage?: { url: string; alt: string | null } | null;
   publishedAt: string | null;
   createdAt: string;
-  category: { id: number; name: string; slug: string };
+  category: { id: number; name: string; slug: string; parentId: number | null; parent: { id: number; name: string; slug: string } | null };
   author: { id: string; firstName: string; lastName: string };
   authorName?: string | null;
   authorPosition?: string | null;

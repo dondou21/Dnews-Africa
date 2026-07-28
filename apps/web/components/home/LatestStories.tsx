@@ -5,7 +5,7 @@ interface ArticleItem {
   title: string;
   summary: string;
   content: string;
-  category: { id: number; name: string; slug: string };
+  category: { id: number; name: string; slug: string; parentId: number | null; parent: { id: number; name: string; slug: string } | null };
   author: { firstName: string; lastName: string };
   coverImageUrl: string | null;
   coverImageAlt: string | null;

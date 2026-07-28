@@ -14,7 +14,7 @@ interface ArticleItem {
   featuredImage: { url: string; alt: string | null } | null;
   publishedAt: string | null;
   createdAt: string;
-  category: { id: number; name: string; slug: string };
+  category: { id: number; name: string; slug: string; parentId: number | null; parent: { id: number; name: string; slug: string } | null };
   author: { id: string; firstName: string; lastName: string };
   authorName?: string | null;
   authorPosition?: string | null;
@@ -65,7 +65,7 @@ export default function ArticleCard({ article, variant = "default", priority }: 
           />
           <div>
             <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
-              {article.category?.name || ""}
+              {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
             </span>
             <h2 className="font-heading mt-2 text-xl font-bold leading-tight text-dnews-dark md:text-2xl lg:text-3xl">
               {article.title}
@@ -102,7 +102,7 @@ export default function ArticleCard({ article, variant = "default", priority }: 
             containerClassName="mb-3"
           />
         <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
-          {article.category?.name || ""}
+          {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
         </span>
         <h3 className="font-heading text-lg font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-xl">
           {article.title}

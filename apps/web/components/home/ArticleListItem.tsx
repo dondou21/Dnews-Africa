@@ -8,7 +8,7 @@ interface ArticleItem {
   title: string;
   summary: string;
   content: string;
-  category: { id: number; name: string; slug: string };
+  category: { id: number; name: string; slug: string; parentId: number | null; parent: { id: number; name: string; slug: string } | null };
   author: { firstName: string; lastName: string };
   coverImageUrl: string | null;
   coverImageAlt: string | null;
@@ -17,7 +17,8 @@ interface ArticleItem {
   createdAt: string;
 }
 
-function getCategoryColor(categoryName: string): "red" | "blue" {
+function getCategoryColor(category: ArticleItem["category"]): "red" | "blue" {
+  const categoryName = category.parent?.name || category.name;
   const sportsCulture = ["sports", "culture", "youth", "featured"];
   return sportsCulture.some((c) => categoryName.toLowerCase().includes(c))
     ? "red"
@@ -32,7 +33,7 @@ function estimateReadingTime(text: string): number {
 
 export default function ArticleListItem({ article }: { article: ArticleItem }) {
   const colorClass =
-    getCategoryColor(article.category.name) === "red"
+    getCategoryColor(article.category) === "red"
       ? "text-dnews-red"
       : "text-dnews-accent";
 
@@ -50,7 +51,7 @@ export default function ArticleListItem({ article }: { article: ArticleItem }) {
       />
       <div className="min-w-0 flex-1">
         <div className={`mb-1 text-[11px] font-semibold uppercase tracking-wider ${colorClass}`}>
-          {article.category.name}
+          {article.category.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category.name}
         </div>
         <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark">
           <Link

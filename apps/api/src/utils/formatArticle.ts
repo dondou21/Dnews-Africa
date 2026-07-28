@@ -42,7 +42,7 @@ interface ArticleRaw {
   archivedAt?: Date | null;
   changeReason?: string | null;
   categoryId?: number;
-  category?: { id: number; name: string; slug: string };
+  category?: { id: number; name: string; slug: string; parentId: number | null; parent: { id: number; name: string; slug: string } | null };
   authorId?: string;
   author?: { id: string; firstName: string; lastName: string; avatarUrl: string | null };
   authorName?: string | null;

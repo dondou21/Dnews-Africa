@@ -2,7 +2,7 @@ import { Prisma, $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 
 const articleInclude = {
-  category: { select: { id: true, name: true, slug: true } },
+  category: { select: { id: true, name: true, slug: true, parentId: true, parent: { select: { id: true, name: true, slug: true } } } },
   author: {
     select: {
       id: true,
@@ -106,7 +106,16 @@ export const articleRepository = {
     const where: Prisma.ArticleWhereInput = { status: "PUBLISHED" };
 
     if (params.category) {
-      where.category = { slug: params.category };
+      const cat = await prisma.category.findUnique({
+        where: { slug: params.category },
+        include: { children: { select: { slug: true } } },
+      });
+      if (cat) {
+        const slugs = [cat.slug, ...cat.children.map((c) => c.slug)];
+        where.category = { slug: { in: slugs } };
+      } else {
+        where.category = { slug: params.category };
+      }
     }
 
     if (params.tag) {

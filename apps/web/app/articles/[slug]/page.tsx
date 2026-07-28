@@ -43,7 +43,7 @@ interface ArticleDetail {
   isTrending: boolean;
   publishedAt: string | null;
   updatedAt: string;
-  category: { id: number; name: string; slug: string };
+  category: { id: number; name: string; slug: string; parentId: number | null; parent: { id: number; name: string; slug: string } | null };
   author: { id: string; firstName: string; lastName: string; bio?: string | null; avatarUrl?: string | null };
   authorName: string | null;
   authorPosition: string | null;
@@ -116,7 +116,7 @@ function ArticleJsonLd({ article, imgUrl }: { article: ArticleDetail; imgUrl: st
       "@type": "WebPage",
       "@id": typeof window !== "undefined" ? window.location.href : "",
     },
-    articleSection: article.category.name,
+    articleSection: article.category.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category.name,
     keywords: article.tags.map((t) => t.tag.name).join(", "),
   };
 
@@ -223,18 +223,36 @@ export default function ArticlePage() {
     <>
       <ArticleJsonLd article={article} imgUrl={imgUrl} />
       <div className="mx-auto max-w-[1180px] px-4 py-6 sm:py-8">
-        <Breadcrumbs articleTitle={article.title} categoryName={article.category.name} />
+        <Breadcrumbs articleTitle={article.title} categoryName={article.category.name} categorySlug={article.category.slug} parentCategoryName={article.category.parent?.name} parentCategorySlug={article.category.parent?.slug} />
         <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
           <article className="min-w-0 flex-1">
             <div className="mx-auto max-w-[720px]">
 
               {/* Category */}
-              <Link
-                href={`/${article.category.slug}`}
-                className="inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red transition-colors hover:text-dnews-accent"
-              >
-                {article.category.name}
-              </Link>
+              {article.category.parent ? (
+                <div className="inline-flex flex-wrap gap-1 text-[11px] font-semibold uppercase tracking-wider">
+                  <Link
+                    href={`/${article.category.parent.slug}`}
+                    className="text-dnews-red transition-colors hover:text-dnews-accent"
+                  >
+                    {article.category.parent.name}
+                  </Link>
+                  <span className="text-dnews-muted">/</span>
+                  <Link
+                    href={`/${article.category.slug}`}
+                    className="text-dnews-red transition-colors hover:text-dnews-accent"
+                  >
+                    {article.category.name}
+                  </Link>
+                </div>
+              ) : (
+                <Link
+                  href={`/${article.category.slug}`}
+                  className="inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red transition-colors hover:text-dnews-accent"
+                >
+                  {article.category.name}
+                </Link>
+              )}
 
               {/* Title */}
               <h1 className="font-heading text-[clamp(1.75rem,4vw,3.25rem)] font-bold leading-tight text-dnews-dark mt-3">

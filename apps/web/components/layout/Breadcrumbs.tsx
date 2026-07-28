@@ -57,7 +57,7 @@ function buildSegments(pathname: string): { label: string; href: string; isLast:
   return segments;
 }
 
-export default function Breadcrumbs({ articleTitle, categoryName }: { articleTitle?: string; categoryName?: string }) {
+export default function Breadcrumbs({ articleTitle, categoryName, categorySlug, parentCategoryName, parentCategorySlug }: { articleTitle?: string; categoryName?: string; categorySlug?: string; parentCategoryName?: string; parentCategorySlug?: string }) {
   const pathname = usePathname();
 
   if (pathname === "/") return null;
@@ -65,6 +65,19 @@ export default function Breadcrumbs({ articleTitle, categoryName }: { articleTit
   const segments = buildSegments(pathname);
 
   if (segments.length === 0) return null;
+
+  const isArticlePage = pathname.startsWith("/articles/") && articleTitle;
+
+  if (isArticlePage) {
+    segments.length = 0;
+    if (parentCategoryName && parentCategorySlug) {
+      segments.push({ label: parentCategoryName, href: `/${parentCategorySlug}`, isLast: false });
+    }
+    if (categoryName && categorySlug) {
+      segments.push({ label: categoryName, href: `/${categorySlug}`, isLast: false });
+    }
+    segments.push({ label: articleTitle, href: pathname, isLast: true });
+  }
 
   return (
     <nav aria-label="Breadcrumb" className="mx-auto max-w-[1180px] px-4 pt-4">
@@ -80,7 +93,7 @@ export default function Breadcrumbs({ articleTitle, categoryName }: { articleTit
           </Link>
         </li>
         {segments.map((seg, idx) => (
-          <li key={seg.href} className="flex items-center gap-1">
+          <li key={`${seg.href}-${idx}`} className="flex items-center gap-1">
             <ChevronRight size={12} className="shrink-0" />
             {seg.isLast ? (
               <span className="max-w-[200px] truncate text-dnews-dark sm:max-w-[300px]">
