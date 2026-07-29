@@ -36,7 +36,7 @@ export default function DashboardLogin() {
   };
 
   const inputClass =
-    "w-full rounded-sm border border-dnews-border bg-white px-3 py-2.5 pr-10 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent disabled:opacity-50 dark:bg-dnews-dark-gray dark:text-white";
+    "w-full rounded-lg border border-dnews-border bg-dnews-bg px-3 py-2.5 pr-10 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent focus:ring-2 focus:ring-dnews-accent/10 disabled:opacity-50";
 
   return (
     <div className="flex min-h-screen">
@@ -59,8 +59,8 @@ export default function DashboardLogin() {
           </div>
 
           {error && (
-            <div className="mt-6 rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
-              <p className="text-xs font-medium text-dnews-red">{error}</p>
+            <div className="mt-6 rounded-xl border border-dnews-red/20 bg-dnews-red/5 px-5 py-4">
+              <p className="text-sm font-medium text-dnews-red">{error}</p>
             </div>
           )}
 
@@ -131,7 +131,7 @@ export default function DashboardLogin() {
             <button
               type="submit"
               disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 rounded-sm bg-dnews-accent px-4 py-2.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent/80 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-dnews-accent px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-dnews-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dnews-accent disabled:opacity-60"
             >
               {submitting && (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
