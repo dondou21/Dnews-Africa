@@ -19,6 +19,10 @@ import {
   ShieldCheck,
   MessageSquare,
   FolderTree,
+  ArrowRight,
+  Plus,
+  BarChart3,
+  PenTool,
 } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";
@@ -78,16 +82,17 @@ function DashboardOverviewContent() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div>
-          <h2 className="font-heading text-xl font-bold text-dnews-dark">
-            Welcome{firstName ? `, ${firstName}` : ""}
-          </h2>
-          <p className="mt-1 text-sm text-dnews-muted">
-            Overview of your news platform at a glance.
-          </p>
-        </div>
-        <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
-          <p className="text-xs font-medium text-dnews-red">{error}</p>
+        <PageHeader
+          title={`Welcome${firstName ? `, ${firstName}` : ""}`}
+          description="Overview of your news platform at a glance."
+        />
+        <div className="rounded-xl border border-dnews-red/20 bg-dnews-red/5 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-dnews-red/10">
+              <FileWarning size={16} className="text-dnews-red" />
+            </div>
+            <p className="text-sm font-medium text-dnews-red">{error}</p>
+          </div>
         </div>
       </div>
     );
@@ -111,28 +116,32 @@ function DashboardOverviewContent() {
       href: "/dashboard/articles",
     },
     {
-      label: "Draft Articles",
+      label: "Drafts",
       value: stats.overview.draftArticles,
       icon: FileWarning,
       href: "/dashboard/articles?status=DRAFT",
+      variant: "amber" as const,
     },
     {
       label: "Pending Review",
       value: stats.overview.pendingReviewArticles,
       icon: SendHorizonal,
       href: "/dashboard/articles?status=PENDING_REVIEW",
+      variant: "purple" as const,
     },
     {
-      label: "Published Articles",
+      label: "Published",
       value: stats.overview.publishedArticles,
       icon: CheckCircle2,
       href: "/dashboard/articles?status=PUBLISHED",
+      variant: "green" as const,
     },
     {
       label: "Scheduled",
       value: stats.overview.scheduledArticles,
       icon: Calendar,
       href: "/dashboard/articles?status=SCHEDULED",
+      variant: "purple" as const,
     },
     {
       label: "Categories",
@@ -159,7 +168,7 @@ function DashboardOverviewContent() {
       href: "/dashboard/users",
     },
     {
-      label: "Media",
+      label: "Media Files",
       value: stats.media.totalFiles,
       icon: Image,
       href: "/dashboard/media",
@@ -171,10 +180,11 @@ function DashboardOverviewContent() {
       href: "/dashboard/newsletter",
     },
     {
-      label: "Comments",
+      label: "Unread Messages",
       value: stats.contact.unreadMessages,
       icon: MessageSquare,
       href: "/dashboard/messages",
+      variant: stats.contact.unreadMessages > 0 ? ("red" as const) : ("default" as const),
     },
     {
       label: "Contact Messages",
@@ -192,28 +202,34 @@ function DashboardOverviewContent() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-heading text-xl font-bold text-dnews-dark">
-          Welcome{firstName ? `, ${firstName}` : ""}
-        </h2>
-        <p className="mt-1 text-sm text-dnews-muted">
-          Overview of your news platform at a glance.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title={`Welcome${firstName ? `, ${firstName}` : ""}`}
+        description="Here&apos;s what&apos;s happening with your news platform today."
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {cards.map((card) => (
-          <StatsCard key={card.label} {...card} />
-        ))}
-      </div>
+      <section>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {cards.map((card) => (
+            <StatsCard key={card.label} {...card} />
+          ))}
+        </div>
+      </section>
 
       {["Admin", "Editor"].includes(role) && !scheduledLoading && scheduledArticles.length > 0 && (
-        <div>
-          <h3 className="mb-4 font-heading text-lg font-semibold text-dnews-dark">
-            Upcoming Scheduled Articles
-          </h3>
-          <div className="mb-8 space-y-2">
+        <section>
+          <SectionHeader
+            title="Upcoming Scheduled Articles"
+            action={
+              <Link
+                href="/dashboard/articles?status=SCHEDULED"
+                className="inline-flex items-center gap-1 text-xs font-medium text-dnews-accent hover:text-dnews-accent-light transition-colors"
+              >
+                View all <ArrowRight size={12} />
+              </Link>
+            }
+          />
+          <div className="space-y-2">
             {scheduledArticles.map((article) => {
               const remaining = article.scheduledAt ? new Date(article.scheduledAt).getTime() - now : 0;
               const hours = Math.floor(remaining / 3600000);
@@ -224,43 +240,45 @@ function DashboardOverviewContent() {
                 <Link
                   key={article.id}
                   href={`/dashboard/articles/${article.id}`}
-                  className="flex items-center justify-between rounded-sm border border-dnews-border bg-dnews-card px-4 py-3 transition-colors hover:bg-dnews-light-gray"
+                  className="group flex items-center justify-between rounded-xl border border-dnews-border bg-dnews-card px-5 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Calendar size={16} className="shrink-0 text-purple-500" />
-                    <span className="truncate text-sm font-medium text-dnews-dark">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-500/10">
+                      <Calendar size={16} className="text-purple-500" />
+                    </div>
+                    <span className="truncate text-sm font-medium text-dnews-dark group-hover:text-dnews-accent">
                       {article.title}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     {remaining > 0 ? (
-                      <span className="inline-flex items-center gap-1 text-xs text-purple-600">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700 dark:bg-purple-500/10 dark:text-purple-400">
                         <Clock size={12} />
                         {days > 0 ? `${days}d ` : ""}{displayHours}h {minutes}m
                       </span>
                     ) : (
-                      <span className="text-xs text-dnews-red">Overdue</span>
+                      <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-dnews-red dark:bg-red-500/10">
+                        Overdue
+                      </span>
                     )}
-                    <ExternalLink size={14} className="text-dnews-muted" />
+                    <ExternalLink size={14} className="text-dnews-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </Link>
               );
             })}
           </div>
-        </div>
+        </section>
       )}
 
-      <div className="mt-8">
-        <h3 className="mb-4 font-heading text-lg font-semibold text-dnews-dark">
-          Quick Actions
-        </h3>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section>
+        <SectionHeader title="Quick Actions" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {["Admin", "Editor", "Journalist"].includes(role) && (
             <QuickActionCard
               label="Create Article"
               description="Write and publish a new article"
-              href="/dashboard/articles"
-              icon={FileText}
+              href="/dashboard/articles/new"
+              icon={PenTool}
             />
           )}
           {["Admin", "Editor"].includes(role) && (
@@ -279,20 +297,20 @@ function DashboardOverviewContent() {
               icon={Tags}
             />
           )}
+          {["Admin", "Editor", "Journalist"].includes(role) && (
+            <QuickActionCard
+              label="Media Library"
+              description="Upload and manage media files"
+              href="/dashboard/media"
+              icon={Image}
+            />
+          )}
           {["Admin", "Editor"].includes(role) && (
             <QuickActionCard
               label="View Messages"
               description="Check new contact messages and comments"
               href="/dashboard/messages"
               icon={MessageCircle}
-            />
-          )}
-          {["Admin", "Editor", "Journalist"].includes(role) && (
-            <QuickActionCard
-              label="Manage Media"
-              description="Upload and manage media files"
-              href="/dashboard/media"
-              icon={Image}
             />
           )}
           {["Admin"].includes(role) && (
@@ -304,7 +322,29 @@ function DashboardOverviewContent() {
             />
           )}
         </div>
-      </div>
+      </section>
+    </div>
+  );
+}
+
+function PageHeader({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <h2 className="font-heading text-2xl font-bold text-dnews-dark">
+        {title}
+      </h2>
+      <p className="text-sm text-dnews-muted">{description}</p>
+    </div>
+  );
+}
+
+function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
+  return (
+    <div className="mb-4 flex items-center justify-between">
+      <h3 className="font-heading text-lg font-semibold text-dnews-dark">
+        {title}
+      </h3>
+      {action}
     </div>
   );
 }
@@ -323,15 +363,18 @@ function QuickActionCard({
   return (
     <Link
       href={href}
-      className="group rounded-sm border border-dnews-border bg-dnews-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-dnews-accent hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dnews-accent"
+      className="group flex items-start gap-4 rounded-xl border border-dnews-border bg-dnews-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-dnews-accent hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dnews-accent"
     >
-      <div className="mb-3 inline-flex rounded-lg bg-dnews-accent/10 p-3">
+      <div className="shrink-0 rounded-xl bg-dnews-accent/10 p-3 ring-1 ring-inset ring-white/10">
         <Icon size={22} className="text-dnews-accent" />
       </div>
-      <h4 className="font-heading text-base font-semibold text-dnews-dark group-hover:text-dnews-accent">
-        {label}
-      </h4>
-      <p className="mt-1 text-sm text-dnews-muted">{description}</p>
+      <div className="min-w-0 flex-1">
+        <h4 className="font-heading text-base font-semibold text-dnews-dark group-hover:text-dnews-accent transition-colors">
+          {label}
+        </h4>
+        <p className="mt-1 text-sm text-dnews-muted leading-relaxed">{description}</p>
+      </div>
+      <ArrowRight size={16} className="mt-1 shrink-0 text-dnews-muted opacity-0 group-hover:opacity-100 transition-all duration-200 -translate-x-1 group-hover:translate-x-0" />
     </Link>
   );
 }

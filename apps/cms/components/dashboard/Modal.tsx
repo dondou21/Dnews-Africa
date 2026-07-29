@@ -9,7 +9,7 @@ interface ModalProps {
   title: string;
   children: ReactNode;
   footer?: ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
 }
 
 export default function Modal({
@@ -21,6 +21,7 @@ export default function Modal({
   size = "md",
 }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
@@ -29,6 +30,7 @@ export default function Modal({
     if (open) {
       document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
+      dialogRef.current?.focus();
     }
     return () => {
       document.removeEventListener("keydown", handleEscape);
@@ -38,37 +40,47 @@ export default function Modal({
 
   if (!open) return null;
 
-  const maxWidth =
-    size === "sm" ? "max-w-sm" : size === "lg" ? "max-w-lg" : "max-w-md";
+  const maxWidths = {
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl",
+    "2xl": "max-w-2xl",
+  };
 
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
     >
       <div
-        className={`w-full ${maxWidth} rounded-sm border border-dnews-border bg-dnews-card shadow-xl`}
+        ref={dialogRef}
+        tabIndex={-1}
+        className={`w-full ${maxWidths[size]} rounded-xl border border-dnews-border bg-dnews-card shadow-lg animate-in fade-in zoom-in-95 duration-200`}
       >
-        <div className="flex items-center justify-between border-b border-dnews-border px-5 py-4">
+        <div className="flex items-center justify-between border-b border-dnews-border px-6 py-4">
           <h3 className="font-heading text-base font-semibold text-dnews-dark">
             {title}
           </h3>
           <button
             onClick={onClose}
-            className="inline-flex h-8 w-8 items-center justify-center rounded text-dnews-gray transition-colors hover:bg-dnews-light-gray"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-dnews-gray transition-colors hover:bg-dnews-light-gray"
             aria-label="Close"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="px-5 py-4">{children}</div>
+        <div className="px-6 py-5">{children}</div>
 
         {footer && (
-          <div className="flex items-center justify-end gap-3 border-t border-dnews-border px-5 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-dnews-border px-6 py-4 bg-dnews-light-gray/50">
             {footer}
           </div>
         )}

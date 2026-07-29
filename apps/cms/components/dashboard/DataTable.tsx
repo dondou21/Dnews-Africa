@@ -16,6 +16,7 @@ interface DataTableProps<T> {
   emptyTitle?: string;
   emptyDescription?: string;
   emptyAction?: React.ReactNode;
+  sortable?: boolean;
 }
 
 export default function DataTable<T>({
@@ -42,38 +43,42 @@ export default function DataTable<T>({
   }
 
   return (
-    <div className="overflow-x-auto rounded-sm border border-dnews-border bg-dnews-card">
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-dnews-border bg-dnews-light-gray">
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider text-dnews-muted ${col.className || ""}`}
-              >
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr
-              key={keyExtractor(item)}
-              className="border-b border-dnews-border transition-colors last:border-b-0 hover:bg-dnews-light-gray/50"
-            >
+    <div className="overflow-hidden rounded-xl border border-dnews-border bg-dnews-card">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-dnews-border bg-dnews-light-gray">
               {columns.map((col) => (
-                <td
+                <th
                   key={col.key}
-                  className={`px-4 py-3 text-sm text-dnews-dark ${col.className || ""}`}
+                  className={`px-4 py-3.5 text-xs font-semibold uppercase tracking-wider text-dnews-muted ${col.className || ""}`}
                 >
-                  {col.render ? col.render(item) : (item as Record<string, unknown>)[col.key] as React.ReactNode}
-                </td>
+                  {col.header}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr
+                key={keyExtractor(item)}
+                className={`border-b border-dnews-border transition-colors last:border-b-0 hover:bg-dnews-light-gray/50 ${
+                  index % 2 === 0 ? "bg-dnews-card" : "bg-dnews-bg/30"
+                }`}
+              >
+                {columns.map((col) => (
+                  <td
+                    key={col.key}
+                    className={`px-4 py-3.5 text-sm text-dnews-dark ${col.className || ""}`}
+                  >
+                    {col.render ? col.render(item) : (item as Record<string, unknown>)[col.key] as React.ReactNode}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
