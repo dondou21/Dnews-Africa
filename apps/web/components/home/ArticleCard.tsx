@@ -56,18 +56,20 @@ export default function ArticleCard({ article, variant = "default", priority }: 
     return (
       <article className="group border-b border-dnews-border pb-6">
         <Link href={`/articles/${article.slug}`}>
-          <ArticleImage
-            src={imgSrc}
-            alt={imgAlt}
-            layout="hero"
-            priority={priority}
-            containerClassName="mb-5"
-          />
+          <div className="overflow-hidden rounded-xl">
+            <ArticleImage
+              src={imgSrc}
+              alt={imgAlt}
+              layout="hero"
+              priority={priority}
+              containerClassName="mb-5 transition-transform duration-500 group-hover:scale-[1.02]"
+            />
+          </div>
           <div>
             <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
               {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
             </span>
-            <h2 className="font-heading mt-2 text-xl font-bold leading-tight text-dnews-dark md:text-2xl lg:text-3xl">
+            <h2 className="font-heading mt-2 text-xl font-bold leading-tight text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-2xl lg:text-3xl">
               {article.title}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-dnews-gray">
@@ -77,14 +79,16 @@ export default function ArticleCard({ article, variant = "default", priority }: 
               <span className="font-medium text-dnews-dark">
                 By {authorDisplay}
               </span>
-              <span>·</span>
+              <span className="text-dnews-border">·</span>
               <span>{formatDate(article.publishedAt)}</span>
-              <span>·</span>
-              <span>{estimateReadingTime(article.content || article.summary)} min read</span>
+              <span className="text-dnews-border">·</span>
+              <span className="inline-flex items-center gap-1">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {estimateReadingTime(article.content || article.summary)} min read
+              </span>
             </div>
-            <span className="mt-4 inline-block rounded-sm border border-dnews-border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-dnews-gray transition-colors group-hover:border-dnews-accent group-hover:text-dnews-accent">
-              Read More →
-            </span>
           </div>
         </Link>
       </article>
@@ -94,13 +98,15 @@ export default function ArticleCard({ article, variant = "default", priority }: 
   return (
     <article className="group flex flex-col">
       <Link href={`/articles/${article.slug}`}>
+        <div className="overflow-hidden rounded-xl">
           <ArticleImage
             src={imgSrc}
             alt={imgAlt}
             layout="card"
             priority={priority}
-            containerClassName="mb-3"
+            containerClassName="mb-3 transition-transform duration-500 group-hover:scale-[1.03]"
           />
+        </div>
         <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
           {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
         </span>
@@ -112,14 +118,16 @@ export default function ArticleCard({ article, variant = "default", priority }: 
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-dnews-muted">
           <span className="font-medium text-dnews-dark">{authorDisplay}</span>
-          <span>·</span>
+          <span className="text-dnews-border">·</span>
           <span>{formatDate(article.publishedAt)}</span>
-          <span>·</span>
-          <span>{estimateReadingTime(article.content || article.summary)} min read</span>
+          <span className="text-dnews-border">·</span>
+          <span className="inline-flex items-center gap-1">
+            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {estimateReadingTime(article.content || article.summary)} min read
+          </span>
         </div>
-        <span className="mt-3 inline-block rounded-sm border border-dnews-border px-3 py-1 text-xs font-semibold uppercase tracking-wider text-dnews-gray transition-colors group-hover:border-dnews-accent group-hover:text-dnews-accent">
-          Read More →
-        </span>
       </Link>
     </article>
   );

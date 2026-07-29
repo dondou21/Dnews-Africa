@@ -5,6 +5,8 @@ import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import ReadingProgressBar from "@/components/layout/ReadingProgressBar";
+import BackToTop from "@/components/layout/BackToTop";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,11 +15,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
   return (
     <>
+      {isArticlePage && <ReadingProgressBar />}
       <Header />
       <Navbar />
       {!isHomepage && !isArticlePage && <Breadcrumbs />}
       {children}
       <Footer />
+      <BackToTop />
     </>
   );
 }
