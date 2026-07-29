@@ -3,29 +3,42 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --dnews-bg: #fafafa;
-  --dnews-fg: #1a1a1a;
-  --dnews-gray: #4a4a4a;
-  --dnews-light-gray: #f5f5f5;
-  --dnews-border: #e0e0e0;
-  --dnews-muted: #888;
+  --dnews-bg: #f8f9fa;
+  --dnews-fg: #1a1a2e;
+  --dnews-gray: #6b7280;
+  --dnews-light-gray: #f0f1f3;
+  --dnews-border: #e2e4e9;
+  --dnews-muted: #9ca3af;
   --dnews-card: #ffffff;
+  --dnews-sidebar: #ffffff;
+  --dnews-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --dnews-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --dnews-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
 }
 
 .dark {
-  --dnews-bg: #0f0f0f;
-  --dnews-fg: #e5e5e5;
-  --dnews-gray: #a0a0a0;
-  --dnews-light-gray: #1a1a1a;
-  --dnews-border: #2a2a2a;
-  --dnews-muted: #777;
-  --dnews-card: #1a1a1a;
+  --dnews-bg: #0a0a14;
+  --dnews-fg: #e8e8f0;
+  --dnews-gray: #9ca3af;
+  --dnews-light-gray: #14141f;
+  --dnews-border: #2a2a3a;
+  --dnews-muted: #6b7280;
+  --dnews-card: #12121e;
+  --dnews-sidebar: #0f0f1a;
+  --dnews-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --dnews-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --dnews-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
 }
 
 @theme inline {
   --color-dnews-accent: #1e3a5f;
   --color-dnews-accent-light: #2c5f8a;
+  --color-dnews-accent-dark: #152d4a;
   --color-dnews-red: #c81e1e;
+  --color-dnews-green: #059669;
+  --color-dnews-amber: #d97706;
+  --color-dnews-purple: #7c3aed;
+  --color-dnews-blue: #2563eb;
   --color-brand-red: #c81e1e;
   --color-dnews-bg: var(--dnews-bg);
   --color-dnews-dark: var(--dnews-fg);
@@ -34,6 +47,7 @@
   --color-dnews-border: var(--dnews-border);
   --color-dnews-muted: var(--dnews-muted);
   --color-dnews-card: var(--dnews-card);
+  --color-dnews-sidebar: var(--dnews-sidebar);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-playfair), Georgia, "Times New Roman", serif;
@@ -42,4 +56,17 @@
 body {
   background: var(--dnews-bg);
   color: var(--dnews-fg);
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--dnews-border) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
