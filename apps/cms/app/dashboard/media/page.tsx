@@ -8,10 +8,14 @@ import {
   Trash2,
   FileImage,
   File,
+  ImageIcon,
 } from "lucide-react";
 import Modal from "@/components/dashboard/Modal";
 import EmptyState from "@/components/dashboard/EmptyState";
 import LoadingState from "@/components/dashboard/LoadingState";
+import PageHeader from "@/components/ui/PageHeader";
+import Alert from "@/components/ui/Alert";
+import Button from "@/components/ui/Button";
 import { get, del, uploadFile } from "@dnews/api-client";
 import { resolveImageUrl } from "@/lib/image";
 import RoleGuard from "@/components/dashboard/RoleGuard";
@@ -136,83 +140,63 @@ function MediaPageContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-heading text-xl font-bold text-dnews-dark">
-            Media Library
-          </h2>
-          <p className="mt-1 text-sm text-dnews-muted">
-            {media.length} file{media.length !== 1 ? "s" : ""} uploaded
-          </p>
-        </div>
+      <PageHeader
+        title="Media Library"
+        description={`${media.length} file${media.length !== 1 ? "s" : ""} uploaded`}
+        action={
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp"
+              onChange={handleUpload}
+              className="hidden"
+              id="media-upload"
+            />
+            <Button
+              variant="primary"
+              loading={uploading}
+              icon={<Upload size={16} className={uploading ? "animate-pulse" : ""} />}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploading ? "Uploading..." : "Upload"}
+            </Button>
+          </div>
+        }
+      />
 
-        <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".jpg,.jpeg,.png,.webp"
-            onChange={handleUpload}
-            className="hidden"
-            id="media-upload"
-          />
-          <label
-            htmlFor="media-upload"
-            className={`inline-flex cursor-pointer items-center gap-2 rounded-sm px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors ${
-              uploading
-                ? "bg-dnews-accent/60 cursor-not-allowed"
-                : "bg-dnews-accent hover:bg-dnews-accent-light"
-            }`}
-          >
-            <Upload size={16} className={uploading ? "animate-pulse" : ""} />
-            {uploading ? "Uploading..." : "Upload"}
-          </label>
-        </div>
-      </div>
-
-      {error && (
-        <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
-          <p className="text-xs font-medium text-dnews-red">{error}</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-sm border border-green-500/30 bg-green-50 px-4 py-3 dark:bg-green-900/20">
-          <p className="text-xs font-medium text-green-700 dark:text-green-400">
-            {success}
-          </p>
-        </div>
-      )}
+      {error && <Alert variant="error" message={error} onDismiss={() => setError("")} />}
+      {success && <Alert variant="success" message={success} onDismiss={() => setSuccess("")} />}
 
       {loading ? (
-        <LoadingState variant="card" rows={4} />
+        <LoadingState variant="card" rows={6} />
       ) : media.length === 0 ? (
         <EmptyState
           title="No media yet"
           description="Upload images to use in your articles."
-          icon={FileImage}
+          icon={ImageIcon}
           action={
-            <label
-              htmlFor="media-upload"
-              className="inline-flex cursor-pointer items-center gap-2 rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
+            <Button
+              icon={<Upload size={16} />}
+              onClick={() => fileInputRef.current?.click()}
             >
-              <Upload size={16} />
               Upload Media
-            </label>
+            </Button>
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {media.map((item) => (
             <div
               key={item.id}
-              className="group overflow-hidden rounded-sm border border-dnews-border bg-dnews-card transition-shadow hover:shadow-md"
+              className="group overflow-hidden rounded-xl border border-dnews-border bg-dnews-card transition-all duration-200 hover:shadow-md"
             >
               <div className="relative aspect-video w-full overflow-hidden bg-dnews-light-gray">
                 {isImage(item) ? (
                   <img
                     src={resolveImageUrl(item.url)}
                     alt={item.alt || ""}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
                   />
                 ) : (
@@ -222,13 +206,13 @@ function MediaPageContent() {
                 )}
               </div>
 
-              <div className="space-y-2 p-3">
+              <div className="space-y-2.5 p-4">
                 <p className="truncate text-sm font-medium text-dnews-dark">
                   {getFileName(item.url)}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-2 text-xs text-dnews-muted">
-                  <span className="rounded bg-dnews-light-gray px-1.5 py-0.5 font-medium text-dnews-gray uppercase">
+                  <span className="rounded-md bg-dnews-light-gray px-1.5 py-0.5 font-medium text-dnews-gray uppercase ring-1 ring-inset ring-dnews-border/50">
                     {item.type}
                   </span>
                   <span>{formatSize(item.fileSize)}</span>
@@ -239,10 +223,10 @@ function MediaPageContent() {
                   by {item.uploadedBy.firstName} {item.uploadedBy.lastName}
                 </p>
 
-                <div className="flex items-center gap-1 pt-1">
+                <div className="flex items-center gap-1 pt-1.5">
                   <button
                     onClick={() => handleCopyUrl(item.url)}
-                    className="inline-flex h-7 flex-1 items-center justify-center gap-1 rounded text-xs text-dnews-gray transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+                    className="inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg text-xs font-medium text-dnews-gray transition-all hover:bg-dnews-light-gray hover:text-dnews-accent"
                     title="Copy URL"
                   >
                     <Copy size={12} />
@@ -252,14 +236,14 @@ function MediaPageContent() {
                     href={resolveImageUrl(item.url)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
                     title="Open in new tab"
                   >
                     <ExternalLink size={14} />
                   </a>
                   <button
                     onClick={() => setDeleteTarget(item)}
-                    className="inline-flex h-7 w-7 items-center justify-center rounded text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-red"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-red"
                     title="Delete"
                   >
                     <Trash2 size={14} />
@@ -278,19 +262,12 @@ function MediaPageContent() {
         size="sm"
         footer={
           <>
-            <button
-              onClick={() => setDeleteTarget(null)}
-              className="rounded-sm border border-dnews-border px-4 py-2 text-xs font-medium text-dnews-gray transition-colors hover:bg-dnews-light-gray"
-            >
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
               Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="flex items-center gap-2 rounded-sm bg-dnews-red px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-red/80 disabled:opacity-60"
-            >
+            </Button>
+            <Button variant="danger" onClick={handleDelete} loading={deleting}>
               {deleting ? "Deleting..." : "Delete"}
-            </button>
+            </Button>
           </>
         }
       >

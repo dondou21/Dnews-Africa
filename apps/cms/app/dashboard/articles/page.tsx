@@ -8,6 +8,9 @@ import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Pagination from "@/components/dashboard/Pagination";
 import Modal from "@/components/dashboard/Modal";
+import PageHeader from "@/components/ui/PageHeader";
+import Alert from "@/components/ui/Alert";
+import Button from "@/components/ui/Button";
 import { get, del, post } from "@dnews/api-client";
 import { useAuth } from "@/contexts/AuthContext";
 import RoleGuard from "@/components/dashboard/RoleGuard";
@@ -277,36 +280,30 @@ function ArticlesPageContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-heading text-xl font-bold text-dnews-dark">
-            Articles
-          </h2>
-          <p className="mt-1 text-sm text-dnews-muted">
-            {pagination.total > 0
-              ? `${pagination.total} article${pagination.total !== 1 ? "s" : ""} total`
-              : "Manage all articles on Dnews Africa."}
-          </p>
-        </div>
-        <Link
-          href="/dashboard/articles/new"
-          className="inline-flex items-center gap-2 rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
-        >
-          <Plus size={16} />
-          New Article
-        </Link>
-      </div>
+      <PageHeader
+        title="Articles"
+        description={
+          pagination.total > 0
+            ? `${pagination.total} article${pagination.total !== 1 ? "s" : ""} total`
+            : "Manage all articles on Dnews Africa."
+        }
+        action={
+          <Link href="/dashboard/articles/new">
+            <Button icon={<Plus size={16} />}>New Article</Button>
+          </Link>
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1">
           {statusFilters.map((f) => (
             <button
               key={f.value}
               onClick={() => handleStatusFilter(f.value)}
-              className={`rounded-sm px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150 ${
                 status === f.value
-                  ? "bg-dnews-accent text-white"
-                  : "border border-dnews-border text-dnews-gray hover:bg-dnews-light-gray"
+                  ? "bg-dnews-accent text-white shadow-sm"
+                  : "border border-dnews-border text-dnews-gray hover:bg-dnews-light-gray hover:text-dnews-dark"
               }`}
             >
               {f.label}
@@ -317,7 +314,7 @@ function ArticlesPageContent() {
         <select
           value={categoryId ?? ""}
           onChange={(e) => handleCategoryFilter(e.target.value)}
-          className="rounded-sm border border-dnews-border bg-dnews-bg px-3 py-1.5 text-xs font-medium text-dnews-gray outline-none transition-colors focus:border-dnews-accent"
+          className="rounded-lg border border-dnews-border bg-dnews-bg px-3 py-2 text-xs font-medium text-dnews-gray outline-none transition-colors focus:border-dnews-accent"
         >
           <option value="">All Categories</option>
           {categories
@@ -354,17 +351,13 @@ function ArticlesPageContent() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search articles..."
-              className="w-56 rounded-sm border border-dnews-border bg-dnews-bg py-2 pl-9 pr-3 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+              className="w-56 rounded-lg border border-dnews-border bg-dnews-bg py-2 pl-9 pr-3 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent focus:ring-2 focus:ring-dnews-accent/10"
             />
           </div>
         </form>
       </div>
 
-      {error && (
-        <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
-          <p className="text-xs font-medium text-dnews-red">{error}</p>
-        </div>
-      )}
+      {error && <Alert variant="error" message={error} onDismiss={() => setError("")} />}
 
       <DataTable
         columns={columns}
@@ -379,12 +372,8 @@ function ArticlesPageContent() {
         }
         emptyAction={
           !search && status === "ALL" && !categoryId ? (
-            <Link
-              href="/dashboard/articles/new"
-              className="inline-flex items-center gap-2 rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
-            >
-              <Plus size={16} />
-              Create Article
+            <Link href="/dashboard/articles/new">
+              <Button icon={<Plus size={16} />}>Create Article</Button>
             </Link>
           ) : undefined
         }
@@ -405,19 +394,12 @@ function ArticlesPageContent() {
         size="sm"
         footer={
           <>
-            <button
-              onClick={() => setDeleteTarget(null)}
-              className="rounded-sm border border-dnews-border px-4 py-2 text-xs font-medium text-dnews-gray transition-colors hover:bg-dnews-light-gray"
-            >
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
               Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="flex items-center gap-2 rounded-sm bg-dnews-red px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-red/80 disabled:opacity-60"
-            >
+            </Button>
+            <Button variant="danger" onClick={handleDelete} loading={deleting}>
               {deleting ? "Deleting..." : "Delete"}
-            </button>
+            </Button>
           </>
         }
       >
