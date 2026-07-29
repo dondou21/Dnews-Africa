@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import ArticleImage from "@/components/shared/ArticleImage";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, Share2 } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Share2, Link2, Printer, Check } from "lucide-react";
 import { FaXTwitter, FaFacebookF } from "react-icons/fa6";
 import { get } from "@dnews/api-client";
 import { getFeaturedImageUrl, FALLBACK_IMAGE } from "@/lib/image";
@@ -134,6 +134,7 @@ export default function ArticlePage() {
   const [article, setArticle] = useState<ArticleDetail | null>(null);
   const [related, setRelated] = useState<ArticleDetail[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   const loadRelated = useCallback(async (s: string) => {
     try {
@@ -214,6 +215,14 @@ export default function ArticlePage() {
   const shareUrl = getShareUrl(article.slug);
   const shareText = encodeURIComponent(article.title);
   const encodedUrl = encodeURIComponent(shareUrl);
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* ignore */ }
+  };
 
   const authorDisplayName = article.authorName || `${article.author.firstName} ${article.author.lastName}`;
   const authorInitials = getInitials(authorDisplayName);
@@ -302,15 +311,15 @@ export default function ArticlePage() {
               </div>
 
               {/* Share Buttons */}
-              <div className="mt-5 flex items-center gap-2 border-b border-dnews-border pb-5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-dnews-muted">
+              <div className="mt-5 flex items-center gap-1.5 border-b border-dnews-border pb-5">
+                <span className="mr-1 text-[11px] font-semibold uppercase tracking-wider text-dnews-muted">
                   Share
                 </span>
                 <a
                   href={`https://twitter.com/intent/tweet?text=${shareText}&url=${encodedUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-dnews-bg text-dnews-gray transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-dnews-bg text-dnews-gray transition-all hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
                   aria-label="Share on X (Twitter)"
                 >
                   <FaXTwitter size={14} aria-hidden="true" />
@@ -319,7 +328,7 @@ export default function ArticlePage() {
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-dnews-bg text-dnews-gray transition-colors hover:bg-[#1877f2] hover:text-white"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-dnews-bg text-dnews-gray transition-all hover:bg-[#1877f2] hover:text-white"
                   aria-label="Share on Facebook"
                 >
                   <FaFacebookF size={14} aria-hidden="true" />
@@ -328,11 +337,25 @@ export default function ArticlePage() {
                   href={`https://wa.me/?text=${shareText}%20${encodedUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-dnews-bg text-dnews-gray transition-colors hover:bg-[#25d366] hover:text-white"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-dnews-bg text-dnews-gray transition-all hover:bg-[#25d366] hover:text-white"
                   aria-label="Share on WhatsApp"
                 >
                   <Share2 size={14} aria-hidden="true" />
                 </a>
+                <button
+                  onClick={handleCopyLink}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-dnews-bg text-dnews-gray transition-all hover:bg-dnews-accent hover:text-white"
+                  aria-label="Copy article link"
+                >
+                  {copied ? <Check size={14} /> : <Link2 size={14} />}
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-dnews-bg text-dnews-gray transition-all hover:bg-dnews-gray hover:text-white"
+                  aria-label="Print article"
+                >
+                  <Printer size={14} />
+                </button>
               </div>
 
               {/* Featured Image */}
@@ -452,29 +475,28 @@ export default function ArticlePage() {
                 </div>
               )}
 
-              {/* Author */}
-              <div className="mt-10 rounded-sm border border-dnews-border bg-dnews-card px-5 py-6 sm:p-6">
+              {/* Author Card */}
+              <div className="mt-10 rounded-xl border border-dnews-border bg-dnews-card p-6">
                 <div className="flex items-start gap-4">
                   {article.author.avatarUrl ? (
                     <img
                       src={article.author.avatarUrl}
                       alt={authorDisplayName}
-                      className="h-12 w-12 shrink-0 rounded-full object-cover"
+                      className="h-14 w-14 shrink-0 rounded-xl object-cover ring-2 ring-dnews-border/50"
                     />
                   ) : (
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-dnews-accent/10 text-sm font-bold text-dnews-accent">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-dnews-accent to-dnews-accent-light text-lg font-bold text-white ring-2 ring-dnews-border/50">
                       {authorInitials}
                     </div>
                   )}
-                  <div className="min-w-0">
-                    <p className="font-semibold text-dnews-dark">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-heading text-base font-bold text-dnews-dark">
                       {authorDisplayName}
                     </p>
-                    {article.authorPosition && (
-                      <p className="text-xs text-dnews-muted">{article.authorPosition}</p>
-                    )}
-                    {article.authorOrganization && (
-                      <p className="text-xs text-dnews-muted">{article.authorOrganization}</p>
+                    {(article.authorPosition || article.authorOrganization) && (
+                      <p className="text-xs text-dnews-muted">
+                        {[article.authorPosition, article.authorOrganization].filter(Boolean).join(" \u00B7 ")}
+                      </p>
                     )}
                     {article.author.bio && (
                       <p className="mt-2 text-sm leading-relaxed text-dnews-gray">
