@@ -4,6 +4,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Plus, Edit, Trash2, ChevronRight } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import Modal from "@/components/dashboard/Modal";
+import PageHeader from "@/components/ui/PageHeader";
+import Alert from "@/components/ui/Alert";
+import Button from "@/components/ui/Button";
 import { get, post, patch, del } from "@dnews/api-client";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { CategoryWithCount } from "@dnews/types";
@@ -204,35 +207,18 @@ function CategoriesPageContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-heading text-xl font-bold text-dnews-dark">
-            Categories
-          </h2>
-          <p className="mt-1 text-sm text-dnews-muted">
-            {categories.length} categor{categories.length === 1 ? "y" : "ies"} total
-          </p>
-        </div>
-        <button
-          onClick={openCreate}
-          className="inline-flex items-center gap-2 rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
-        >
-          <Plus size={16} />
-          New Category
-        </button>
-      </div>
+      <PageHeader
+        title="Categories"
+        description={`${categories.length} categor${categories.length === 1 ? "y" : "ies"} total`}
+        action={
+          <Button onClick={openCreate} icon={<Plus size={16} />}>
+            New Category
+          </Button>
+        }
+      />
 
-      {error && (
-        <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
-          <p className="text-xs font-medium text-dnews-red">{error}</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-sm border border-green-500/30 bg-green-50 px-4 py-3 dark:bg-green-900/20">
-          <p className="text-xs font-medium text-green-700 dark:text-green-400">{success}</p>
-        </div>
-      )}
+      {error && <Alert variant="error" message={error} onDismiss={() => setError("")} />}
+      {success && <Alert variant="success" message={success} onDismiss={() => setSuccess("")} />}
 
       <DataTable
         columns={columns}
@@ -242,13 +228,9 @@ function CategoriesPageContent() {
         emptyTitle="No categories yet"
         emptyDescription="Create your first category to organize articles."
         emptyAction={
-          <button
-            onClick={openCreate}
-            className="inline-flex items-center gap-2 rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light"
-          >
-            <Plus size={16} />
+          <Button onClick={openCreate} icon={<Plus size={16} />}>
             Create Category
-          </button>
+          </Button>
         }
       />
 
@@ -259,32 +241,23 @@ function CategoriesPageContent() {
         size="md"
         footer={
           <>
-            <button
-              type="button"
-              onClick={() => setFormOpen(false)}
-              className="rounded-sm border border-dnews-border px-4 py-2 text-xs font-medium text-dnews-gray transition-colors hover:bg-dnews-light-gray"
-            >
+            <Button variant="outline" onClick={() => setFormOpen(false)}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               form="category-form"
-              disabled={submitting}
-              className="flex items-center gap-2 rounded-sm bg-dnews-accent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-accent-light disabled:opacity-60"
+              loading={submitting}
             >
               {submitting ? "Saving..." : editing ? "Save Changes" : "Create"}
-            </button>
+            </Button>
           </>
         }
       >
         <form id="category-form" onSubmit={handleSubmit} className="space-y-4">
-          {formError && (
-            <div className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
-              <p className="text-xs font-medium text-dnews-red">{formError}</p>
-            </div>
-          )}
+          {formError && <Alert variant="error" message={formError} />}
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
               Name <span className="text-dnews-red">*</span>
             </label>
             <input
@@ -293,11 +266,11 @@ function CategoriesPageContent() {
               onChange={(e) => handleNameChange(e.target.value)}
               placeholder="Category name"
               required
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+              className="w-full rounded-lg border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent focus:ring-2 focus:ring-dnews-accent/10"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
               Slug <span className="text-dnews-red">*</span>
             </label>
             <input
@@ -306,17 +279,17 @@ function CategoriesPageContent() {
               onChange={(e) => setFormSlug(e.target.value)}
               placeholder="category-slug"
               required
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark font-mono placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+              className="w-full rounded-lg border border-dnews-border bg-dnews-bg px-3 py-2 text-sm font-mono text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent focus:ring-2 focus:ring-dnews-accent/10"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
               Parent Category
             </label>
             <select
               value={formParentId}
               onChange={(e) => setFormParentId(e.target.value !== "" ? Number(e.target.value) : "")}
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
+              className="w-full rounded-lg border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent focus:ring-2 focus:ring-dnews-accent/10"
             >
               <option value="">— None (Top-level category) —</option>
               {parentCategories.map((cat) => (
@@ -327,7 +300,7 @@ function CategoriesPageContent() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
               Display Order
             </label>
             <input
@@ -336,11 +309,11 @@ function CategoriesPageContent() {
               value={formDisplayOrder}
               onChange={(e) => setFormDisplayOrder(parseInt(e.target.value, 10) || 0)}
               placeholder="0"
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+              className="w-full rounded-lg border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent focus:ring-2 focus:ring-dnews-accent/10"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
               Description
             </label>
             <textarea
@@ -348,7 +321,7 @@ function CategoriesPageContent() {
               onChange={(e) => setFormDescription(e.target.value)}
               placeholder="Optional description"
               rows={3}
-              className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
+              className="w-full rounded-lg border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent focus:ring-2 focus:ring-dnews-accent/10"
             />
           </div>
         </form>
@@ -361,19 +334,12 @@ function CategoriesPageContent() {
         size="sm"
         footer={
           <>
-            <button
-              onClick={() => setDeleteTarget(null)}
-              className="rounded-sm border border-dnews-border px-4 py-2 text-xs font-medium text-dnews-gray transition-colors hover:bg-dnews-light-gray"
-            >
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
               Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="flex items-center gap-2 rounded-sm bg-dnews-red px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-dnews-red/80 disabled:opacity-60"
-            >
+            </Button>
+            <Button variant="danger" onClick={handleDelete} loading={deleting}>
               {deleting ? "Deleting..." : "Delete"}
-            </button>
+            </Button>
           </>
         }
       >
