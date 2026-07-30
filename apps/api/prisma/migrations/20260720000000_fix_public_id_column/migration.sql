@@ -1,0 +1,4 @@
+-- This migration was applied directly to the Neon database.
+-- The changes are already reflected in the current schema.
+-- This file exists only to align the local migration history with the database.
+-- No additional SQL is needed.
