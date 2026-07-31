@@ -66,7 +66,16 @@ export const errorHandler = (
   }
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    console.error("Prisma error:", err.code, err.meta);
+    if (!config.isProduction) {
+      console.error("Prisma error:", {
+        code: err.code,
+        meta: err.meta,
+        message: err.message,
+        stack: err.stack,
+      });
+    } else {
+      console.error("Prisma error:", err.code, err.meta);
+    }
     if (err.code === "P2002") {
       const target = (err.meta?.target as string[]) || [];
       return res.status(409).json({
