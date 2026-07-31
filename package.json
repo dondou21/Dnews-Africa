@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "node scripts/free-ports.mjs && turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "api:dev": "turbo dev --filter=@dnews/api",
-    "web:dev": "turbo dev --filter=@dnews/web",
-    "cms:dev": "turbo dev --filter=@dnews/cms"
+    "api:dev": "node scripts/free-ports.mjs 4000 && turbo dev --filter=@dnews/api",
+    "web:dev": "node scripts/free-ports.mjs 5000 && turbo dev --filter=@dnews/web",
+    "cms:dev": "node scripts/free-ports.mjs 5001 && turbo dev --filter=@dnews/cms"
   },
   "devDependencies": {
     "turbo": "^2.10.7",
