@@ -7,10 +7,36 @@ const envLocalPath = path.resolve(__dirname, "../../.env.local");
 dotenv.config({ path: envLocalPath });
 dotenv.config({ path: envPath });
 
+const configuredCorsOrigin = (process.env.CORS_ORIGIN || "http://localhost:5000,http://localhost:5001")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+function corsOrigin(
+  origin: string | undefined,
+  callback: (err: Error | null, allow?: boolean) => void
+): void {
+  if (!origin || configuredCorsOrigin.includes(origin)) {
+    callback(null, true);
+    return;
+  }
+  if (process.env.NODE_ENV === "production") {
+    callback(null, false);
+    return;
+  }
+  try {
+    const url = new URL(origin);
+    const allowed = ["localhost", "127.0.0.1", "::1"].includes(url.hostname);
+    callback(null, allowed);
+  } catch {
+    callback(null, false);
+  }
+}
+
 export const config = {
   port: parseInt(process.env.PORT || "4000", 10),
   nodeEnv: process.env.NODE_ENV || "development",
-  corsOrigin: (process.env.CORS_ORIGIN || "http://localhost:5000,http://localhost:5001").split(",").map((s) => s.trim()),
+  corsOrigin,
   jwtSecret: process.env.JWT_SECRET || "default-secret-change-me",
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   isProduction: process.env.NODE_ENV === "production",
