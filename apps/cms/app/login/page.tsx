@@ -152,7 +152,15 @@ export default function DashboardLogin() {
         </div>
       </div>
 
-      <div className="relative hidden lg:flex lg:w-1/2 bg-gradient-to-br from-dnews-accent to-dnews-accent/80">
+      <div className="relative hidden overflow-hidden lg:flex lg:w-1/2">
+        <Image
+          src="/images/cover image.png"
+          alt="Dnews Africa newsroom"
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-dnews-accent/70 to-dnews-dark/70" />
         <div className="relative z-10 flex min-h-full w-full flex-col justify-center px-16">
           <div className="mx-auto max-w-md">
             <div className="rounded-sm border border-white/20 bg-white/10 p-8 backdrop-blur-sm">
