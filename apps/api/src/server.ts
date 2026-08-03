@@ -1,10 +1,12 @@
 import app from "./app";
 import { config } from "./config";
 import { schedulerService } from "./services/schedulerService";
+import { warmUpPool } from "./utils/poolWarmup";
 
 const server = app.listen(config.port, () => {
   console.log(`[server] Dnews Africa API running on port ${config.port}`);
   schedulerService.start();
+  warmUpPool().then(() => console.log("[server] Database pool warmed up"));
 });
 
 server.on("error", (err: NodeJS.ErrnoException) => {
