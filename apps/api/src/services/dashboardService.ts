@@ -1,7 +1,11 @@
 import { dashboardRepository } from "../repositories/dashboardRepository";
+import { cache } from "../utils/cache";
+
+const DASHBOARD_CACHE_TTL = 30_000;
 
 export const dashboardService = {
   async getStats() {
+    return cache.wrap("dashboard:stats", DASHBOARD_CACHE_TTL, async () => {
     const [overview, articleStats, userStats, recentArticles, recentPendingArticles] =
       await Promise.all([
         dashboardRepository.getOverview(),
@@ -60,5 +64,6 @@ export const dashboardService = {
         recentPendingArticles,
       },
     };
+    });
   },
 };
