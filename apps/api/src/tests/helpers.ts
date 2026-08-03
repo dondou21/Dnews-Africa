@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import { hash } from "@node-rs/bcrypt";
 import prisma from "../utils/prisma";
 import { config } from "../config";
 
@@ -23,7 +23,7 @@ export async function createTestUser(roleName: string) {
   const user = await prisma.user.create({
     data: {
       email: `test-${suffix}@example.com`,
-      passwordHash: await bcrypt.hash("password123", 12),
+      passwordHash: await hash("password123", 12),
       firstName: "Test",
       lastName: roleName,
       roleId: role.id,

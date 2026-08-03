@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { hash, verify } from "@node-rs/bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../utils/prisma";
 import { config } from "../config";
@@ -13,7 +13,7 @@ export const authService = {
       throw new AppError("Email already in use", 409);
     }
 
-    const passwordHash = await bcrypt.hash(data.password, 12);
+    const passwordHash = await hash(data.password, 12);
 
     const journalistRole = await prisma.role.findUnique({ where: { name: "Journalist" } });
     if (!journalistRole) {
@@ -37,7 +37,7 @@ export const authService = {
       throw new AppError("Invalid email or password", 401);
     }
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
+    const isValid = await verify(password, user.passwordHash);
     if (!isValid) {
       throw new AppError("Invalid email or password", 401);
     }
@@ -66,12 +66,12 @@ export const authService = {
       throw new AppError("User not found", 404);
     }
 
-    const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    const isValid = await verify(currentPassword, user.passwordHash);
     if (!isValid) {
       throw new AppError("Current password is incorrect", 400);
     }
 
-    const passwordHash = await bcrypt.hash(newPassword, 12);
+    const passwordHash = await hash(newPassword, 12);
     await userRepository.update(userId, { passwordHash });
   },
 };

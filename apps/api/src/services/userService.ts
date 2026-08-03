@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { hash } from "@node-rs/bcrypt";
 import prisma from "../utils/prisma";
 import { userRepository } from "../repositories/userRepository";
 import { AppError } from "../middlewares/errorHandler";
@@ -20,7 +20,7 @@ export const userService = {
     if (existing) {
       throw new AppError("Email already in use", 409);
     }
-    const passwordHash = await bcrypt.hash(data.password, 12);
+    const passwordHash = await hash(data.password, 12);
     const user = await userRepository.create({
       email: data.email,
       passwordHash,
