@@ -57,11 +57,11 @@ export const authService = {
     if (!user) {
       throw new AppError("User not found", 404);
     }
-    return stripPassword(user);
+    return user;
   },
 
   async changePassword(userId: string, currentPassword: string, newPassword: string) {
-    const user = await userRepository.findById(userId);
+    const user = await userRepository.findByIdWithCredentials(userId);
     if (!user) {
       throw new AppError("User not found", 404);
     }

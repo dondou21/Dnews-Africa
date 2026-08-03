@@ -1,12 +1,18 @@
 import prisma from "../utils/prisma";
+import { cache } from "../utils/cache";
+
+const CACHE_TTL = 5 * 60 * 1000;
+const KEY = "settings:newsletter";
 
 export const settingsRepository = {
   async get() {
-    let settings = await prisma.newsletterSettings.findFirst();
-    if (!settings) {
-      settings = await prisma.newsletterSettings.create({ data: {} });
-    }
-    return settings;
+    return cache.wrap(KEY, CACHE_TTL, async () => {
+      let settings = await prisma.newsletterSettings.findFirst();
+      if (!settings) {
+        settings = await prisma.newsletterSettings.create({ data: {} });
+      }
+      return settings;
+    });
   },
 
   async update(data: Record<string, unknown>) {
@@ -19,6 +25,7 @@ export const settingsRepository = {
         data,
       });
     }
+    cache.del(KEY);
     return settings;
   },
 };

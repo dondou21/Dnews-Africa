@@ -1,6 +1,10 @@
 import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
+import { cache } from "../utils/cache";
 import type { Prisma } from "@prisma/client";
+
+const SEO_SETTINGS_TTL = 5 * 60 * 1000;
+const SEO_SETTINGS_KEY = "settings:seo";
 
 export const seoRepository = {
   async getSeo(entityType: string, entityId: string) {
@@ -59,19 +63,25 @@ export const seoRepository = {
   },
 
   async getSeoSettings() {
-    const settings = await prisma.seoSettings.findFirst({ orderBy: { id: "asc" } });
-    if (!settings) {
-      return prisma.seoSettings.create({ data: {} });
-    }
-    return settings;
+    return cache.wrap(SEO_SETTINGS_KEY, SEO_SETTINGS_TTL, async () => {
+      const settings = await prisma.seoSettings.findFirst({ orderBy: { id: "asc" } });
+      if (!settings) {
+        return prisma.seoSettings.create({ data: {} });
+      }
+      return settings;
+    });
   },
 
   async updateSeoSettings(data: Record<string, unknown>) {
     const settings = await prisma.seoSettings.findFirst({ orderBy: { id: "asc" } });
+    let result;
     if (!settings) {
-      return prisma.seoSettings.create({ data: data as Prisma.SeoSettingsCreateInput });
+      result = await prisma.seoSettings.create({ data: data as Prisma.SeoSettingsCreateInput });
+    } else {
+      result = await prisma.seoSettings.update({ where: { id: settings.id }, data: data as Prisma.SeoSettingsUpdateInput });
     }
-    return prisma.seoSettings.update({ where: { id: settings.id }, data: data as Prisma.SeoSettingsUpdateInput });
+    cache.del(SEO_SETTINGS_KEY);
+    return result;
   },
 
   async getSeoReport() {

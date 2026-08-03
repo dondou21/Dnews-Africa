@@ -29,8 +29,7 @@ export const authenticate = async (req: Request, _res: Response, next: NextFunct
       throw new AppError("Account is deactivated", 401);
     }
 
-    const { passwordHash: _, ...userWithoutPassword } = user;
-    req.user = userWithoutPassword;
+    req.user = user;
     next();
   } catch (error) {
     if (error instanceof AppError) {

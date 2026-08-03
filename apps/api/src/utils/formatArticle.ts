@@ -28,7 +28,7 @@ interface ArticleRaw {
   featuredImageDescription?: string | null;
   featuredImageCopyright?: string | null;
   featuredImageLocation?: string | null;
-  featuredImageDateTaken?: string | null;
+  featuredImageDateTaken?: string | Date | null;
   featuredImage?: FeaturedImageRef | null;
   status?: string;
   isFeatured?: boolean;
@@ -42,7 +42,7 @@ interface ArticleRaw {
   archivedAt?: Date | null;
   changeReason?: string | null;
   categoryId?: number;
-  category?: { id: number; name: string; slug: string; parentId: number | null; parent: { id: number; name: string; slug: string } | null };
+  category?: { id: number; name: string; slug: string; parentId?: number | null; parent?: { id: number; name: string; slug: string } | null };
   authorId?: string;
   author?: { id: string; firstName: string; lastName: string; avatarUrl: string | null };
   authorName?: string | null;
@@ -75,7 +75,7 @@ export function formatArticle<T extends ArticleRaw>(article: T) {
     if (article.featuredImageDescription !== undefined) featuredImage.description = article.featuredImageDescription;
     if (article.featuredImageCopyright !== undefined) featuredImage.copyright = article.featuredImageCopyright;
     if (article.featuredImageLocation !== undefined) featuredImage.location = article.featuredImageLocation;
-    if (article.featuredImageDateTaken !== undefined) featuredImage.dateTaken = article.featuredImageDateTaken;
+    if (article.featuredImageDateTaken !== undefined) featuredImage.dateTaken = article.featuredImageDateTaken instanceof Date ? article.featuredImageDateTaken.toISOString() : article.featuredImageDateTaken;
   } else if (article.coverImageUrl) {
     featuredImage = {
       id: "",

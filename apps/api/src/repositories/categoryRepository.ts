@@ -1,5 +1,9 @@
 import prisma from "../utils/prisma";
 import { Prisma } from "@prisma/client";
+import { cache } from "../utils/cache";
+
+const CACHE_TTL = 60 * 1000;
+const ALL_KEY = "categories:all";
 
 const categoryInclude: Prisma.CategoryInclude = {
   _count: { select: { articles: true, children: true } },
@@ -12,10 +16,12 @@ const categoryInclude: Prisma.CategoryInclude = {
 
 export const categoryRepository = {
   findAll: () =>
-    prisma.category.findMany({
-      include: categoryInclude,
-      orderBy: [{ parentId: { sort: "asc", nulls: "first" } }, { displayOrder: "asc" }, { name: "asc" }],
-    }),
+    cache.wrap(ALL_KEY, CACHE_TTL, () =>
+      prisma.category.findMany({
+        include: categoryInclude,
+        orderBy: [{ parentId: { sort: "asc", nulls: "first" } }, { displayOrder: "asc" }, { name: "asc" }],
+      })
+    ),
 
   findById: (id: number) =>
     prisma.category.findUnique({ where: { id }, include: categoryInclude }),
@@ -69,21 +75,30 @@ export const categoryRepository = {
     return slugs;
   },
 
-  create: (data: { name: string; slug: string; description?: string; parentId?: number | null; displayOrder?: number; isActive?: boolean }) =>
-    prisma.category.create({
+  create: async (data: { name: string; slug: string; description?: string; parentId?: number | null; displayOrder?: number; isActive?: boolean }) => {
+    const category = await prisma.category.create({
       data,
       include: categoryInclude,
-    }),
+    });
+    cache.del(ALL_KEY);
+    return category;
+  },
 
-  update: (id: number, data: { name?: string; slug?: string; description?: string; parentId?: number | null; displayOrder?: number; isActive?: boolean }) =>
-    prisma.category.update({
+  update: async (id: number, data: { name?: string; slug?: string; description?: string; parentId?: number | null; displayOrder?: number; isActive?: boolean }) => {
+    const category = await prisma.category.update({
       where: { id },
       data,
       include: categoryInclude,
-    }),
+    });
+    cache.del(ALL_KEY);
+    return category;
+  },
 
-  delete: (id: number) =>
-    prisma.category.delete({ where: { id } }),
+  delete: async (id: number) => {
+    const result = await prisma.category.delete({ where: { id } });
+    cache.del(ALL_KEY);
+    return result;
+  },
 
   findArticlesBySlug: (slug: string) =>
     prisma.category.findUnique({

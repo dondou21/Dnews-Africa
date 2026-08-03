@@ -376,7 +376,7 @@ async function main() {
       const seoDescription = excerpt.length > 160 ? excerpt.substring(0, 157) + "..." : excerpt;
 
       try {
-        await seoService.saveSeo("article", created.id, {
+        await seoService.saveSeo("article", created.id!, {
           metaTitle: seoTitle,
           metaDescription: seoDescription,
           focusKeyword: tags[0] || "",

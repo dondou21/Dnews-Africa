@@ -1,11 +1,17 @@
 import prisma from "../utils/prisma";
+import { cache } from "../utils/cache";
+
+const CACHE_TTL = 60 * 1000;
+const ALL_KEY = "tags:all";
 
 export const tagRepository = {
   findAll: () =>
-    prisma.tag.findMany({
-      include: { _count: { select: { articles: true } } },
-      orderBy: { name: "asc" },
-    }),
+    cache.wrap(ALL_KEY, CACHE_TTL, () =>
+      prisma.tag.findMany({
+        include: { _count: { select: { articles: true } } },
+        orderBy: { name: "asc" },
+      })
+    ),
 
   findById: (id: number) =>
     prisma.tag.findUnique({ where: { id } }),
@@ -16,19 +22,28 @@ export const tagRepository = {
   findByName: (name: string) =>
     prisma.tag.findUnique({ where: { name } }),
 
-  create: (data: { name: string; slug: string }) =>
-    prisma.tag.create({
+  create: async (data: { name: string; slug: string }) => {
+    const tag = await prisma.tag.create({
       data,
       include: { _count: { select: { articles: true } } },
-    }),
+    });
+    cache.del(ALL_KEY);
+    return tag;
+  },
 
-  update: (id: number, data: { name?: string; slug?: string }) =>
-    prisma.tag.update({
+  update: async (id: number, data: { name?: string; slug?: string }) => {
+    const tag = await prisma.tag.update({
       where: { id },
       data,
       include: { _count: { select: { articles: true } } },
-    }),
+    });
+    cache.del(ALL_KEY);
+    return tag;
+  },
 
-  delete: (id: number) =>
-    prisma.tag.delete({ where: { id } }),
+  delete: async (id: number) => {
+    const result = await prisma.tag.delete({ where: { id } });
+    cache.del(ALL_KEY);
+    return result;
+  },
 };

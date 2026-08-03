@@ -40,7 +40,7 @@ export const userService = {
     if (!user) {
       throw new AppError("User not found", 404);
     }
-    return stripPassword(user);
+    return user;
   },
 
   async update(id: string, data: Record<string, unknown>, currentUser: AuthenticatedUser) {
