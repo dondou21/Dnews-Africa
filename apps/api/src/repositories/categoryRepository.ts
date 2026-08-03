@@ -2,7 +2,7 @@ import prisma from "../utils/prisma";
 import { Prisma } from "@prisma/client";
 import { cache } from "../utils/cache";
 
-const CACHE_TTL = 60 * 1000;
+const CACHE_TTL = 5 * 60 * 1000;
 const ALL_KEY = "categories:all";
 
 const categoryInclude: Prisma.CategoryInclude = {

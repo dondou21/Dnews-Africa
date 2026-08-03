@@ -1,7 +1,7 @@
 import { dashboardRepository } from "../repositories/dashboardRepository";
 import { cache } from "../utils/cache";
 
-const DASHBOARD_CACHE_TTL = 30_000;
+const DASHBOARD_CACHE_TTL = 60_000;
 
 export const dashboardService = {
   async getStats() {

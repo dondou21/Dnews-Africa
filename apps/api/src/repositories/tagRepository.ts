@@ -1,7 +1,7 @@
 import prisma from "../utils/prisma";
 import { cache } from "../utils/cache";
 
-const CACHE_TTL = 60 * 1000;
+const CACHE_TTL = 5 * 60 * 1000;
 const ALL_KEY = "tags:all";
 
 export const tagRepository = {

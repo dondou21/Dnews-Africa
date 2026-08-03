@@ -2,7 +2,7 @@ import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import { cache } from "../utils/cache";
 
-const MEDIA_CACHE_TTL = 60 * 1000;
+const MEDIA_CACHE_TTL = 5 * 60 * 1000;
 const MEDIA_ALL_KEY = "media:all";
 const MEDIA_ITEM_KEY = (id: string) => `media:${id}`;
 

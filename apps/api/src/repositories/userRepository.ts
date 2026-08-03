@@ -3,7 +3,7 @@ import { cache } from "../utils/cache";
 import { stripPassword } from "../utils/userUtils";
 import type { Prisma } from "@prisma/client";
 
-const USER_TTL = 60 * 1000;
+const USER_TTL = 5 * 60 * 1000;
 const AUTHORS_KEY = "users:authors";
 const ALL_USERS_KEY = "users:all";
 const userKey = (id: string) => `users:${id}`;

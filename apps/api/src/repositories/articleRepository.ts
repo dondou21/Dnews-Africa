@@ -2,7 +2,7 @@ import { Prisma, $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import { cache } from "../utils/cache";
 
-const ARTICLE_CACHE_TTL = 30 * 1000;
+const ARTICLE_CACHE_TTL = 60 * 1000;
 const ARTICLE_CACHE_PREFIX = "articles:";
 
 function articleCacheKey(...parts: (string | number | undefined)[]) {

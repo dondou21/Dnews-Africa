@@ -1,4 +1,5 @@
 import prisma from "../utils/prisma";
+import { cache } from "../utils/cache";
 import { articleNewsletterService } from "./articleNewsletterService";
 import { eventService } from "./eventService";
 
@@ -61,6 +62,8 @@ async function publishDueArticles(): Promise<void> {
           });
 
           console.log(`[scheduler] Published article "${article.title}" (${article.slug})`);
+          cache.clearPrefix("articles:");
+          cache.del("dashboard:stats");
           articleNewsletterService.sendArticleNewsletter(article.id).catch((err) => {
             console.error(`[scheduler] Failed to send newsletter for article ${article.id}:`, err);
           });
