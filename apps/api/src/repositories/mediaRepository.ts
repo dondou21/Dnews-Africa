@@ -1,5 +1,10 @@
 import { $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
+import { cache } from "../utils/cache";
+
+const MEDIA_CACHE_TTL = 60 * 1000;
+const MEDIA_ALL_KEY = "media:all";
+const MEDIA_ITEM_KEY = (id: string) => `media:${id}`;
 
 export const mediaRepository = {
   create: (data: {
@@ -16,8 +21,9 @@ export const mediaRepository = {
     storageProvider?: string;
     publicId?: string;
     uploadedById: string;
-  }) =>
-    prisma.media.create({
+  }) => {
+    cache.del(MEDIA_ALL_KEY);
+    return prisma.media.create({
       data: {
         url: data.url,
         alt: data.alt,
@@ -33,28 +39,36 @@ export const mediaRepository = {
         publicId: data.publicId,
         uploadedById: data.uploadedById,
       },
-    }),
+    });
+  },
 
   findAll: () =>
-    prisma.media.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        uploadedBy: {
-          select: { id: true, firstName: true, lastName: true },
+    cache.wrap(MEDIA_ALL_KEY, MEDIA_CACHE_TTL, () =>
+      prisma.media.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          uploadedBy: {
+            select: { id: true, firstName: true, lastName: true },
+          },
         },
-      },
-    }),
+      })
+    ),
 
   findById: (id: string) =>
-    prisma.media.findUnique({
-      where: { id },
-      include: {
-        uploadedBy: {
-          select: { id: true, firstName: true, lastName: true },
+    cache.wrap(MEDIA_ITEM_KEY(id), MEDIA_CACHE_TTL, () =>
+      prisma.media.findUnique({
+        where: { id },
+        include: {
+          uploadedBy: {
+            select: { id: true, firstName: true, lastName: true },
+          },
         },
-      },
-    }),
+      })
+    ),
 
-  delete: (id: string) =>
-    prisma.media.delete({ where: { id } }),
+  delete: (id: string) => {
+    cache.del(MEDIA_ALL_KEY);
+    cache.del(MEDIA_ITEM_KEY(id));
+    return prisma.media.delete({ where: { id } });
+  },
 };

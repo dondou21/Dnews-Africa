@@ -1,5 +1,18 @@
 import { Prisma, $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
+import { cache } from "../utils/cache";
+
+const ARTICLE_CACHE_TTL = 30 * 1000;
+const ARTICLE_CACHE_PREFIX = "articles:";
+
+function articleCacheKey(...parts: (string | number | undefined)[]) {
+  return `${ARTICLE_CACHE_PREFIX}${parts.join(":")}`;
+}
+
+function invalidateArticlesCache() {
+  cache.clearPrefix(ARTICLE_CACHE_PREFIX);
+  cache.del("dashboard:stats");
+}
 
 const articleInclude = {
   category: { select: { id: true, name: true, slug: true, parentId: true, parent: { select: { id: true, name: true, slug: true } } } },
@@ -103,63 +116,69 @@ function mapTagSlugsToIds(slugs: string[]) {
 
 export const articleRepository = {
   async findAllPublished(params: ArticleQueryParams) {
-    const where: Prisma.ArticleWhereInput = { status: "PUBLISHED" };
+    return cache.wrap(
+      articleCacheKey("published", JSON.stringify(params)),
+      ARTICLE_CACHE_TTL,
+      async () => {
+        const where: Prisma.ArticleWhereInput = { status: "PUBLISHED" };
 
-    if (params.category) {
-      const cat = await prisma.category.findUnique({
-        where: { slug: params.category },
-        include: { children: { select: { slug: true } } },
-      });
-      if (cat) {
-        const slugs = [cat.slug, ...cat.children.map((c) => c.slug)];
-        where.category = { slug: { in: slugs } };
-      } else {
-        where.category = { slug: params.category };
+        if (params.category) {
+          const cat = await prisma.category.findUnique({
+            where: { slug: params.category },
+            include: { children: { select: { slug: true } } },
+          });
+          if (cat) {
+            const slugs = [cat.slug, ...cat.children.map((c) => c.slug)];
+            where.category = { slug: { in: slugs } };
+          } else {
+            where.category = { slug: params.category };
+          }
+        }
+
+        if (params.tag) {
+          where.tags = { some: { tag: { slug: params.tag } } };
+        }
+
+        if (params.search) {
+          where.OR = [
+            { title: { contains: params.search, mode: "insensitive" } },
+            { summary: { contains: params.search, mode: "insensitive" } },
+          ];
+        }
+
+        const orderBy: Prisma.ArticleOrderByWithRelationInput[] =
+          params.sort === "oldest"
+            ? [{ publishedAt: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }]
+            : params.sort === "title_asc"
+              ? [{ title: "asc" }]
+              : params.sort === "title_desc"
+                ? [{ title: "desc" }]
+                : [{ publishedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }];
+
+        const skip = (params.page - 1) * params.limit;
+
+        const [articles, total] = await Promise.all([
+          prisma.article.findMany({
+            where,
+            orderBy,
+            skip,
+            take: params.limit,
+            include: articleInclude,
+          }),
+          prisma.article.count({ where }),
+        ]);
+
+        return {
+          articles,
+          pagination: {
+            page: params.page,
+            limit: params.limit,
+            total,
+            totalPages: Math.ceil(total / params.limit),
+          },
+        };
       }
-    }
-
-    if (params.tag) {
-      where.tags = { some: { tag: { slug: params.tag } } };
-    }
-
-    if (params.search) {
-      where.OR = [
-        { title: { contains: params.search, mode: "insensitive" } },
-        { summary: { contains: params.search, mode: "insensitive" } },
-      ];
-    }
-
-    const orderBy: Prisma.ArticleOrderByWithRelationInput[] =
-      params.sort === "oldest"
-        ? [{ publishedAt: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }]
-        : params.sort === "title_asc"
-          ? [{ title: "asc" }]
-          : params.sort === "title_desc"
-            ? [{ title: "desc" }]
-            : [{ publishedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }];
-
-    const skip = (params.page - 1) * params.limit;
-
-    const [articles, total] = await Promise.all([
-      prisma.article.findMany({
-        where,
-        orderBy,
-        skip,
-        take: params.limit,
-        include: articleInclude,
-      }),
-      prisma.article.count({ where }),
-    ]);
-
-    return {
-      articles,
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        totalPages: Math.ceil(total / params.limit),
-      },
-    };
+    );
   },
 
   async findPublishedBySlug(slug: string) {
@@ -181,9 +200,13 @@ export const articleRepository = {
   },
 
   async findAllAdmin(params: ArticleQueryParams & { status?: string }) {
-    const where: Prisma.ArticleWhereInput = {};
+    return cache.wrap(
+      articleCacheKey("admin", JSON.stringify(params)),
+      ARTICLE_CACHE_TTL,
+      async () => {
+        const where: Prisma.ArticleWhereInput = {};
 
-    if (params.status && params.status !== "ALL") {
+        if (params.status && params.status !== "ALL") {
       where.status = params.status as $Enums.ArticleStatus;
     }
 
@@ -229,6 +252,7 @@ export const articleRepository = {
         totalPages: Math.ceil(total / params.limit),
       },
     };
+      });
   },
 
   async findById(id: string) {
@@ -243,54 +267,60 @@ export const articleRepository = {
   },
 
   async findAllByAuthor(authorId: string, params: ArticleQueryParams & { status?: string }) {
-    const where: Prisma.ArticleWhereInput = { authorId };
+    return cache.wrap(
+      articleCacheKey("author", authorId, JSON.stringify(params)),
+      ARTICLE_CACHE_TTL,
+      async () => {
+        const where: Prisma.ArticleWhereInput = { authorId };
 
-    if (params.status && params.status !== "ALL") {
-      where.status = params.status as $Enums.ArticleStatus;
-    }
+        if (params.status && params.status !== "ALL") {
+          where.status = params.status as $Enums.ArticleStatus;
+        }
 
-    if (params.categoryId) {
-      where.categoryId = params.categoryId;
-    }
+        if (params.categoryId) {
+          where.categoryId = params.categoryId;
+        }
 
-    if (params.search) {
-      where.OR = [
-        { title: { contains: params.search, mode: "insensitive" } },
-        { summary: { contains: params.search, mode: "insensitive" } },
-      ];
-    }
+        if (params.search) {
+          where.OR = [
+            { title: { contains: params.search, mode: "insensitive" } },
+            { summary: { contains: params.search, mode: "insensitive" } },
+          ];
+        }
 
-    const orderBy: Prisma.ArticleOrderByWithRelationInput[] =
-      params.sort === "oldest"
-        ? [{ createdAt: "asc" }, { publishedAt: { sort: "asc", nulls: "last" } }]
-        : params.sort === "title_asc"
-          ? [{ title: "asc" }]
-          : params.sort === "title_desc"
-            ? [{ title: "desc" }]
-            : [{ createdAt: "desc" }, { publishedAt: { sort: "desc", nulls: "last" } }];
+        const orderBy: Prisma.ArticleOrderByWithRelationInput[] =
+          params.sort === "oldest"
+            ? [{ createdAt: "asc" }, { publishedAt: { sort: "asc", nulls: "last" } }]
+            : params.sort === "title_asc"
+              ? [{ title: "asc" }]
+              : params.sort === "title_desc"
+                ? [{ title: "desc" }]
+                : [{ createdAt: "desc" }, { publishedAt: { sort: "desc", nulls: "last" } }];
 
-    const skip = (params.page - 1) * params.limit;
+        const skip = (params.page - 1) * params.limit;
 
-    const [articles, total] = await Promise.all([
-      prisma.article.findMany({
-        where,
-        orderBy,
-        skip,
-        take: params.limit,
-        include: articleInclude,
-      }),
-      prisma.article.count({ where }),
-    ]);
+        const [articles, total] = await Promise.all([
+          prisma.article.findMany({
+            where,
+            orderBy,
+            skip,
+            take: params.limit,
+            include: articleInclude,
+          }),
+          prisma.article.count({ where }),
+        ]);
 
-    return {
-      articles,
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        totalPages: Math.ceil(total / params.limit),
-      },
-    };
+        return {
+          articles,
+          pagination: {
+            page: params.page,
+            limit: params.limit,
+            total,
+            totalPages: Math.ceil(total / params.limit),
+          },
+        };
+      }
+    );
   },
 
   async findFeatured() {
@@ -364,6 +394,9 @@ export const articleRepository = {
           : undefined,
       },
       include: articleInclude,
+    }).then((article) => {
+      invalidateArticlesCache();
+      return article;
     });
   },
 
@@ -403,10 +436,16 @@ export const articleRepository = {
         scheduledAt,
       },
       include: articleInclude,
+    }).then((article) => {
+      invalidateArticlesCache();
+      return article;
     });
   },
 
   async delete(id: string) {
-    return prisma.article.delete({ where: { id } });
+    return prisma.article.delete({ where: { id } }).then((article) => {
+      invalidateArticlesCache();
+      return article;
+    });
   },
 };

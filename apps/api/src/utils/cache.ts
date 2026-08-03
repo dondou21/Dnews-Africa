@@ -24,6 +24,12 @@ function del(key: string): void {
   store.delete(key);
 }
 
+function clearPrefix(prefix: string): void {
+  for (const key of store.keys()) {
+    if (key.startsWith(prefix)) store.delete(key);
+  }
+}
+
 async function wrap<T>(key: string, ttlMs: number, loader: () => Promise<T>): Promise<T> {
   const cached = get<T>(key);
   if (cached !== undefined) return cached;
@@ -31,4 +37,4 @@ async function wrap<T>(key: string, ttlMs: number, loader: () => Promise<T>): Pr
   return set(key, value, ttlMs);
 }
 
-export const cache = { get, set, del, wrap, clear: () => store.clear() };
+export const cache = { get, set, del, wrap, clearPrefix, clear: () => store.clear() };

@@ -5,6 +5,7 @@ import type { Prisma } from "@prisma/client";
 
 const USER_TTL = 60 * 1000;
 const AUTHORS_KEY = "users:authors";
+const ALL_USERS_KEY = "users:all";
 const userKey = (id: string) => `users:${id}`;
 
 export type PublicUser = Omit<Prisma.UserGetPayload<{ include: { role: true } }>, "passwordHash">;
@@ -54,15 +55,18 @@ export const userRepository = {
       include: { role: true },
     });
     cache.del(AUTHORS_KEY);
+    cache.del(ALL_USERS_KEY);
     cache.del(userKey(user.id));
     return user;
   },
 
   findAll: () =>
-    prisma.user.findMany({
-      include: { role: true },
-      orderBy: { createdAt: "desc" },
-    }),
+    cache.wrap(ALL_USERS_KEY, USER_TTL, () =>
+      prisma.user.findMany({
+        include: { role: true },
+        orderBy: { createdAt: "desc" },
+      })
+    ),
 
   update: async (id: string, data: Record<string, unknown>) => {
     const user = await prisma.user.update({
@@ -71,6 +75,7 @@ export const userRepository = {
       include: { role: true },
     });
     cache.del(AUTHORS_KEY);
+    cache.del(ALL_USERS_KEY);
     cache.del(userKey(id));
     return user;
   },
@@ -78,6 +83,7 @@ export const userRepository = {
   delete: async (id: string) => {
     const result = await prisma.user.delete({ where: { id } });
     cache.del(AUTHORS_KEY);
+    cache.del(ALL_USERS_KEY);
     cache.del(userKey(id));
     return result;
   },
