@@ -12,8 +12,18 @@ export default function CategorySelect({ categories, loading, value, onChange, r
   const parents = categories.filter((c) => c.parentId == null).sort((a, b) => a.name.localeCompare(b.name));
   const subcategories = categories.filter((c) => c.parentId != null);
 
-  const selectedCat = categories.find((c) => c.id === value);
-  const selectedParentId = selectedCat?.parentId ?? null;
+  const selectedCat = categories.find((c) => c.id === value) ?? null;
+  const hasSelection = selectedCat != null;
+
+  // A selected subcategory is shown under its parent; a selected top-level
+  // category is shown directly in the category dropdown.
+  const isSubcategory = hasSelection && selectedCat.parentId != null;
+  const selectedParentId = isSubcategory
+    ? selectedCat.parentId
+    : hasSelection
+      ? selectedCat.id
+      : null;
+
   const selectedChildren = selectedParentId != null
     ? subcategories.filter((c) => c.parentId === selectedParentId).sort((a, b) => a.name.localeCompare(b.name))
     : [];
@@ -25,12 +35,10 @@ export default function CategorySelect({ categories, loading, value, onChange, r
           Category <span className="text-dnews-red">*</span>
         </label>
         <select
-          value={selectedParentId ?? ""}
+          value={hasSelection ? (selectedParentId ?? "") : ""}
           onChange={(e) => {
             const parentId = e.target.value ? Number(e.target.value) : null;
-            if (parentId == null) {
-              onChange(0);
-            } else {
+            if (parentId != null) {
               onChange(parentId);
             }
           }}
@@ -52,20 +60,20 @@ export default function CategorySelect({ categories, loading, value, onChange, r
           Subcategory
         </label>
         <select
-          value={selectedParentId != null && selectedCat?.parentId != null ? value : ""}
+          value={isSubcategory ? selectedCat.id : ""}
           onChange={(e) => {
-            const subId = e.target.value ? Number(e.target.value) : 0;
-            if (subId) {
+            const subId = e.target.value ? Number(e.target.value) : null;
+            if (subId != null) {
               onChange(subId);
             } else if (selectedParentId != null) {
               onChange(selectedParentId);
             }
           }}
-          disabled={selectedParentId == null || selectedChildren.length === 0}
+          disabled={!hasSelection || selectedChildren.length === 0}
           className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent disabled:cursor-not-allowed disabled:opacity-50"
         >
           <option value="">
-            {selectedParentId == null
+            {!hasSelection
               ? "Select a category first"
               : selectedChildren.length === 0
                 ? "No subcategories available"
@@ -77,7 +85,7 @@ export default function CategorySelect({ categories, loading, value, onChange, r
             </option>
           ))}
         </select>
-        {selectedParentId != null && selectedChildren.length > 0 && (
+        {hasSelection && selectedChildren.length > 0 && (
           <p className="mt-1 text-[11px] text-dnews-muted">
             Select a subcategory or leave as &quot;No subcategory&quot; to use the parent category only.
           </p>
