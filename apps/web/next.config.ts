@@ -1,6 +1,8 @@
 import path from "path";
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, "../.."),
   images: {
@@ -18,10 +20,21 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
         port: "4000",
       },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "4000",
+      },
+      {
+        protocol: "http",
+        hostname: "::1",
+        port: "4000",
+      },
     ],
     formats: ["image/webp", "image/avif"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    unoptimized: isDev,
   },
   experimental: {
     staleTimes: { dynamic: 0, static: 30 },

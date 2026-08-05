@@ -50,6 +50,11 @@ export const articleService = {
     return formatArticle(article);
   },
 
+  async getHero() {
+    const article = await articleRepository.findHeroArticle();
+    return article ? formatArticle(article) : null;
+  },
+
   async getFeatured() {
     const articles = await articleRepository.findFeatured();
     return formatArticleList(articles);

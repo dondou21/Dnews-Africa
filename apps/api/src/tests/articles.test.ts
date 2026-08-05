@@ -97,6 +97,65 @@ describe("GET /api/v1/public/articles/latest", () => {
   });
 });
 
+describe("GET /api/v1/public/articles/hero", () => {
+  it("should select the newest published featured article as hero", async () => {
+    const olderFeatured = {
+      title: "Older Featured Hero",
+      slug: "older-featured-hero",
+      summary: "Older featured hero",
+      content: "Older featured hero content",
+      categoryId: 1,
+      status: "PUBLISHED",
+      isFeatured: true,
+      publishedAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+    };
+    const newerFeatured = {
+      title: "Newest Featured Hero",
+      slug: "newest-featured-hero",
+      summary: "Newest featured hero",
+      content: "Newest featured hero content",
+      categoryId: 1,
+      status: "PUBLISHED",
+      isFeatured: true,
+      publishedAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+    };
+    const newestNonFeatured = {
+      title: "Newest Non Featured Hero",
+      slug: "newest-non-featured-hero",
+      summary: "Newest non-featured hero",
+      content: "Newest non-featured hero content",
+      categoryId: 1,
+      status: "PUBLISHED",
+      isFeatured: false,
+      publishedAt: new Date(Date.now() - 1000 * 60).toISOString(),
+    };
+
+    await request(app)
+      .post("/api/v1/cms/articles")
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send(olderFeatured);
+    await request(app)
+      .post("/api/v1/cms/articles")
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send(newerFeatured);
+    await request(app)
+      .post("/api/v1/cms/articles")
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send(newestNonFeatured);
+
+    const res = await request(app).get("/api/v1/public/articles/hero");
+    expect(res.status).toBe(200);
+    expect(res.body.data.slug).toBe("newest-featured-hero");
+  });
+
+  it("should fall back to the newest published article when no featured article exists", async () => {
+    const res = await request(app).get("/api/v1/public/articles/hero");
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+    expect(res.body.data.isFeatured).toBe(false);
+  });
+});
+
 describe("GET /api/v1/public/articles/:slug", () => {
   it("should return article by slug", async () => {
     const res = await request(app).get("/api/v1/public/articles/published-article");

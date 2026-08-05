@@ -68,20 +68,20 @@ function buildCategorySlugMap(categories: CategoryWithCount[]): Record<string, S
 
 function useApiArticles() {
   const [allArticles, setAllArticles] = useState<ArticleItem[]>([]);
-  const [featuredArticles, setFeaturedArticles] = useState<ArticleItem[]>([]);
+  const [heroArticleFromApi, setHeroArticleFromApi] = useState<ArticleItem | null>(null);
   const [trending, setTrending] = useState<ArticleItem[]>([]);
   const [categorySlugMap, setCategorySlugMap] = useState<Record<string, Set<string>>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
-      const [allRes, featuredRes, cats] = await Promise.all([
+      const [allRes, heroRes, cats] = await Promise.all([
         get<ApiResponse>("/articles?limit=30"),
-        get<ArticleItem[]>("/articles/featured"),
+        get<ArticleItem | null>("/articles/hero"),
         get<CategoryWithCount[]>("/categories"),
       ]);
       setAllArticles(allRes.articles || []);
-      setFeaturedArticles(featuredRes || []);
+      setHeroArticleFromApi(heroRes || null);
       setCategorySlugMap(buildCategorySlugMap(cats));
       const latest = allRes.articles || [];
       setTrending(latest.filter((a) => a.isFeatured || a.featuredImage).slice(0, 5));
@@ -111,7 +111,7 @@ function useApiArticles() {
     return allArticles.filter((a) => allowed.has(a.category?.slug) && !exclude.has(a.slug)).slice(0, 3);
   }
 
-  const heroArticle = featuredArticles.length > 0 ? featuredArticles[0] : (allArticles.length > 0 ? allArticles[0] : null);
+  const heroArticle = heroArticleFromApi || (allArticles.length > 0 ? allArticles[0] : null);
   const usedSlugs = new Set(heroArticle ? [heroArticle.slug] : []);
 
   const secondaryArticles = allArticles.filter((a) => !usedSlugs.has(a.slug)).slice(0, 2);

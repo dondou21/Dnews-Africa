@@ -5,6 +5,7 @@ import { commentController } from "../../../controllers/commentController";
 const router = Router();
 
 router.get("/", articleController.getAll);
+router.get("/hero", articleController.getHero);
 router.get("/featured", articleController.getFeatured);
 router.get("/latest", articleController.getLatest);
 router.get("/:slug", articleController.getBySlug);

@@ -323,10 +323,28 @@ export const articleRepository = {
     );
   },
 
+  async findHeroArticle() {
+    const featuredArticle = await prisma.article.findFirst({
+      where: { status: "PUBLISHED", isFeatured: true, publishedAt: { not: null } },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      include: articleInclude,
+    });
+
+    if (featuredArticle) {
+      return featuredArticle;
+    }
+
+    return prisma.article.findFirst({
+      where: { status: "PUBLISHED", publishedAt: { not: null } },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      include: articleInclude,
+    });
+  },
+
   async findFeatured() {
     return prisma.article.findMany({
-      where: { status: "PUBLISHED", isFeatured: true },
-      orderBy: { publishedAt: "desc" },
+      where: { status: "PUBLISHED", isFeatured: true, publishedAt: { not: null } },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
       take: 10,
       include: articleInclude,
     });

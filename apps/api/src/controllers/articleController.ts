@@ -44,6 +44,11 @@ export const articleController = {
     res.json({ status: "success", data: article });
   }),
 
+  getHero: asyncHandler(async (_req: Request, res: Response) => {
+    const article = await articleService.getHero();
+    res.json({ status: "success", data: article });
+  }),
+
   getFeatured: asyncHandler(async (_req: Request, res: Response) => {
     const articles = await articleService.getFeatured();
     res.json({ status: "success", data: articles });
