@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, type FormEvent } from "react";
 import { Search, Globe, AtSign, Share2, Code } from "lucide-react";
 import SeoAnalyzer from "./SeoAnalyzer";
 import SocialPreview from "./SocialPreview";
+import ExpandableTextarea from "@/components/dashboard/ExpandableTextarea";
 import { post } from "@dnews/api-client";
 import type { SeoMetadata, SeoAnalysisResult } from "@dnews/types";
 
@@ -57,20 +58,26 @@ export default function SeoMetadataForm({ metadata, articleTitle, articleContent
     return () => clearTimeout(timer);
   }, [runAnalysis]);
 
+  const buildPayload = (): Record<string, unknown> => ({
+    metaTitle: metaTitle || null,
+    metaDescription: metaDescription || null,
+    focusKeyword: focusKeyword || null,
+    canonicalUrl: canonicalUrl || null,
+    robots: robots || null,
+    ogTitle: ogTitle || null,
+    ogDescription: ogDescription || null,
+    twitterTitle: twitterTitle || null,
+    twitterDescription: twitterDescription || null,
+    schemaType: schemaType || null,
+  });
+
+  const saveMetadata = async () => {
+    await onSave(buildPayload());
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await onSave({
-      metaTitle: metaTitle || null,
-      metaDescription: metaDescription || null,
-      focusKeyword: focusKeyword || null,
-      canonicalUrl: canonicalUrl || null,
-      robots: robots || null,
-      ogTitle: ogTitle || null,
-      ogDescription: ogDescription || null,
-      twitterTitle: twitterTitle || null,
-      twitterDescription: twitterDescription || null,
-      schemaType: schemaType || null,
-    });
+    await saveMetadata();
   };
 
   return (
@@ -106,8 +113,7 @@ export default function SeoMetadataForm({ metadata, articleTitle, articleContent
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Meta Description</label>
-                <textarea value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} maxLength={160} rows={2} disabled={readOnly}
-                  className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none focus:border-dnews-accent" placeholder="Brief description for search results" />
+                <ExpandableTextarea value={metaDescription} onChange={setMetaDescription} maxLength={160} rows={2} disabled={readOnly} placeholder="Brief description for search results" onSave={readOnly ? undefined : saveMetadata} saveLabel="Save SEO Metadata" />
                 <p className="mt-1 text-xs text-dnews-muted">{metaDescription.length}/160 characters</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -150,8 +156,7 @@ export default function SeoMetadataForm({ metadata, articleTitle, articleContent
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">OG Description</label>
-                <textarea value={ogDescription} onChange={(e) => setOgDescription(e.target.value)} maxLength={200} rows={2} disabled={readOnly}
-                  className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none focus:border-dnews-accent" placeholder={metaDescription || "Open Graph description"} />
+                <ExpandableTextarea value={ogDescription} onChange={setOgDescription} maxLength={200} rows={2} disabled={readOnly} placeholder={metaDescription || "Open Graph description"} onSave={readOnly ? undefined : saveMetadata} saveLabel="Save SEO Metadata" />
               </div>
               <hr className="border-dnews-border" />
               <h4 className="text-xs font-semibold uppercase tracking-wider text-dnews-gray">
@@ -164,8 +169,7 @@ export default function SeoMetadataForm({ metadata, articleTitle, articleContent
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">Twitter Description</label>
-                <textarea value={twitterDescription} onChange={(e) => setTwitterDescription(e.target.value)} maxLength={200} rows={2} disabled={readOnly}
-                  className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2 text-sm text-dnews-dark outline-none focus:border-dnews-accent" placeholder={ogDescription || metaDescription || "Twitter description"} />
+                <ExpandableTextarea value={twitterDescription} onChange={setTwitterDescription} maxLength={200} rows={2} disabled={readOnly} placeholder={ogDescription || metaDescription || "Twitter description"} onSave={readOnly ? undefined : saveMetadata} saveLabel="Save SEO Metadata" />
               </div>
             </div>
           )}

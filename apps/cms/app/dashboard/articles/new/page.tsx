@@ -11,6 +11,7 @@ import FeaturedImageEditor from "@/components/dashboard/FeaturedImageEditor";
 import CategorySelect from "@/components/dashboard/CategorySelect";
 import PublishingPanel from "@/components/dashboard/PublishingPanel";
 import ArticleBlockEditor from "@/components/dashboard/BlockEditor";
+import ExpandableTextarea from "@/components/dashboard/ExpandableTextarea";
 import AuthorSelector from "@/components/dashboard/AuthorSelector";
 import type { Category } from "@dnews/types";
 
@@ -210,13 +211,12 @@ function NewArticleForm() {
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
                     Summary / Excerpt <span className="text-dnews-red">*</span>
                   </label>
-                  <textarea
+                  <ExpandableTextarea
                     value={summary}
-                    onChange={(e) => setSummary(e.target.value)}
+                    onChange={setSummary}
                     placeholder="Brief summary of the article"
                     required
                     rows={3}
-                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
                   />
                 </div>
 

@@ -12,6 +12,7 @@ import FeaturedImageEditor from "@/components/dashboard/FeaturedImageEditor";
 import CategorySelect from "@/components/dashboard/CategorySelect";
 import PublishingPanel from "@/components/dashboard/PublishingPanel";
 import ArticleBlockEditor from "@/components/dashboard/BlockEditor";
+import ExpandableTextarea from "@/components/dashboard/ExpandableTextarea";
 import AuthorSelector from "@/components/dashboard/AuthorSelector";
 import SeoMetadataForm from "@/components/seo/SeoMetadataForm";
 import type { Article, Category } from "@dnews/types";
@@ -337,13 +338,12 @@ function EditArticleForm() {
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
                     Summary / Excerpt <span className="text-dnews-red">*</span>
                   </label>
-                  <textarea
+                  <ExpandableTextarea
                     value={summary}
-                    onChange={(e) => setSummary(e.target.value)}
+                    onChange={setSummary}
                     required
                     rows={3}
                     disabled={!canEdit}
-                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent disabled:opacity-50"
                   />
                 </div>
 

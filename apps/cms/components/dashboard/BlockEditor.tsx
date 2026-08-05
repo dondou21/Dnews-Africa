@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { AlertTriangle, ArrowLeftRight, TextSelect, Pilcrow } from "lucide-react";
+import { AlertTriangle, ArrowLeftRight, TextSelect, Pilcrow, Maximize2 } from "lucide-react";
 import type { ContentBlock } from "@dnews/types";
 import {
   deserializeContent, serializeContent, isContentBlocks,
@@ -9,6 +9,7 @@ import {
 } from "@dnews/types";
 import BlocksEditor from "./blocks/BlockEditor";
 import RichTextEditor, { isRichTextContent } from "./RichTextEditor";
+import FullScreenEditor from "./FullScreenEditor";
 
 type EditorMode = "blocks" | "richtext" | "plain";
 
@@ -42,6 +43,7 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
     return content;
   });
   const [warnings, setWarnings] = useState<{ mode: EditorMode; messages: string[] } | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const warningsTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const showTemporaryWarnings = useCallback((targetMode: EditorMode, messages: string[]) => {
@@ -132,45 +134,71 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
     plain: <ArrowLeftRight size={12} />,
   };
 
+  const renderModeEditor = (fullscreen: boolean) => {
+    if (mode === "blocks") {
+      return <BlocksEditor blocks={blocks} onChange={handleBlocksChange} />;
+    }
+    if (mode === "richtext") {
+      return <RichTextEditor content={richHtml} onChange={handleRichTextChange} />;
+    }
+    return (
+      <textarea
+        value={plainText}
+        onChange={(e) => handlePlainTextChange(e.target.value)}
+        placeholder="Article body content..."
+        required
+        rows={fullscreen ? undefined : 12}
+        className={`w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent font-mono ${
+          fullscreen ? "h-full min-h-[70vh] resize-none" : ""
+        }`}
+      />
+    );
+  };
+
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-dnews-gray">
           {MODE_LABELS[mode]} <span className="text-dnews-red">*</span>
         </label>
-        <button
-          type="button"
-          onClick={cycleMode}
-          className="flex items-center gap-1 rounded-sm border border-dnews-border px-2 py-1 text-[10px] font-medium text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
-        >
-          {modeIcons[mode]}
-          Switch to{" "}
-          {mode === "richtext"
-            ? "Block Editor"
-            : mode === "blocks"
-              ? "Plain Text"
-              : "Rich Text"}
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            title="Edit in full screen (Ctrl/Cmd + S to save, Esc to close)"
+            className="flex items-center gap-1 rounded-sm border border-dnews-border px-2 py-1 text-[10px] font-medium text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+          >
+            <Maximize2 size={12} />
+            Full screen
+          </button>
+          <button
+            type="button"
+            onClick={cycleMode}
+            className="flex items-center gap-1 rounded-sm border border-dnews-border px-2 py-1 text-[10px] font-medium text-dnews-muted transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent"
+          >
+            {modeIcons[mode]}
+            Switch to{" "}
+            {mode === "richtext"
+              ? "Block Editor"
+              : mode === "blocks"
+                ? "Plain Text"
+                : "Rich Text"}
+          </button>
+        </div>
       </div>
 
       {warningsBanner}
 
-      {mode === "blocks" && (
-        <BlocksEditor blocks={blocks} onChange={handleBlocksChange} />
-      )}
-      {mode === "richtext" && (
-        <RichTextEditor content={richHtml} onChange={handleRichTextChange} />
-      )}
-      {mode === "plain" && (
-        <textarea
-          value={plainText}
-          onChange={(e) => handlePlainTextChange(e.target.value)}
-          placeholder="Article body content..."
-          required
-          rows={12}
-          className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent font-mono"
-        />
-      )}
+      {renderModeEditor(false)}
+
+      <FullScreenEditor
+        open={expanded}
+        title="Content Editor"
+        onClose={() => setExpanded(false)}
+        onSave={() => setExpanded(false)}
+      >
+        {renderModeEditor(true)}
+      </FullScreenEditor>
     </div>
   );
 }
