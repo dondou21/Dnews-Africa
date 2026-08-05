@@ -111,7 +111,8 @@ function useApiArticles() {
     return allArticles.filter((a) => allowed.has(a.category?.slug) && !exclude.has(a.slug)).slice(0, 3);
   }
 
-  const heroArticle = heroArticleFromApi || (allArticles.length > 0 ? allArticles[0] : null);
+  const fallbackHeroArticle = allArticles.length > 0 ? allArticles[0] : null;
+  const heroArticle = heroArticleFromApi ?? fallbackHeroArticle;
   const usedSlugs = new Set(heroArticle ? [heroArticle.slug] : []);
 
   const secondaryArticles = allArticles.filter((a) => !usedSlugs.has(a.slug)).slice(0, 2);
