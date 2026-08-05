@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import SponsorsBar from "@/components/layout/SponsorsBar";
 import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -16,6 +17,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <>
       {isArticlePage && <ReadingProgressBar />}
+      <SponsorsBar />
       <Header />
       <Navbar />
       {!isHomepage && !isArticlePage && <Breadcrumbs />}

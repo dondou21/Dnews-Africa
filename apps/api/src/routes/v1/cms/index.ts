@@ -22,6 +22,7 @@ import automationsRouter from "./automations";
 import trackingRouter from "./tracking";
 import reportsRouter from "./reports";
 import settingsRouter from "./settings";
+import sponsorsRouter from "./sponsors";
 
 const router = Router();
 
@@ -48,5 +49,6 @@ router.use("/newsletter/automations", automationsRouter);
 router.use("/tracking", trackingRouter);
 router.use("/newsletter/reports", reportsRouter);
 router.use("/newsletter/settings", settingsRouter);
+router.use("/sponsors", sponsorsRouter);
 
 export default router;

@@ -8,6 +8,7 @@ import contactRouter from "./contact";
 import newsletterRouter from "./newsletter";
 import commentsRouter from "./comments";
 import eventsRouter from "./events";
+import sponsorsRouter from "./sponsors";
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use("/contact", contactRouter);
 router.use("/newsletter", newsletterRouter);
 router.use("/comments", commentsRouter);
 router.use("/events", eventsRouter);
+router.use("/sponsors", sponsorsRouter);
 
 export default router;

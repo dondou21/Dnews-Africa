@@ -798,6 +798,43 @@ export interface AdvertisersResponse {
   pagination: { page: number; limit: number; total: number; totalPages: number };
 }
 
+// ============================================================
+// Sponsor Types
+// ============================================================
+
+export interface Sponsor {
+  id: string;
+  name: string;
+  logoUrl: string;
+  websiteUrl: string;
+  altText: string | null;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSponsorInput {
+  name: string;
+  logoUrl: string;
+  websiteUrl: string;
+  altText?: string | null;
+  displayOrder?: number;
+  isActive?: boolean;
+}
+
+export interface UpdateSponsorInput extends Partial<CreateSponsorInput> {}
+
+export interface SponsorsResponse {
+  sponsors: Sponsor[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export interface AdCampaignsResponse {
   campaigns: AdCampaign[];
   pagination: { page: number; limit: number; total: number; totalPages: number };

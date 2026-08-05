@@ -143,6 +143,37 @@ async function main() {
     }
   }
 
+  const sponsors = [
+    { name: "EcoBank Africa", logoUrl: "https://placehold.co/140x44/e8eaf0/1e3a5f?text=Ecobank", websiteUrl: "https://www.ecobank.com", altText: "Ecobank Africa", displayOrder: 1 },
+    { name: "MTN Group", logoUrl: "https://placehold.co/140x44/e8eaf0/1e3a5f?text=MTN", websiteUrl: "https://www.mtn.com", altText: "MTN Group", displayOrder: 2 },
+    { name: "Afreximbank", logoUrl: "https://placehold.co/140x44/e8eaf0/1e3a5f?text=Afreximbank", websiteUrl: "https://www.afreximbank.com", altText: "Afreximbank", displayOrder: 3 },
+    { name: "Dangote Group", logoUrl: "https://placehold.co/140x44/e8eaf0/1e3a5f?text=Dangote", websiteUrl: "https://www.dangote.com", altText: "Dangote Group", displayOrder: 4 },
+    { name: "Safaricom", logoUrl: "https://placehold.co/140x44/e8eaf0/1e3a5f?text=Safaricom", websiteUrl: "https://www.safaricom.co.ke", altText: "Safaricom", displayOrder: 5 },
+  ];
+
+  for (const sponsor of sponsors) {
+    await prisma.sponsor.upsert({
+      where: { id: `seed-${sponsor.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}` },
+      update: {
+        name: sponsor.name,
+        logoUrl: sponsor.logoUrl,
+        websiteUrl: sponsor.websiteUrl,
+        altText: sponsor.altText,
+        displayOrder: sponsor.displayOrder,
+        isActive: true,
+      },
+      create: {
+        id: `seed-${sponsor.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        name: sponsor.name,
+        logoUrl: sponsor.logoUrl,
+        websiteUrl: sponsor.websiteUrl,
+        altText: sponsor.altText,
+        displayOrder: sponsor.displayOrder,
+        isActive: true,
+      },
+    });
+  }
+
   const articleCount = await prisma.article.count();
 
   console.log("\n=== Dnews Africa Development Credentials ===\n");
