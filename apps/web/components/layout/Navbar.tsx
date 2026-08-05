@@ -105,6 +105,14 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    label: "Campaigns",
+    href: "/campaigns",
+    children: [
+      { label: "Campaigns", href: "/campaigns" },
+      { label: "Subscriptions", href: "/subscriptions" },
+    ],
+  },
+  {
     label: "About Us",
     href: "/about",
     children: [
@@ -129,18 +137,20 @@ export default function Navbar() {
               <li key={item.label} className="group relative">
                 <Link
                   href={item.href ?? "#"}
-                  className="inline-flex items-center gap-1 whitespace-nowrap px-3 py-2.5 font-medium uppercase tracking-wide text-dnews-gray transition-colors hover:text-dnews-accent dark:text-white/70 dark:hover:text-white md:px-4"
+                  className="inline-flex items-center gap-1 whitespace-nowrap px-3 py-2.5 font-medium uppercase tracking-wide text-dnews-gray transition-colors hover:text-dnews-accent focus-visible:outline-none focus-visible:text-dnews-accent dark:text-white/70 dark:hover:text-white dark:focus-visible:text-white md:px-4"
                 >
                   {item.label}
-                  {item.children && <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />}
+                  {item.children && (
+                    <ChevronDown size={12} className="transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+                  )}
                 </Link>
                 {item.children && (
-                  <div className="invisible absolute left-0 top-full z-50 min-w-[200px] origin-top-right translate-y-1 rounded-sm border border-dnews-border bg-dnews-card py-1 shadow-lg opacity-0 transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 dark:bg-black">
+                  <div className="invisible absolute left-0 top-full z-50 min-w-[200px] origin-top-right translate-y-1 rounded-sm border border-dnews-border bg-dnews-card py-1 shadow-lg opacity-0 transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 dark:bg-black">
                     {item.children.map((child) => (
                       <Link
                         key={child.label}
                         href={child.href}
-                        className="block px-4 py-2 text-sm text-dnews-gray transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent dark:hover:bg-white/5 dark:hover:text-white"
+                        className="block px-4 py-2 text-sm text-dnews-gray transition-colors hover:bg-dnews-light-gray hover:text-dnews-accent focus-visible:bg-dnews-light-gray focus-visible:text-dnews-accent dark:hover:bg-white/5 dark:hover:text-white dark:focus-visible:bg-white/5 dark:focus-visible:text-white"
                       >
                         {child.label}
                       </Link>
