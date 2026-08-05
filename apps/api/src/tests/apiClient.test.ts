@@ -11,6 +11,7 @@ describe("api client path normalization", () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
+      headers: { get: () => "application/json" },
       json: async () => ({ status: "success", data: { overview: {} } }),
     });
 
@@ -34,6 +35,7 @@ describe("api client path normalization", () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
+      headers: { get: () => "application/json" },
       json: async () => ({ status: "success", data: { articles: [] } }),
     });
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, afterAll } from "vitest";
 import request from "supertest";
 import app from "../app";
+import prisma from "../utils/prisma";
 import { createTestUser, cleanupTestData } from "./helpers";
 
 let editorToken: string;
@@ -149,6 +150,7 @@ describe("GET /api/v1/public/articles/hero", () => {
   });
 
   it("should fall back to the newest published article when no featured article exists", async () => {
+    await prisma.article.updateMany({ where: { isFeatured: true }, data: { isFeatured: false } });
     const res = await request(app).get("/api/v1/public/articles/hero");
     expect(res.status).toBe(200);
     expect(res.body.data).toBeDefined();
