@@ -91,6 +91,7 @@ function normalizePath(path: string): string {
     "/templates",
     "/automations",
     "/workflow",
+    "/drafts",
   ];
 
   const shouldUseCmsPrefix = cmsPrefixes.some(
@@ -216,4 +217,35 @@ export function del<T>(path: string): Promise<T> {
 
 export function put<T>(path: string, body?: unknown): Promise<T> {
   return request<T>("PUT", path, body);
+}
+
+export function flush<T>(method: "PUT" | "DELETE", path: string, body?: unknown): Promise<T> {
+  return new Promise<T>((resolve) => {
+    if (typeof window === "undefined" || typeof navigator === "undefined" || !navigator.sendBeacon) {
+      resolve(undefined as T);
+      return;
+    }
+
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const token = getToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const normalizedPath = normalizePath(path);
+    const payload = body !== undefined ? JSON.stringify(body) : undefined;
+
+    try {
+      fetch(`${API_BASE}${normalizedPath}`, {
+        method,
+        headers,
+        body: payload,
+        keepalive: true,
+      })
+        .catch(() => undefined)
+        .finally(() => resolve(undefined as T));
+    } catch {
+      resolve(undefined as T);
+    }
+  });
 }

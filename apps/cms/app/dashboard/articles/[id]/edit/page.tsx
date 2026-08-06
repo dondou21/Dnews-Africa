@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, type FormEvent } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, type FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Send, Lock, SearchIcon } from "lucide-react";
@@ -15,6 +15,10 @@ import ArticleBlockEditor from "@/components/dashboard/BlockEditor";
 import ExpandableTextarea from "@/components/dashboard/ExpandableTextarea";
 import AuthorSelector from "@/components/dashboard/AuthorSelector";
 import SeoMetadataForm from "@/components/seo/SeoMetadataForm";
+import DraftSaveIndicator from "@/components/dashboard/DraftSaveIndicator";
+import DraftRestoreDialog from "@/components/dashboard/DraftRestoreDialog";
+import { useDraftAutosave } from "@/hooks/useDraftAutosave";
+import type { ArticleDraftData } from "@/lib/draftAutosave";
 import type { Article, Category } from "@dnews/types";
 import type { SeoMetadata } from "@dnews/types";
 
@@ -74,6 +78,101 @@ function EditArticleForm() {
   const [seoLoading, setSeoLoading] = useState(false);
   const [seoSaving, setSeoSaving] = useState(false);
   const [showSeo, setShowSeo] = useState(false);
+  const [editorKey, setEditorKey] = useState(0);
+
+  const draftData = useMemo<ArticleDraftData>(
+    () => ({
+      title,
+      slug,
+      summary,
+      content,
+      coverImageUrl,
+      coverImageAlt,
+      featuredImageId,
+      featuredImageCaption,
+      featuredImageCredit,
+      featuredImageSource,
+      featuredImageDescription,
+      featuredImageCopyright,
+      featuredImageLocation,
+      featuredImageDateTaken,
+      categoryId,
+      tagsInput,
+      status,
+      isFeatured,
+      isBreaking,
+      allowComments,
+      sendNewsletter,
+      scheduleEnabled,
+      scheduledAt,
+      authorType,
+      authorUserId,
+      authorName,
+      authorPosition,
+      authorOrganization,
+      seoMetadata,
+    }),
+    [
+      title, slug, summary, content,
+      coverImageUrl, coverImageAlt,
+      featuredImageId, featuredImageCaption, featuredImageCredit, featuredImageSource,
+      featuredImageDescription, featuredImageCopyright, featuredImageLocation, featuredImageDateTaken,
+      categoryId, tagsInput, status, isFeatured, isBreaking, allowComments, sendNewsletter,
+      scheduleEnabled, scheduledAt, authorType, authorUserId, authorName, authorPosition, authorOrganization,
+      seoMetadata,
+    ]
+  );
+
+  const applyRestoredData = useCallback((data: ArticleDraftData) => {
+    setTitle(data.title ?? "");
+    setSlug(data.slug ?? "");
+    setSummary(data.summary ?? "");
+    setContent(data.content ?? "");
+    setCoverImageUrl(data.coverImageUrl ?? "");
+    setCoverImageAlt(data.coverImageAlt ?? "");
+    setFeaturedImageId(data.featuredImageId ?? "");
+    setFeaturedImageCaption(data.featuredImageCaption ?? "");
+    setFeaturedImageCredit(data.featuredImageCredit ?? "");
+    setFeaturedImageSource(data.featuredImageSource ?? "");
+    setFeaturedImageDescription(data.featuredImageDescription ?? "");
+    setFeaturedImageCopyright(data.featuredImageCopyright ?? "");
+    setFeaturedImageLocation(data.featuredImageLocation ?? "");
+    setFeaturedImageDateTaken(data.featuredImageDateTaken ?? "");
+    setCategoryId(data.categoryId ?? "");
+    setTagsInput(data.tagsInput ?? "");
+    setStatus(data.status ?? article?.status ?? "DRAFT");
+    setIsFeatured(data.isFeatured ?? false);
+    setIsBreaking(data.isBreaking ?? false);
+    setAllowComments(data.allowComments ?? true);
+    setSendNewsletter(data.sendNewsletter ?? true);
+    setScheduleEnabled(data.scheduleEnabled ?? false);
+    setScheduledAt(data.scheduledAt ?? "");
+    setAuthorType(data.authorType ?? "user");
+    setAuthorUserId(data.authorUserId ?? article?.authorId ?? "");
+    if (data.authorName) {
+      setAuthorType("manual");
+      setAuthorName(data.authorName);
+      setAuthorPosition(data.authorPosition ?? "");
+      setAuthorOrganization(data.authorOrganization ?? "");
+    } else {
+      setAuthorName("");
+      setAuthorPosition("");
+      setAuthorOrganization("");
+    }
+    if (data.seoMetadata && Object.keys(data.seoMetadata).length > 0) {
+      setSeoMetadata((prev) => ({ ...prev, ...data.seoMetadata }));
+    }
+    setEditorKey((k) => k + 1);
+  }, [article?.status, article?.authorId]);
+
+  const autosave = useDraftAutosave({
+    formKey: `edit:${id}`,
+    articleId: id,
+    enabled: !!user && !loading && !!article,
+    snapshot: draftData,
+    baselineUpdatedAt: article?.updatedAt ?? null,
+    onRestore: applyRestoredData,
+  });
 
   const canEdit = !isJournalist || !article || article.status === "DRAFT" || article.status === "IDEA" || article.status === "NEEDS_REVISION";
   const articleStatus = article?.status;
@@ -202,6 +301,7 @@ function EditArticleForm() {
         body.authorOrganization = authorOrganization || null;
       }
       await patch(`/articles/${id}`, body);
+      await autosave.clearDraft();
       router.push("/dashboard/articles");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to update article.";
@@ -215,6 +315,7 @@ function EditArticleForm() {
     setSubmittingReview(true);
     try {
       await post(`/editorial/articles/${id}/submit`, {});
+      await autosave.clearDraft();
       router.push("/dashboard/articles");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to submit for review.";
@@ -278,7 +379,18 @@ function EditArticleForm() {
             Editing: {article?.title}
           </p>
         </div>
+        <div className="ml-auto">
+          <DraftSaveIndicator status={autosave.status} lastSavedAt={autosave.lastSavedAt} />
+        </div>
       </div>
+
+      {autosave.pendingRestore && (
+        <DraftRestoreDialog
+          draft={autosave.pendingRestore}
+          onRestore={autosave.restoreDraft}
+          onDiscard={autosave.discardDraft}
+        />
+      )}
 
       {error && (
         <div ref={errorRef} className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
@@ -348,7 +460,7 @@ function EditArticleForm() {
                 </div>
 
                 <div>
-                  <ArticleBlockEditor content={content} onChange={setContent} />
+                  <ArticleBlockEditor key={`blocks-${editorKey}`} content={content} onChange={setContent} />
                 </div>
               </div>
             </div>
@@ -363,6 +475,7 @@ function EditArticleForm() {
                     Cover Image
                   </label>
                   <FeaturedImageEditor
+                    key={`image-${editorKey}`}
                     initialUrl={coverImageUrl}
                     initialAlt={coverImageAlt}
                     initialCaption={featuredImageCaption}

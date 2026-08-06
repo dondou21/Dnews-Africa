@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, type FormEvent } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -13,6 +13,10 @@ import PublishingPanel from "@/components/dashboard/PublishingPanel";
 import ArticleBlockEditor from "@/components/dashboard/BlockEditor";
 import ExpandableTextarea from "@/components/dashboard/ExpandableTextarea";
 import AuthorSelector from "@/components/dashboard/AuthorSelector";
+import DraftSaveIndicator from "@/components/dashboard/DraftSaveIndicator";
+import DraftRestoreDialog from "@/components/dashboard/DraftRestoreDialog";
+import { useDraftAutosave } from "@/hooks/useDraftAutosave";
+import type { ArticleDraftData } from "@/lib/draftAutosave";
 import type { Category } from "@dnews/types";
 
 export default function NewArticlePage() {
@@ -61,6 +65,88 @@ function NewArticleForm() {
   const [authorName, setAuthorName] = useState("");
   const [authorPosition, setAuthorPosition] = useState("");
   const [authorOrganization, setAuthorOrganization] = useState("");
+  const [editorKey, setEditorKey] = useState(0);
+
+  const draftData = useMemo<ArticleDraftData>(
+    () => ({
+      title,
+      slug,
+      summary,
+      content,
+      coverImageUrl,
+      coverImageAlt,
+      featuredImageId,
+      featuredImageCaption,
+      featuredImageCredit,
+      featuredImageSource,
+      featuredImageDescription,
+      featuredImageCopyright,
+      featuredImageLocation,
+      featuredImageDateTaken,
+      categoryId,
+      tagsInput,
+      status,
+      isFeatured,
+      isBreaking,
+      allowComments,
+      sendNewsletter,
+      scheduleEnabled,
+      scheduledAt,
+      authorType,
+      authorUserId,
+      authorName,
+      authorPosition,
+      authorOrganization,
+    }),
+    [
+      title, slug, summary, content,
+      coverImageUrl, coverImageAlt,
+      featuredImageId, featuredImageCaption, featuredImageCredit, featuredImageSource,
+      featuredImageDescription, featuredImageCopyright, featuredImageLocation, featuredImageDateTaken,
+      categoryId, tagsInput, status, isFeatured, isBreaking, allowComments, sendNewsletter,
+      scheduleEnabled, scheduledAt, authorType, authorUserId, authorName, authorPosition, authorOrganization,
+    ]
+  );
+
+  const applyRestoredData = useCallback((data: ArticleDraftData) => {
+    setTitle(data.title ?? "");
+    setSlug(data.slug ?? "");
+    setSummary(data.summary ?? "");
+    setContent(data.content ?? "");
+    setCoverImageUrl(data.coverImageUrl ?? "");
+    setCoverImageAlt(data.coverImageAlt ?? "");
+    setFeaturedImageId(data.featuredImageId ?? "");
+    setFeaturedImageCaption(data.featuredImageCaption ?? "");
+    setFeaturedImageCredit(data.featuredImageCredit ?? "");
+    setFeaturedImageSource(data.featuredImageSource ?? "");
+    setFeaturedImageDescription(data.featuredImageDescription ?? "");
+    setFeaturedImageCopyright(data.featuredImageCopyright ?? "");
+    setFeaturedImageLocation(data.featuredImageLocation ?? "");
+    setFeaturedImageDateTaken(data.featuredImageDateTaken ?? "");
+    setCategoryId(data.categoryId ?? "");
+    setTagsInput(data.tagsInput ?? "");
+    setStatus(data.status ?? "DRAFT");
+    setIsFeatured(data.isFeatured ?? false);
+    setIsBreaking(data.isBreaking ?? false);
+    setAllowComments(data.allowComments ?? true);
+    setSendNewsletter(data.sendNewsletter ?? true);
+    setScheduleEnabled(data.scheduleEnabled ?? false);
+    setScheduledAt(data.scheduledAt ?? "");
+    setAuthorType(data.authorType ?? "user");
+    setAuthorUserId(data.authorUserId ?? user?.id ?? "");
+    setAuthorName(data.authorName ?? "");
+    setAuthorPosition(data.authorPosition ?? "");
+    setAuthorOrganization(data.authorOrganization ?? "");
+    setEditorKey((k) => k + 1);
+  }, [user?.id]);
+
+  const autosave = useDraftAutosave({
+    formKey: "new-article",
+    articleId: null,
+    enabled: !!user,
+    snapshot: draftData,
+    onRestore: applyRestoredData,
+  });
 
   useEffect(() => {
     setCategoriesLoading(true);
@@ -139,6 +225,7 @@ function NewArticleForm() {
         body.authorOrganization = authorOrganization || null;
       }
       await post("/articles", body);
+      await autosave.clearDraft();
       router.push(`/dashboard/articles`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to create article.";
@@ -162,7 +249,18 @@ function NewArticleForm() {
           </h2>
           <p className="text-sm text-dnews-muted">Create a new article.</p>
         </div>
+        <div className="ml-auto">
+          <DraftSaveIndicator status={autosave.status} lastSavedAt={autosave.lastSavedAt} />
+        </div>
       </div>
+
+      {autosave.pendingRestore && (
+        <DraftRestoreDialog
+          draft={autosave.pendingRestore}
+          onRestore={autosave.restoreDraft}
+          onDiscard={autosave.discardDraft}
+        />
+      )}
 
       {error && (
         <div ref={errorRef} className="rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3">
@@ -221,7 +319,7 @@ function NewArticleForm() {
                 </div>
 
                 <div>
-                  <ArticleBlockEditor content={content} onChange={setContent} />
+                  <ArticleBlockEditor key={`blocks-${editorKey}`} content={content} onChange={setContent} />
                 </div>
               </div>
             </div>
@@ -237,6 +335,7 @@ function NewArticleForm() {
                     Cover Image
                   </label>
                   <FeaturedImageEditor
+                    key={`image-${editorKey}`}
                     initialUrl={coverImageUrl}
                     initialAlt={coverImageAlt}
                     initialCaption={featuredImageCaption}
