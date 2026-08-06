@@ -63,6 +63,7 @@ model Category {
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryHierarchy")
 
+  @@index([parentId])
   @@map("categories")
 }
 
@@ -145,6 +146,7 @@ model Notification {
   article   Article? @relation(fields: [articleId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
 
+  @@index([userId, read])
   @@map("notifications")
 }
 
@@ -166,6 +168,7 @@ model ArticleTag {
   tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([articleId, tagId])
+  @@index([tagId])
   @@map("article_tags")
 }
 
@@ -185,6 +188,8 @@ model Comment {
   parent     Comment?      @relation("CommentReplies", fields: [parentId], references: [id])
   replies    Comment[]     @relation("CommentReplies")
 
+  @@index([articleId])
+  @@index([status])
   @@map("comments")
 }
 
@@ -210,6 +215,7 @@ model NewsletterSubscriber {
   userAgent           String?
   campaignRecipients  NewsletterCampaignRecipient[]
 
+  @@index([status])
   @@map("newsletter_subscribers")
 }
 
@@ -222,6 +228,7 @@ model ContactMessage {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
+  @@index([isRead])
   @@map("contact_messages")
 }
 
@@ -310,6 +317,7 @@ model NewsletterCampaignRecipient {
   campaign     NewsletterCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   subscriber   NewsletterSubscriber @relation(fields: [subscriberId], references: [id])
 
+  @@index([campaignId])
   @@map("newsletter_campaign_recipients")
 }
 
@@ -477,6 +485,7 @@ model Media {
   articles        Article[]       @relation("FeaturedImage")
   uploadedBy      User            @relation(fields: [uploadedById], references: [id])
 
+  @@index([uploadedById])
   @@map("media")
 }
 
@@ -534,6 +543,12 @@ model Article {
   notifications      Notification[]
   newsletterDeliveries ArticleNewsletterDelivery[]
 
+  @@index([status, publishedAt])
+  @@index([status, createdAt])
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([isFeatured, publishedAt])
+  @@index([publishedAt])
   @@map("articles")
 }
 
