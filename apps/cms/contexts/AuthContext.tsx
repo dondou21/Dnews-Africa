@@ -47,6 +47,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    setUser(stored);
+    setLoading(false);
+    setInitialized(true);
+
     get<User>("/cms/auth/me")
       .then((u) => {
         setUser(u);
@@ -55,10 +59,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         clearToken();
         setUser(null);
-      })
-      .finally(() => {
-        setLoading(false);
-        setInitialized(true);
       });
   }, []);
 
