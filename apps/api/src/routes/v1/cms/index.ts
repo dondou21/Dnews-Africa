@@ -23,6 +23,7 @@ import trackingRouter from "./tracking";
 import reportsRouter from "./reports";
 import settingsRouter from "./settings";
 import sponsorsRouter from "./sponsors";
+import draftsRouter from "./drafts";
 
 const router = Router();
 
@@ -50,5 +51,6 @@ router.use("/tracking", trackingRouter);
 router.use("/newsletter/reports", reportsRouter);
 router.use("/newsletter/settings", settingsRouter);
 router.use("/sponsors", sponsorsRouter);
+router.use("/drafts", draftsRouter);
 
 export default router;
