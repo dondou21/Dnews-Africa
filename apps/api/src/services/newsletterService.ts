@@ -78,10 +78,146 @@ export const newsletterService = {
     logger.info("NewsletterService", "New subscription activated", { email: data.email, status: "ACTIVE" });
 
     emailService.sendWelcomeEmail(data.email, displayName || undefined, unsubscribeToken)
-      .then(() => logger.info("NewsletterService", "Welcome email sent", { email: data.email }))
-      .catch((err: unknown) => logger.error("NewsletterService", "Failed to send welcome email", { email: data.email, error: String(err) }));
+      .then((result) => {
+        logger.info("NewsletterService", "Welcome email sent", {
+          email: data.email,
+          transport: result.transport,
+          emailId: result.emailId,
+          capturePath: result.capturePath,
+        });
+        return newsletterRepository.update(subscriber.id, { lastEmailSentAt: new Date() });
+      })
+      .catch((err: unknown) =>
+        logger.error("NewsletterService", "Failed to send welcome email", { email: data.email, err })
+      );
 
     return { ...subscriber, welcomeEmailSent: true };
+  },
+
+  async createSubscriber(data: {
+    email: string;
+    name?: string;
+    source?: string;
+    preferredLanguage?: string;
+  }) {
+    const existing = await newsletterRepository.findByEmail(data.email);
+
+    if (existing) {
+      if (existing.status === "ACTIVE" || existing.status === "PENDING") {
+        throw new AppError("This email is already subscribed", 409);
+      }
+      if (existing.status === "BLOCKED") {
+        throw new AppError("This email has been blocked", 403);
+      }
+    }
+
+    const unsubscribeToken = generateToken();
+
+    let subscriber;
+    if (existing && existing.status === "UNSUBSCRIBED") {
+      subscriber = await newsletterRepository.update(existing.id, {
+        name: data.name || existing.name,
+        status: "ACTIVE",
+        verified: true,
+        verificationToken: null,
+        verificationExpires: null,
+        unsubscribeToken,
+        source: (data.source as $Enums.NewsletterSource) || existing.source,
+        subscribedAt: new Date(),
+        confirmedAt: new Date(),
+        unsubscribedAt: null,
+        preferredLanguage: data.preferredLanguage || "en",
+      });
+    } else {
+      subscriber = await newsletterRepository.create({
+        email: data.email,
+        name: data.name || null,
+        status: "ACTIVE",
+        verified: true,
+        verificationToken: null,
+        verificationExpires: null,
+        unsubscribeToken,
+        source: (data.source as $Enums.NewsletterSource) || "MANUAL",
+        preferredLanguage: data.preferredLanguage || "en",
+      });
+    }
+
+    logger.info("NewsletterService", "Subscriber created by admin", { email: data.email, id: subscriber.id });
+
+    emailService.sendWelcomeEmail(subscriber.email, subscriber.name || undefined, unsubscribeToken)
+      .then((result) => {
+        logger.info("NewsletterService", "Welcome email sent for admin-created subscriber", {
+          email: subscriber.email,
+          transport: result.transport,
+          emailId: result.emailId,
+        });
+        return newsletterRepository.update(subscriber.id, { lastEmailSentAt: new Date() });
+      })
+      .catch((err: unknown) =>
+        logger.error("NewsletterService", "Failed to send welcome email for admin-created subscriber", {
+          email: subscriber.email,
+          err,
+        })
+      );
+
+    return subscriber;
+  },
+
+  async sendTestNewsletter() {
+    logger.info("NewsletterService", "[Email] Loading subscribers...");
+    const subscribers = await newsletterRepository.findAllActive({
+      id: true,
+      email: true,
+      name: true,
+      unsubscribeToken: true,
+    });
+    logger.info("NewsletterService", `[Email] ${subscribers.length} subscribers found`);
+
+    const results: { email: string; status: "sent" | "failed"; error?: string }[] = [];
+    let sent = 0;
+    let failed = 0;
+
+    for (const sub of subscribers) {
+      let unsubscribeToken = sub.unsubscribeToken;
+      if (!unsubscribeToken) {
+        unsubscribeToken = generateToken();
+        await newsletterRepository.update(sub.id, { unsubscribeToken });
+      }
+
+      logger.info("NewsletterService", `[Email] Sending test newsletter to ${sub.email}`);
+      try {
+        const result = await emailService.sendTestNewsletterEmail(
+          sub.email,
+          sub.name || undefined,
+          unsubscribeToken
+        );
+        sent++;
+        results.push({ email: sub.email, status: "sent" });
+        logger.info("NewsletterService", "[Email] Success", {
+          email: sub.email,
+          transport: result.transport,
+          emailId: result.emailId,
+        });
+        await newsletterRepository.update(sub.id, { lastEmailSentAt: new Date() });
+      } catch (err) {
+        failed++;
+        results.push({
+          email: sub.email,
+          status: "failed",
+          error: err instanceof Error ? err.message : String(err),
+        });
+        logger.error("NewsletterService", `[Email] Failed: ${sub.email}`, { err, email: sub.email });
+      }
+    }
+
+    const summary = { totalRecipients: subscribers.length, sent, failed, results };
+    logger.info("NewsletterService", "[Email] Test newsletter complete", {
+      totalRecipients: summary.totalRecipients,
+      sent,
+      failed,
+    });
+
+    return summary;
   },
 
   async verify(_token: string) {
@@ -109,8 +245,8 @@ export const newsletterService = {
     try {
       const resubscribeUrl = `${config.clientUrl}/newsletter/resubscribe?token=${subscriber.unsubscribeToken}`;
       await emailService.sendUnsubscribeConfirmationEmail(email, resubscribeUrl);
-    } catch {
-      logger.error("NewsletterService", "Failed to send unsubscribe confirmation email", { email });
+    } catch (err) {
+      logger.error("NewsletterService", "Failed to send unsubscribe confirmation email", { email, err });
     }
 
     return updated;
@@ -220,8 +356,11 @@ export const newsletterService = {
     try {
       const resubscribeUrl = `${config.clientUrl}/newsletter/resubscribe?token=${subscriber.unsubscribeToken}`;
       await emailService.sendUnsubscribeConfirmationEmail(subscriber.email, resubscribeUrl);
-    } catch {
-      logger.error("NewsletterService", "Failed to send unsubscribe confirmation email", { email: subscriber.email });
+    } catch (err) {
+      logger.error("NewsletterService", "Failed to send unsubscribe confirmation email", {
+        email: subscriber.email,
+        err,
+      });
     }
 
     return updated;
@@ -252,8 +391,20 @@ export const newsletterService = {
     logger.info("NewsletterService", "Resubscribe activated", { email: subscriber.email });
 
     emailService.sendWelcomeEmail(subscriber.email, subscriber.name || undefined, unsubscribeToken)
-      .then(() => logger.info("NewsletterService", "Welcome email sent on resubscribe", { email: subscriber.email }))
-      .catch((err: unknown) => logger.error("NewsletterService", "Failed to send welcome email on resubscribe", { email: subscriber.email, error: String(err) }));
+      .then((result) => {
+        logger.info("NewsletterService", "Welcome email sent on resubscribe", {
+          email: subscriber.email,
+          transport: result.transport,
+          emailId: result.emailId,
+        });
+        return newsletterRepository.update(subscriber.id, { lastEmailSentAt: new Date() });
+      })
+      .catch((err: unknown) =>
+        logger.error("NewsletterService", "Failed to send welcome email on resubscribe", {
+          email: subscriber.email,
+          err,
+        })
+      );
 
     return updated;
   },

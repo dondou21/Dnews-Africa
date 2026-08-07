@@ -61,6 +61,13 @@ export const newsletterRepository = {
   findById: (id: string) =>
     prisma.newsletterSubscriber.findUnique({ where: { id } }),
 
+  findAllActive: (select: Prisma.NewsletterSubscriberSelect) =>
+    prisma.newsletterSubscriber.findMany({
+      where: { status: "ACTIVE", verified: true },
+      select,
+      orderBy: { subscribedAt: "asc" },
+    }),
+
   update: (id: string, data: Prisma.NewsletterSubscriberUpdateInput) =>
     prisma.newsletterSubscriber.update({ where: { id }, data }),
 

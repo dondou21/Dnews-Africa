@@ -9,6 +9,7 @@ router.use(authenticate);
 router.use(requireRole("Admin", "Editor"));
 
 router.get("/", newsletterController.getAll);
+router.post("/", newsletterController.createSubscriber);
 router.get("/stats", newsletterController.getStats);
 router.get("/:id", newsletterController.getById);
 router.patch("/:id", newsletterController.update);

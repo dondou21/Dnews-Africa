@@ -24,6 +24,7 @@ import reportsRouter from "./reports";
 import settingsRouter from "./settings";
 import sponsorsRouter from "./sponsors";
 import draftsRouter from "./drafts";
+import newsletterRouter from "./newsletter";
 
 const router = Router();
 
@@ -43,6 +44,7 @@ router.use("/layouts", layoutsRouter);
 router.use("/advertisers", advertisersRouter);
 router.use("/ad-campaigns", adCampaignsRouter);
 router.use("/advertisements", advertisementsRouter);
+router.use("/newsletter", newsletterRouter);
 router.use("/newsletter/subscribers", subscribersRouter);
 router.use("/newsletter/campaigns", campaignsRouter);
 router.use("/newsletter/templates", templatesRouter);

@@ -46,10 +46,32 @@ export const newsletterController = {
       res.status(201).json({
         status: "success",
         data: {
-          message: "Welcome to Dnews Africa! Your subscription is now active. We've sent a welcome email to your inbox with everything you need to get started.",
+          message: "Welcome to Dnews Africa! Your subscription is now active. A welcome email is on its way to your inbox.",
           subscriber: result,
         },
       });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async createSubscriber(req: Request, res: Response, next: NextFunction) {
+    try {
+      const parsed = subscribeSchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new AppError(parsed.error.errors[0].message, 400);
+      }
+      const subscriber = await newsletterService.createSubscriber(parsed.data);
+      res.status(201).json({ status: "success", data: subscriber });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async sendTestNewsletter(_req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await newsletterService.sendTestNewsletter();
+      res.json({ status: "success", data: result });
     } catch (error) {
       next(error);
     }
