@@ -12,8 +12,12 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1000;
 
 async function sendEmailWithRetry(params: SendEmailParams, attempt: number = 1): Promise<void> {
-  if (!config.isProduction || !config.resendApiKey) {
-    logger.info("EmailService", "Email skipped (dev mode or no API key)", { to: params.to, subject: params.subject });
+  if (!config.resendApiKey) {
+    logger.warn("EmailService", "Email skipped (no RESEND_API_KEY configured)", {
+      to: params.to,
+      subject: params.subject,
+      nodeEnv: config.nodeEnv,
+    });
     return;
   }
 
@@ -26,7 +30,18 @@ async function sendEmailWithRetry(params: SendEmailParams, attempt: number = 1):
       subject: params.subject,
       html: params.html,
     });
-    logger.info("EmailService", "Email sent", { to: params.to, subject: params.subject, id: (result as any)?.id });
+
+    if (result.error) {
+      throw new Error(
+        `Resend API error (${result.error.name}, status ${result.error.statusCode}): ${result.error.message}`
+      );
+    }
+
+    logger.info("EmailService", "Email sent", {
+      to: params.to,
+      subject: params.subject,
+      id: result.data.id,
+    });
   } catch (err) {
     const errorStr = String(err);
     logger.error("EmailService", `Email send failed (attempt ${attempt}/${MAX_RETRIES})`, { to: params.to, subject: params.subject, error: errorStr });

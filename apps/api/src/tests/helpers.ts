@@ -39,6 +39,8 @@ export async function createTestUser(roleName: string) {
 export async function cleanupTestData() {
   await prisma.articleTag.deleteMany({});
   await prisma.comment.deleteMany({});
+  await prisma.articleNewsletterRecipient.deleteMany({});
+  await prisma.articleNewsletterDelivery.deleteMany({});
   await prisma.article.deleteMany({});
   await prisma.media.deleteMany({});
   await prisma.newsletterSubscriber.deleteMany({});
