@@ -1,3 +1,5 @@
+﻿import { config } from "../config";
+
 const brandDark = "#1a1a2e";
 const brandRed = "#c0392b";
 const textDark = "#333333";
@@ -173,7 +175,7 @@ export function buildWelcomeEmail(name?: string, unsubscribeUrl?: string): strin
     </tr>
     <tr>
       <td style="padding:24px 40px 0;text-align:center;">
-        ${ctaButton("https://dnewsafrica.com", "Visit Dnews Africa")}
+        ${ctaButton(`${config.siteUrl}`, "Visit Dnews Africa")}
       </td>
     </tr>
     <tr>
@@ -199,7 +201,7 @@ export interface ArticleEmailData {
 const brandRedHover = "#a93226";
 
 export function buildArticleEmail(article: ArticleEmailData, unsubscribeUrl: string): string {
-  const articleUrl = `https://dnewsafrica.com/articles/${article.slug}`;
+  const articleUrl = `${config.siteUrl}/articles/${article.slug}`;
   const imageHtml = article.featuredImageUrl
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
@@ -323,7 +325,7 @@ export function buildResubscribeConfirmationEmail(): string {
     </tr>
     <tr>
       <td style="padding:0 40px 32px;text-align:center;">
-        ${ctaButton("https://dnewsafrica.com", "Visit Dnews Africa")}
+        ${ctaButton(`${config.siteUrl}`, "Visit Dnews Africa")}
       </td>
     </tr>
     ${footer()}
@@ -352,7 +354,7 @@ export function buildTestNewsletterEmail(name?: string, unsubscribeUrl?: string)
     </tr>
     <tr>
       <td style="padding:24px 40px 0;text-align:center;">
-        ${ctaButton("https://dnewsafrica.com", "Visit Dnews Africa")}
+        ${ctaButton(`${config.siteUrl}`, "Visit Dnews Africa")}
       </td>
     </tr>
     <tr>

@@ -1,4 +1,5 @@
-import { $Enums } from "@prisma/client";
+﻿import { $Enums } from "@prisma/client";
+import { config } from "../config";
 import { campaignRepository } from "../repositories/campaignRepository";
 import { newsletterRepository } from "../repositories/newsletterRepository";
 import { emailService } from "./emailService";
@@ -226,7 +227,7 @@ export const campaignService = {
     if (!campaign) return;
 
     const buildContent = (subscriber: { email: string; name: string | null }) => {
-      const unsubscribeUrl = `${process.env.CLIENT_URL || "http://localhost:5000"}/api/newsletter/unsubscribe`;
+      const unsubscribeUrl = `${config.clientUrl}/api/newsletter/unsubscribe`;
       const name = subscriber.name || "there";
 
       return `
@@ -266,7 +267,7 @@ export const campaignService = {
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
                 <tr>
                   <td align="center" style="background-color:#c0392b;border-radius:4px;padding:0;">
-                    <a href="https://dnewsafrica.com" target="_blank" style="display:inline-block;padding:12px 32px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;">
+                    <a href="${config.siteUrl}" target="_blank" style="display:inline-block;padding:12px 32px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;">
                       Read More on Dnews Africa
                     </a>
                   </td>
@@ -407,7 +408,7 @@ export const campaignService = {
     }
 
     const buildContent = (email: string) => {
-      const unsubscribeUrl = `${process.env.CLIENT_URL || "http://localhost:5000"}/api/newsletter/unsubscribe`;
+      const unsubscribeUrl = `${config.clientUrl}/api/newsletter/unsubscribe`;
       return `
 <!DOCTYPE html>
 <html>
@@ -427,7 +428,7 @@ export const campaignService = {
           </tr>
           <tr>
             <td style="padding:40px;">
-              <p style="color:#999;font-size:13px;margin:0 0 16px;font-style:italic;">This is a test email — not sent to subscribers.</p>
+              <p style="color:#999;font-size:13px;margin:0 0 16px;font-style:italic;">This is a test email â€” not sent to subscribers.</p>
               <div style="color:#333;font-size:15px;line-height:1.7;">
                 ${campaign.content}
               </div>

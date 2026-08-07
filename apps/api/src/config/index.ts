@@ -7,6 +7,13 @@ const envLocalPath = path.resolve(__dirname, "../../.env.local");
 dotenv.config({ path: envLocalPath });
 dotenv.config({ path: envPath });
 
+const jwtSecret = process.env.JWT_SECRET || "default-secret-change-me";
+if (process.env.NODE_ENV === "production" && (jwtSecret === "default-secret-change-me" || jwtSecret.length < 32)) {
+  throw new Error(
+    "JWT_SECRET must be set to a random string of at least 32 characters in production."
+  );
+}
+
 const configuredCorsOrigin = (process.env.CORS_ORIGIN || "http://localhost:5000,http://localhost:5001")
   .split(",")
   .map((s) => s.trim())
@@ -37,11 +44,12 @@ export const config = {
   port: parseInt(process.env.PORT || "4000", 10),
   nodeEnv: process.env.NODE_ENV || "development",
   corsOrigin,
-  jwtSecret: process.env.JWT_SECRET || "default-secret-change-me",
+  jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   isProduction: process.env.NODE_ENV === "production",
   enableApiDocs: process.env.ENABLE_API_DOCS !== "false",
-  clientUrl: process.env.CLIENT_URL || "http://localhost:5000",
+  clientUrl: process.env.CLIENT_URL || process.env.SITE_URL || "http://localhost:5000",
+  siteUrl: process.env.SITE_URL || process.env.CLIENT_URL || "https://dnewsafrica.com",
   resendApiKey: process.env.RESEND_API_KEY || "",
   emailFrom: process.env.EMAIL_FROM || "noreply@dnewsafrica.com",
   emailEnabled: process.env.EMAIL_ENABLED !== "false",

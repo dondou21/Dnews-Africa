@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Request, Response } from "express";
+import { config } from "../config";
 import { asyncHandler } from "../middlewares/asyncHandler";
 import { AppError } from "../middlewares/errorHandler";
 import { articleNewsletterService } from "../services/articleNewsletterService";
@@ -100,7 +101,7 @@ export const articleNewsletterController = {
         featuredImageUrl: article.featuredImage?.url ?? undefined,
         featuredImageAlt: article.featuredImage?.alt ?? undefined,
       },
-      "https://dnewsafrica.com/newsletter/unsubscribe?token=preview",
+      `${config.siteUrl}/newsletter/unsubscribe?token=preview`,
     );
 
     res.json({ html, subject: article.title });

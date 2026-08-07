@@ -8,3 +8,5 @@ uploads/*
 .gitignore
 *.md
 npm-debug.log*
+.email-captures
+*.log

@@ -114,11 +114,18 @@ async function main() {
     }
   }
 
+  const seedUserPasswords: Record<string, string> = {
+    Admin: process.env.SEED_ADMIN_PASSWORD || "Admin@12345",
+    Editor: process.env.SEED_EDITOR_PASSWORD || "Editor@12345",
+    Journalist: process.env.SEED_JOURNALIST_PASSWORD || "Journalist@12345",
+    Moderator: process.env.SEED_MODERATOR_PASSWORD || "Moderator@12345",
+  };
+
   const testUsers = [
-    { firstName: "Admin", lastName: "User", email: "admin@dnewsafrica.com", password: "Admin@12345", role: "Admin" },
-    { firstName: "Editor", lastName: "User", email: "editor@dnewsafrica.com", password: "Editor@12345", role: "Editor" },
-    { firstName: "Journalist", lastName: "User", email: "journalist@dnewsafrica.com", password: "Journalist@12345", role: "Journalist" },
-    { firstName: "Moderator", lastName: "User", email: "moderator@dnewsafrica.com", password: "Moderator@12345", role: "Moderator" },
+    { firstName: "Admin", lastName: "User", email: "admin@dnewsafrica.com", password: seedUserPasswords.Admin, role: "Admin" },
+    { firstName: "Editor", lastName: "User", email: "editor@dnewsafrica.com", password: seedUserPasswords.Editor, role: "Editor" },
+    { firstName: "Journalist", lastName: "User", email: "journalist@dnewsafrica.com", password: seedUserPasswords.Journalist, role: "Journalist" },
+    { firstName: "Moderator", lastName: "User", email: "moderator@dnewsafrica.com", password: seedUserPasswords.Moderator, role: "Moderator" },
   ];
 
   const createdUserIds: Record<string, string> = {};
@@ -175,13 +182,6 @@ async function main() {
   }
 
   const articleCount = await prisma.article.count();
-
-  console.log("\n=== Dnews Africa Development Credentials ===\n");
-  console.log("  Admin      | admin@dnewsafrica.com    | Admin@12345");
-  console.log("  Editor     | editor@dnewsafrica.com   | Editor@12345");
-  console.log("  Journalist | journalist@dnewsafrica.com| Journalist@12345");
-  console.log("  Moderator  | moderator@dnewsafrica.com | Moderator@12345");
-  console.log("\n==========================================\n");
 
   console.log(`Seeded ${articleCount} articles`);
   console.log("Seed completed successfully");

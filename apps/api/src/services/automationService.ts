@@ -1,4 +1,5 @@
-import { $Enums } from "@prisma/client";
+﻿import { $Enums } from "@prisma/client";
+import { config } from "../config";
 import prisma from "../utils/prisma";
 import { automationRepository } from "../repositories/automationRepository";
 import { campaignService } from "./campaignService";
@@ -135,7 +136,7 @@ export const automationService = {
       html += '<h3>Editor\'s Picks</h3>';
       featuredArticles.forEach((a) => {
         html += `<div style="margin-bottom:16px;">
-          <h4><a href="${process.env.CLIENT_URL || "http://localhost:5000"}/article/${a.slug}" style="color:#c0392b;text-decoration:none;">${a.title}</a></h4>
+          <h4><a href="${config.siteUrl}/article/${a.slug}" style="color:#c0392b;text-decoration:none;">${a.title}</a></h4>
           <p style="color:#666;font-size:13px;">${a.summary}</p>
         </div>`;
       });
@@ -144,7 +145,7 @@ export const automationService = {
     html += '<h3>Top Stories</h3>';
     topArticles.forEach((a) => {
       html += `<div style="margin-bottom:12px;">
-        <h4 style="margin:0 0 4px;"><a href="${process.env.CLIENT_URL || "http://localhost:5000"}/article/${a.slug}" style="color:#1a1a2e;text-decoration:none;">${a.title}</a></h4>
+        <h4 style="margin:0 0 4px;"><a href="${config.siteUrl}/article/${a.slug}" style="color:#1a1a2e;text-decoration:none;">${a.title}</a></h4>
         <p style="color:#999;font-size:12px;margin:0;">${a.summary}</p>
       </div>`;
     });
@@ -153,7 +154,7 @@ export const automationService = {
       html += '<h3>Recent Articles</h3>';
       recentArticles.forEach((a) => {
         html += `<div style="margin-bottom:12px;">
-          <h4 style="margin:0 0 4px;font-size:14px;"><a href="${process.env.CLIENT_URL || "http://localhost:5000"}/article/${a.slug}" style="color:#1a1a2e;text-decoration:none;">${a.title}</a></h4>
+          <h4 style="margin:0 0 4px;font-size:14px;"><a href="${config.siteUrl}/article/${a.slug}" style="color:#1a1a2e;text-decoration:none;">${a.title}</a></h4>
         </div>`;
       });
     }
