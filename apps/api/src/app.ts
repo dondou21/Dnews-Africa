@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import compression from "compression";
 import { config } from "./config";
 import { errorHandler } from "./middlewares/errorHandler";
 import { notFound } from "./middlewares/notFound";
@@ -15,6 +16,7 @@ if (config.isProduction) {
 }
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use(compression());
 app.use(cors({ origin: config.corsOrigin }));
 app.use(morgan(config.isProduction ? "combined" : "dev"));
 app.use(express.json({ limit: "1mb" }));
