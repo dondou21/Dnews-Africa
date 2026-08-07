@@ -19,7 +19,7 @@ async function getSystemUser(): Promise<{ id: string }> {
   throw new Error("Cannot find any user for scheduler audit logs");
 }
 
-async function publishDueArticles(): Promise<void> {
+export async function publishDueArticles(): Promise<void> {
   if (isPolling) return;
   isPolling = true;
 
@@ -33,6 +33,7 @@ async function publishDueArticles(): Promise<void> {
     });
 
     if (dueArticles.length > 0) {
+      console.log(`[scheduler] Found ${dueArticles.length} due article(s)`);
       const sysUser = await getSystemUser();
 
       for (const article of dueArticles) {
@@ -64,6 +65,7 @@ async function publishDueArticles(): Promise<void> {
           console.log(`[scheduler] Published article "${article.title}" (${article.slug})`);
           cache.clearPrefix("articles:");
           cache.del("dashboard:stats");
+          console.log(`[scheduler] Triggering newsletter for article ${article.id}`);
           articleNewsletterService.sendArticleNewsletter(article.id).catch((err) => {
             console.error(`[scheduler] Failed to send newsletter for article ${article.id}:`, err);
           });

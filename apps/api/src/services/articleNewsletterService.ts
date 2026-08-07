@@ -207,10 +207,10 @@ export const articleNewsletterService = {
       for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
         const batch = recipients.slice(i, i + BATCH_SIZE);
 
-        const results = await Promise.allSettled(
+        await Promise.allSettled(
           batch.map(async (subscriber) => {
             try {
-              await emailService.sendArticleEmail(
+              const sendResult = await emailService.sendArticleEmail(
                 subscriber.email,
                 articleEmail,
                 subscriber.unsubscribeToken
@@ -241,10 +241,14 @@ export const articleNewsletterService = {
                 data: { lastEmailSentAt: new Date() },
               });
 
+              sent++;
+
               logger.info("ArticleNewsletter", "[Notification] Email sent to subscriber", {
                 articleId,
                 email: subscriber.email,
                 deliveryId,
+                transport: sendResult.transport,
+                emailId: sendResult.emailId,
               });
             } catch (err) {
               await prisma.articleNewsletterRecipient.upsert({
@@ -268,24 +272,23 @@ export const articleNewsletterService = {
                 },
               });
 
+              failed++;
+
               logger.error("ArticleNewsletter", "[Notification] Failed to send article email", {
                 articleId,
                 email: subscriber.email,
-                error: String(err),
+                err,
               });
             }
           })
         );
 
-        const batchSent = results.filter((r) => r.status === "fulfilled").length;
-        sent += batchSent;
-        failed += results.length - batchSent;
-
         logger.info("ArticleNewsletter", "[Notification] Batch processed", {
           articleId,
           batchDone: Math.min(i + batch.length, recipients.length),
           total: recipients.length,
-          batchSent,
+          sentSoFar: sent,
+          failedSoFar: failed,
         });
       }
 
@@ -320,7 +323,7 @@ export const articleNewsletterService = {
     } catch (err) {
       logger.error("ArticleNewsletter", "[Notification] Failed to trigger newsletter", {
         articleId,
-        error: String(err),
+        err,
       });
     }
   },
