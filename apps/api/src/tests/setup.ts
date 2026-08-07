@@ -1,3 +1,6 @@
+process.env.RESEND_API_KEY = "";
+process.env.EMAIL_ENABLED = "false";
+
 import { beforeAll, afterAll } from "vitest";
 import prisma from "../utils/prisma";
 
