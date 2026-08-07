@@ -8,6 +8,15 @@ const envLocalPath = path.resolve(__dirname, "../../.env.local");
 dotenv.config({ path: envLocalPath });
 dotenv.config({ path: envPath });
 
-const prisma = new PrismaClient();
+const isProduction = process.env.NODE_ENV === "production";
+
+const prisma = new PrismaClient({
+  log: isProduction ? ["warn", "error"] : ["query", "warn", "error"],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+});
 
 export default prisma;
