@@ -10,6 +10,10 @@ import apiV1Router from "./routes/v1";
 
 const app = express();
 
+if (config.isProduction) {
+  app.set("trust proxy", 1);
+}
+
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(cors({ origin: config.corsOrigin }));
 app.use(morgan(config.isProduction ? "combined" : "dev"));
