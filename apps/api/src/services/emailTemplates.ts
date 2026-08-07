@@ -329,3 +329,37 @@ export function buildResubscribeConfirmationEmail(): string {
     ${footer()}
   `, "Welcome back to Dnews Africa!");
 }
+
+export function buildTestNewsletterEmail(name?: string, unsubscribeUrl?: string): string {
+  const greeting = name ? `Hello ${name},` : "Hello Reader,";
+  return wrapper(`
+    ${header()}
+    <tr>
+      <td style="padding:40px 40px 16px;">
+        <p style="color:${textMuted};font-size:16px;line-height:1.7;margin:0 0 4px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-muted">${greeting}</p>
+        <p style="color:${textMuted};font-size:16px;line-height:1.7;margin:0 0 20px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-muted">
+          This is a test newsletter from Dnews Africa. If you are reading this, the email system is working correctly.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:0 40px 8px;">
+        <h2 style="color:${brandDark};font-size:20px;margin:0 0 6px;font-weight:700;font-family:Georgia,'Times New Roman',serif;" class="dark-text">Test Newsletter</h2>
+        <p style="color:${textMuted};font-size:14px;line-height:1.6;margin:0 0 20px;font-family:'Helvetica Neue',Arial,Helvetica,sans-serif;" class="dark-muted">
+          As a subscriber you will receive occasional updates when important stories are published across Africa. This message confirms your subscription is active and email delivery is working.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:24px 40px 0;text-align:center;">
+        ${ctaButton("https://dnewsafrica.com", "Visit Dnews Africa")}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:32px 40px 0;">
+        ${socialLinks()}
+      </td>
+    </tr>
+    ${footer(unsubscribeUrl)}
+  `, "Dnews Africa - Test Newsletter");
+}
