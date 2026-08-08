@@ -20,13 +20,18 @@ function truncateText(text: string, maxChars: number): string {
 
 function extractFromBlocks(content: string): string | null {
   try {
-    const parsed = JSON.parse(content);
+    const parsed: unknown = JSON.parse(content);
     if (!Array.isArray(parsed)) return null;
     const firstParagraph = parsed.find(
-      (b: any) => b.type === "paragraph" && b.data?.text
+      (b): b is { type: string; data?: { text?: string } } =>
+        typeof b === "object" &&
+        b !== null &&
+        "type" in b &&
+        (b as { type?: string }).type === "paragraph" &&
+        Boolean((b as { data?: { text?: string } }).data?.text)
     );
     if (firstParagraph) {
-      const text = String(firstParagraph.data.text ?? "").trim();
+      const text = String(firstParagraph.data?.text ?? "").trim();
       if (text) return text;
     }
     return null;

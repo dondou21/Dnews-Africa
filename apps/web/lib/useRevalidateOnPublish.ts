@@ -21,7 +21,10 @@ type EventCallback = (event: ArticlePublishedEvent) => void;
 
 export function useRevalidateOnPublish(callback: EventCallback): void {
   const callbackRef = useRef(callback);
-  callbackRef.current = callback;
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
   useEffect(() => {
     let eventSource: EventSource | null = null;

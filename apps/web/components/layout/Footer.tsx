@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { FaYoutube, FaInstagram, FaXTwitter, FaFacebookF } from "react-icons/fa6";
-import { ArrowUp } from "lucide-react";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
 import { socialLinks } from "@/lib/siteConfig";
 

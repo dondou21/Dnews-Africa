@@ -69,7 +69,6 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = getStoredTheme();
     const resolved = stored === "system" ? getSystemTheme() : stored;
-    setResolvedTheme(resolved);
     applyTheme(resolved);
 
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
