@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6";
+import { SITE_CONFIG, socialLinks } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
   title: "Contact Us – Dnews Africa",
@@ -7,12 +8,14 @@ export const metadata: Metadata = {
     "Get in touch with Dnews Africa. Reach out via email or follow us on social media.",
 };
 
-const socialLinks = [
-  { name: "YouTube", href: "#", icon: FaYoutube },
-  { name: "Instagram", href: "#", icon: FaInstagram },
-  { name: "Facebook", href: "#", icon: FaFacebookF },
-  { name: "X (Twitter)", href: "#", icon: FaXTwitter },
-];
+const iconMap: Record<string, typeof FaYoutube> = {
+  YouTube: FaYoutube,
+  Instagram: FaInstagram,
+  Facebook: FaFacebookF,
+  "X (Twitter)": FaXTwitter,
+};
+
+const contactEmail = SITE_CONFIG.contactEmail || "contact@dnewsafrica.com";
 
 export default function ContactPage() {
   return (
@@ -35,32 +38,34 @@ export default function ContactPage() {
             Have a story tip, feedback, or inquiry? Reach out to us via email:
           </p>
           <a
-            href="mailto:dnewsafrica23@gmail.com"
+            href={`mailto:${contactEmail}`}
             className="mt-3 inline-block text-dnews-accent underline underline-offset-2 hover:text-dnews-accent-light"
           >
-            dnewsafrica23@gmail.com
+            {contactEmail}
           </a>
 
-          <div className="mt-6">
-            <h3 className="font-heading text-lg font-semibold text-dnews-accent">
-              Follow Us
-            </h3>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {socialLinks.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <a
-                    key={link.name}
-                    href={link.href}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded border border-dnews-border bg-dnews-card text-dnews-gray transition-colors hover:border-dnews-red hover:text-dnews-red"
-                    aria-label={link.name}
-                  >
-                    <Icon size={18} />
-                  </a>
-                );
-              })}
+          {socialLinks().length > 0 && (
+            <div className="mt-6">
+              <h3 className="font-heading text-lg font-semibold text-dnews-accent">
+                Follow Us
+              </h3>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {socialLinks().map((link) => {
+                  const Icon = iconMap[link.name] ?? FaYoutube;
+                  return (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded border border-dnews-border bg-dnews-card text-dnews-gray transition-colors hover:border-dnews-red hover:text-dnews-red"
+                      aria-label={link.name}
+                    >
+                      <Icon size={18} />
+                    </a>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
         <section>

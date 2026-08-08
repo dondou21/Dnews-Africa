@@ -2,6 +2,7 @@ import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6
 import AdSlot from "./AdSlot";
 import TrendingWidget from "./TrendingWidget";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
+import { socialLinks } from "@/lib/siteConfig";
 
 interface TrendingArticle {
   id: string;
@@ -9,12 +10,12 @@ interface TrendingArticle {
   slug: string;
 }
 
-const socialLinks = [
-  { name: "YouTube", href: "#", icon: FaYoutube },
-  { name: "Instagram", href: "#", icon: FaInstagram },
-  { name: "Facebook", href: "#", icon: FaFacebookF },
-  { name: "X (Twitter)", href: "#", icon: FaXTwitter },
-];
+const iconMap: Record<string, typeof FaYoutube> = {
+  YouTube: FaYoutube,
+  Instagram: FaInstagram,
+  Facebook: FaFacebookF,
+  "X (Twitter)": FaXTwitter,
+};
 
 export default function RightSidebar({
   trendingArticles,
@@ -44,8 +45,8 @@ export default function RightSidebar({
           Follow Us
         </h3>
         <div className="flex flex-wrap gap-2">
-          {socialLinks.map((link) => {
-            const Icon = link.icon;
+          {socialLinks().map((link) => {
+            const Icon = iconMap[link.name] ?? FaYoutube;
             return (
               <a
                 key={link.name}

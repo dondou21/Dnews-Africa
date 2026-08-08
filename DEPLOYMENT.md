@@ -50,6 +50,7 @@ Notes:
 - Keep **one replica** — the in-process scheduler (30s poll) must not run twice.
 - `trust proxy` is enabled in production for correct client IPs behind the Railway proxy.
 - Set `SEED_ADMIN_PASSWORD`, `SEED_EDITOR_PASSWORD`, etc. **before** first `pnpm prisma db seed`.
+- The seed script refuses to run when `NODE_ENV=production`. It only creates development data (roles, categories, demo users, demo sponsors) — never run it against the staging/production database.
 
 ### Railway config
 `apps/api/railway.json` already sets the Dockerfile builder, healthcheck path (`/api/v1/public/health`), and single replica. Create the service via dashboard or:
@@ -67,7 +68,14 @@ Each app is a separate Vercel project rooted at `apps/web` and `apps/cms`. The `
 NEXT_PUBLIC_API_URL=https://api.dnewsafrica.com/api/v1
 NEXT_PUBLIC_MEDIA_BASE_URL=https://res.cloudinary.com
 NEXT_PUBLIC_SITE_URL=https://dnewsafrica.com
+NEXT_PUBLIC_CONTACT_EMAIL=contact@dnewsafrica.com
+NEXT_PUBLIC_SOCIAL_YOUTUBE=https://youtube.com/@dnewsafrica
+NEXT_PUBLIC_SOCIAL_INSTAGRAM=https://instagram.com/dnewsafrica
+NEXT_PUBLIC_SOCIAL_TWITTER=https://x.com/dnewsafrica
+NEXT_PUBLIC_SOCIAL_FACEBOOK=https://facebook.com/dnewsafrica
 ```
+
+Social links and the contact email only render when the corresponding env var is set.
 
 Then deploy with the Vercel CLI:
 

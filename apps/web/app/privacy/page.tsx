@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { SITE_CONFIG } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
   title: "Privacy Policy – Dnews Africa",
   description:
     "Dnews Africa privacy policy. Learn how we collect, use, and protect your personal information.",
 };
+
+const contactEmail = SITE_CONFIG.contactEmail || "contact@dnewsafrica.com";
 
 const sections = [
   {
@@ -36,7 +39,7 @@ const sections = [
     title: "Contact Information",
     content:
       "If you have any questions about this privacy policy or how we handle your data, please contact us at:",
-    email: "dnewsafrica23@gmail.com",
+    email: contactEmail,
   },
 ];
 

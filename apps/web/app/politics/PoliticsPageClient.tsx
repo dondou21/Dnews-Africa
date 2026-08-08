@@ -8,6 +8,7 @@ import { getFeaturedImageUrl } from "@/lib/image";
 import SectionHeader from "@/components/home/SectionHeader";
 import ArticleListItem from "@/components/home/ArticleListItem";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
+import { socialLinks } from "@/lib/siteConfig";
 import { extractExcerpt } from "@/lib/excerpt";
 
 interface ArticleItem {
@@ -280,28 +281,25 @@ export default function PoliticsPageClient() {
                 </div>
               )}
 
-              <div className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">
-                <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-red">
-                  Follow Us
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { name: "YouTube", icon: "FaYoutube", href: "#" },
-                    { name: "Instagram", icon: "FaInstagram", href: "#" },
-                    { name: "Facebook", icon: "FaFacebookF", href: "#" },
-                    { name: "X (Twitter)", icon: "FaXTwitter", href: "#" },
-                  ].map((link) => (
-                    <a
-                      key={link.name}
-                      href={link.href}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:border-dnews-red hover:text-dnews-red"
-                      aria-label={link.name}
-                    >
-                      <span className="text-[10px] font-bold uppercase">{link.name.charAt(0)}</span>
-                    </a>
-                  ))}
+              {socialLinks().length > 0 && (
+                <div className="mb-6 rounded-sm border border-dnews-border bg-dnews-card p-4">
+                  <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-brand-red">
+                    Follow Us
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {socialLinks().map((link) => (
+                      <a
+                        key={link.name}
+                        href={link.href}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:border-dnews-red hover:text-dnews-red"
+                        aria-label={link.name}
+                      >
+                        <span className="text-[10px] font-bold uppercase">{link.name.charAt(0)}</span>
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </aside>
         </div>

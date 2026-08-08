@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { SITE_CONFIG } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
   title: "Advertise & Partner – Dnews Africa",
   description:
     "Partner with Dnews Africa. Explore advertising, sponsorship, and media partnership opportunities.",
 };
+
+const contactEmail = SITE_CONFIG.contactEmail || "contact@dnewsafrica.com";
 
 const opportunities = [
   {
@@ -82,10 +85,10 @@ export default function AdvertisePage() {
             partnerships team:
           </p>
           <a
-            href="mailto:dnewsafrica23@gmail.com"
+            href={`mailto:${contactEmail}`}
             className="mt-3 inline-block text-dnews-accent underline underline-offset-2 hover:text-dnews-accent-light"
           >
-            dnewsafrica23@gmail.com
+            {contactEmail}
           </a>
         </section>
       </div>

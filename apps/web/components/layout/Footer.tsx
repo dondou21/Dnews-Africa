@@ -2,13 +2,14 @@ import Link from "next/link";
 import { FaYoutube, FaInstagram, FaXTwitter, FaFacebookF } from "react-icons/fa6";
 import { ArrowUp } from "lucide-react";
 import NewsletterSubscribe from "@/components/newsletter/NewsletterSubscribe";
+import { socialLinks } from "@/lib/siteConfig";
 
-const socialLinks = [
-  { name: "YouTube", href: "#", icon: FaYoutube },
-  { name: "Instagram", href: "#", icon: FaInstagram },
-  { name: "X (Twitter)", href: "#", icon: FaXTwitter },
-  { name: "Facebook", href: "#", icon: FaFacebookF },
-];
+const iconMap: Record<string, typeof FaYoutube> = {
+  YouTube: FaYoutube,
+  Instagram: FaInstagram,
+  "X (Twitter)": FaXTwitter,
+  Facebook: FaFacebookF,
+};
 
 const footerSections = [
   {
@@ -55,8 +56,8 @@ export default function Footer() {
               Independent news media across the continent and the world.
             </p>
             <div className="mt-5 flex items-center gap-2">
-              {socialLinks.map((link) => {
-                const Icon = link.icon;
+              {socialLinks().map((link) => {
+                const Icon = iconMap[link.name] ?? FaYoutube;
                 return (
                   <a
                     key={link.name}
