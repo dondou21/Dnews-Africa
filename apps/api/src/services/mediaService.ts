@@ -190,7 +190,7 @@ export const mediaService = {
       throw new AppError("Media not found", 404);
     }
 
-    if (user.role.name !== "ADMIN" && user.role.name !== "EDITOR") {
+    if (user.role.name !== "Admin" && user.role.name !== "Editor") {
       throw new AppError("Insufficient permissions", 403);
     }
 

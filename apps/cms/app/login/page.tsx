@@ -154,7 +154,7 @@ export default function DashboardLogin() {
 
       <div className="relative hidden overflow-hidden lg:flex lg:w-1/2">
         <Image
-          src="/images/cover image.png"
+          src="/images/cover.png"
           alt="Dnews Africa newsroom"
           fill
           priority

@@ -74,3 +74,10 @@ packages/api-client/src/index.js.map
 
 # temporary files
 *.tmp
+
+# editor / OS
+.vscode/
+.idea/
+*.swp
+*~
+Thumbs.db

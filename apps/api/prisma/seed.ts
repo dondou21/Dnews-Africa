@@ -4,6 +4,13 @@ import { hash } from "@node-rs/bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.NODE_ENV === "production") {
+    console.error(
+      "Seed aborted: do not run development seed data against a production database."
+    );
+    process.exit(1);
+  }
+
   const roles = [
     { name: "Admin", description: "Full system access" },
     { name: "Editor", description: "Can publish and manage content" },

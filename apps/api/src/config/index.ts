@@ -47,7 +47,6 @@ export const config = {
   jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   isProduction: process.env.NODE_ENV === "production",
-  enableApiDocs: process.env.ENABLE_API_DOCS !== "false",
   clientUrl: process.env.CLIENT_URL || process.env.SITE_URL || "http://localhost:5000",
   siteUrl: process.env.SITE_URL || process.env.CLIENT_URL || "https://dnewsafrica.com",
   resendApiKey: process.env.RESEND_API_KEY || "",

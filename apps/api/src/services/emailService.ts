@@ -83,13 +83,14 @@ async function sendEmailWithRetry(params: SendEmailParams, attempt: number = 1):
       html: params.html,
     });
 
-    logger.info("EmailService", "Resend response", {
-      to: params.to,
-      subject: params.subject,
-      response: result,
-    });
-
     if (result.error) {
+      logger.warn("EmailService", "Resend API error", {
+        to: params.to,
+        subject: params.subject,
+        errorName: result.error.name,
+        statusCode: result.error.statusCode,
+        message: result.error.message,
+      });
       throw new Error(
         `Resend API error (${result.error.name}, status ${result.error.statusCode}): ${result.error.message}`
       );
