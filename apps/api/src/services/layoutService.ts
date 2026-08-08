@@ -1,4 +1,5 @@
 import { layoutRepository } from "../repositories/layoutRepository";
+import { userRepository } from "../repositories/userRepository";
 import { AppError } from "../middlewares/errorHandler";
 import type { AuthenticatedUser } from "../types/express";
 
@@ -22,10 +23,12 @@ export const layoutService = {
   async getPublished() {
     const layout = await layoutRepository.findPublished();
     if (layout) return layout;
+    const actor = await userRepository.findSystemActor();
+    if (!actor) throw new AppError("No active admin user to own the default layout", 500);
     const created = await layoutRepository.create({
       name: "Default Homepage", slug: "default-homepage",
       status: "PUBLISHED", isDefault: true, settings: {},
-      createdById: "system",
+      createdById: actor.id,
     });
     return created;
   },

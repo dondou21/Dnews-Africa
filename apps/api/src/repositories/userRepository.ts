@@ -99,4 +99,14 @@ export const userRepository = {
         orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
       })
     ),
+
+  findSystemActor: async () => {
+    const actor = await prisma.user.findFirst({
+      where: { isActive: true, role: { name: "Admin" } },
+      include: { role: true },
+      orderBy: { createdAt: "asc" },
+    });
+    if (!actor) return null;
+    return stripPassword(actor) as PublicUser;
+  },
 };

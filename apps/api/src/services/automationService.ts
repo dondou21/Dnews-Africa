@@ -3,6 +3,7 @@ import { config } from "../config";
 import prisma from "../utils/prisma";
 import { automationRepository } from "../repositories/automationRepository";
 import { campaignService } from "./campaignService";
+import { userRepository } from "../repositories/userRepository";
 import { AppError } from "../middlewares/errorHandler";
 import { logger } from "../utils/logger";
 import type { AuthenticatedUser } from "../types/express";
@@ -173,6 +174,11 @@ export const automationService = {
       ? automation.template.subject.replace("{frequency}", automation.frequency.toLowerCase())
       : `${automation.frequency.charAt(0) + automation.frequency.slice(1).toLowerCase()} Digest`;
 
+    const actor = await userRepository.findSystemActor();
+    if (!actor) {
+      throw new AppError("No active admin user to own the automated digest", 500);
+    }
+
     const campaign = await campaignService.create(
       {
         title: `${automation.frequency.charAt(0) + automation.frequency.slice(1).toLowerCase()} Digest - ${new Date().toLocaleDateString()}`,
@@ -180,9 +186,8 @@ export const automationService = {
         content,
         status: "DRAFT",
       },
-      { id: "system", role: { name: "Admin" } } as AuthenticatedUser
+      { id: actor.id, role: { name: actor.role.name } } as AuthenticatedUser
     );
-
     const nextRun = computeNextRun(automation.frequency, automation.sendDay ?? null, automation.sendTime, automation.timezone);
     await automationRepository.update(id, {
       lastRun: new Date(),
