@@ -17,7 +17,7 @@ export default function SectionEditor({ section, onSave, onClose }: SectionEdito
   const [title, setTitle] = useState(section?.title ?? "");
   const [subtitle, setSubtitle] = useState(section?.subtitle ?? "");
   const [visible, setVisible] = useState(section?.visible ?? true);
-  const [settings, setSettings] = useState<Record<string, any>>(section?.settings ?? {});
+  const [settings, setSettings] = useState<Partial<SectionSettings>>(section?.settings ?? {});
 
   const currentTypeInfo = SECTION_TYPES.find(t => t.value === type);
   const currentGroup = currentTypeInfo?.group ?? "Content";
@@ -36,8 +36,7 @@ export default function SectionEditor({ section, onSave, onClose }: SectionEdito
       title: title || null,
       subtitle: subtitle || null,
       visible,
-      settings: settings as SectionSettings,
-    } as Section);
+      settings: settings as SectionSettings,    } as Section);
   };
 
   const grouped = SECTION_TYPES.reduce<Record<string, typeof SECTION_TYPES>>((acc, t) => {
@@ -109,7 +108,7 @@ export default function SectionEditor({ section, onSave, onClose }: SectionEdito
                   <div>
                     <label className="mb-1 block text-xs text-dnews-gray">Source</label>
                     <select value={settings.source ?? "latest"}
-                      onChange={(e) => setSettings(s => ({ ...s, source: e.target.value }))}
+                      onChange={(e) => setSettings(s => ({ ...s, source: e.target.value as SectionSettings["source"] }))}
                       className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1.5 text-sm outline-none focus:border-dnews-accent">
                       <option value="latest">Latest</option>
                       <option value="trending">Trending</option>
@@ -120,7 +119,7 @@ export default function SectionEditor({ section, onSave, onClose }: SectionEdito
                   <div>
                     <label className="mb-1 block text-xs text-dnews-gray">Layout</label>
                     <select value={settings.layout ?? "grid"}
-                      onChange={(e) => setSettings(s => ({ ...s, layout: e.target.value }))}
+                      onChange={(e) => setSettings(s => ({ ...s, layout: e.target.value as SectionSettings["layout"] }))}
                       className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1.5 text-sm outline-none focus:border-dnews-accent">
                       <option value="grid">Grid</option>
                       <option value="list">List</option>
@@ -132,7 +131,7 @@ export default function SectionEditor({ section, onSave, onClose }: SectionEdito
                   <div>
                     <label className="mb-1 block text-xs text-dnews-gray">Sort Order</label>
                     <select value={settings.sortOrder ?? "latest"}
-                      onChange={(e) => setSettings(s => ({ ...s, sortOrder: e.target.value }))}
+                      onChange={(e) => setSettings(s => ({ ...s, sortOrder: e.target.value as SectionSettings["sortOrder"] }))}
                       className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1.5 text-sm outline-none focus:border-dnews-accent">
                       <option value="latest">Latest</option>
                       <option value="oldest">Oldest</option>
@@ -144,7 +143,7 @@ export default function SectionEditor({ section, onSave, onClose }: SectionEdito
                   <div>
                     <label className="mb-1 block text-xs text-dnews-gray">Image Size</label>
                     <select value={settings.imageSize ?? "medium"}
-                      onChange={(e) => setSettings(s => ({ ...s, imageSize: e.target.value }))}
+                      onChange={(e) => setSettings(s => ({ ...s, imageSize: e.target.value as SectionSettings["imageSize"] }))}
                       className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1.5 text-sm outline-none focus:border-dnews-accent">
                       <option value="small">Small</option>
                       <option value="medium">Medium</option>
@@ -216,7 +215,7 @@ export default function SectionEditor({ section, onSave, onClose }: SectionEdito
                   <div>
                     <label className="mb-1 block text-xs text-dnews-gray">Theme</label>
                     <select value={settings.theme ?? "light"}
-                      onChange={(e) => setSettings(s => ({ ...s, theme: e.target.value }))}
+                      onChange={(e) => setSettings(s => ({ ...s, theme: e.target.value as SectionSettings["theme"] }))}
                       className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1.5 text-sm outline-none focus:border-dnews-accent">
                       <option value="light">Light</option>
                       <option value="dark">Dark</option>

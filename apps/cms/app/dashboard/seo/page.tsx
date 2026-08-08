@@ -24,7 +24,9 @@ function SeoDashboardContent() {
 
   const stats = report?.stats;
 
-  const columns: Column<any>[] = [
+  type SeoArticle = NonNullable<SeoReport["articles"]>[number];
+
+  const columns: Column<SeoArticle>[] = [
     { key: "title", header: "Article", render: (a) => (
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-dnews-dark">{a.title}</span>

@@ -70,7 +70,7 @@ function SearchAnalyticsContent() {
                 <div className="border-b border-dnews-border px-4 py-3">
                   <h3 className="text-sm font-semibold text-dnews-dark">Popular Searches</h3>
                 </div>
-                <DataTable columns={popularColumns} data={data.popularSearches} keyExtractor={(s: any) => s.query} loading={false}
+                <DataTable columns={popularColumns} data={data.popularSearches} keyExtractor={(s: { query: string; count: number }) => s.query} loading={false}
                   emptyTitle="No searches" emptyDescription="Search queries will appear here." />
               </div>
             )}

@@ -67,8 +67,8 @@ function SettingsPageContent() {
       const updated = await patch<typeof user>(`/users/${user.id}`, { firstName, lastName });
       saveUser(updated);
       setProfileSuccess("Profile updated successfully.");
-    } catch (err: any) {
-      setProfileError(err.message || "Failed to update profile.");
+    } catch (err: unknown) {
+      setProfileError(err instanceof Error ? err.message : "Failed to update profile.");
     } finally {
       setProfileSaving(false);
     }
@@ -99,8 +99,8 @@ function SettingsPageContent() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
-    } catch (err: any) {
-      setPasswordError(err.message || "Failed to change password.");
+    } catch (err: unknown) {
+      setPasswordError(err instanceof Error ? err.message : "Failed to change password.");
     } finally {
       setPasswordSaving(false);
     }

@@ -60,7 +60,7 @@ function NewAdForm() {
       try {
         const [advs, camps, med] = await Promise.all([
           get<{ id: string; companyName: string }[]>("/advertisers/list"),
-          get<{ id: string; name: string }[]>("/ad-campaigns?limit=100").then(r => (r as any).campaigns || []),
+          get<{ campaigns: { id: string; name: string }[] }>("/ad-campaigns?limit=100").then(r => r.campaigns || []),
           get<{ id: string; url: string; alt: string | null }[]>("/media").catch(() => []),
         ]);
         setAdvertisers(advs);

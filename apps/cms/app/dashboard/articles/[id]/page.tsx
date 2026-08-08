@@ -218,16 +218,16 @@ function ArticleDetailContent() {
 
       <div className="rounded-sm border border-dnews-border">
         <div className="flex border-b border-dnews-border">
-          {[
+          {([
             { key: "overview", label: "Overview", icon: History },
             { key: "revisions", label: `Revisions (${data?.revisions?.length ?? 0})`, icon: GitBranch },
             { key: "approvals", label: `Approvals (${data?.approvals?.length ?? 0})`, icon: CheckCircle },
             { key: "audit", label: "Audit Log", icon: History },
-          ].map((tab) => {
+          ] as { key: "overview" | "revisions" | "approvals" | "audit"; label: string; icon: typeof History }[]).map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
             return (
-              <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center gap-1.5 border-b-2 px-4 py-3 text-xs font-medium transition-colors ${
                   isActive ? "border-dnews-accent text-dnews-accent" : "border-transparent text-dnews-gray hover:text-dnews-dark"
                 }`}>

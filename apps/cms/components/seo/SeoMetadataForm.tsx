@@ -85,15 +85,15 @@ export default function SeoMetadataForm({ metadata, articleTitle, articleContent
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
           <div className="flex gap-1 rounded-sm border border-dnews-border bg-dnews-card p-1">
-            {[
+            {([
               { key: "general", label: "General", icon: Search },
               { key: "social", label: "Social", icon: Share2 },
               { key: "schema", label: "Schema", icon: Code },
-            ].map((tab) => {
+            ] as { key: "general" | "social" | "schema"; label: string; icon: typeof Search }[]).map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.key;
               return (
-                <button key={tab.key} type="button" onClick={() => setActiveTab(tab.key as any)}
+                <button key={tab.key} type="button" onClick={() => setActiveTab(tab.key)}
                   className={`flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-2 text-xs font-medium transition-colors ${
                     isActive ? "bg-dnews-accent text-white" : "text-dnews-gray hover:text-dnews-dark"
                   }`}>

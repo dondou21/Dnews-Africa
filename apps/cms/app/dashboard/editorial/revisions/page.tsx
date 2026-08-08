@@ -24,7 +24,7 @@ function RevisionsContent() {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page), limit: "20", status: "ALL", sort: "latest" });
     if (search) params.set("search", search);
-    get<{ articles: Article[]; pagination: any }>(`/editorial/articles?${params}`)
+    get<{ articles: Article[]; pagination: { page: number; limit: number; total: number; totalPages: number } }>(`/editorial/articles?${params}`)
       .then((res) => { setArticles(res.articles); setPagination(res.pagination); })
       .catch(() => {})
       .finally(() => setLoading(false));

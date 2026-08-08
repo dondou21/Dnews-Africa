@@ -67,8 +67,8 @@ function LayoutDetailContent() {
         name: name.trim(), isDefault, sections: sections.map((s, i) => ({ ...s, position: i })),
       });
       setLayout(updated);
-    } catch (err: any) {
-      setError(err.message || "Failed to save layout.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save layout.");
     } finally {
       setSaving(false);
     }
@@ -79,8 +79,8 @@ function LayoutDetailContent() {
     try {
       await post(`/layouts/${id}/publish`, {});
       await fetchLayout();
-    } catch (err: any) {
-      setError(err.message || "Failed to publish layout.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to publish layout.");
     } finally {
       setPublishing(false);
     }
@@ -91,8 +91,8 @@ function LayoutDetailContent() {
     try {
       await del(`/layouts/${id}`);
       router.push("/dashboard/layouts");
-    } catch (err: any) {
-      setError(err.message || "Failed to delete layout.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete layout.");
     }
   };
 
@@ -103,8 +103,8 @@ function LayoutDetailContent() {
         slug: `${layout!.slug}-copy`,
       });
       router.push(`/dashboard/layouts/${dup.id}`);
-    } catch (err: any) {
-      setError(err.message || "Failed to duplicate layout.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to duplicate layout.");
     }
   };
 

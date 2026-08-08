@@ -41,8 +41,8 @@ function NewLayoutContent() {
         name: name.trim(), slug: slug.trim(), isDefault, sections: sections.map((s, i) => ({ ...s, position: i })),
       });
       router.push(`/dashboard/layouts/${layout.id}`);
-    } catch (err: any) {
-      setError(err.message || "Failed to create layout.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create layout.");
     } finally {
       setSaving(false);
     }
