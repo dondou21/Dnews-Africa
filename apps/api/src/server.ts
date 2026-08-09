@@ -3,8 +3,14 @@ import { config } from "./config";
 import { schedulerService } from "./services/schedulerService";
 import { warmUpPool } from "./utils/poolWarmup";
 
-const server = app.listen(config.port, () => {
-  console.log(`[server] Dnews Africa API running on port ${config.port}`);
+const HOST = "0.0.0.0";
+
+console.log("[server] Starting Dnews Africa API...");
+console.log(`[server] NODE_ENV=${config.nodeEnv}`);
+console.log(`[server] PORT=${config.port}`);
+
+const server = app.listen(config.port, HOST, () => {
+  console.log(`[server] Listening on ${HOST}:${config.port}`);
   schedulerService.start();
   warmUpPool().then(() => console.log("[server] Database pool warmed up"));
 });

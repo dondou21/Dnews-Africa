@@ -99,7 +99,7 @@ vercel --prod            # from apps/cms
 
 ## 6. Post-deploy checks
 
-1. `GET /api/v1/public/health` → `200 {"status":"ok","database":"up"}`
+1. `GET /api/v1/public/health` → `200 {"status":"ok","timestamp":"..."}` (liveness check)
 2. Login via CMS, create an article, publish → notification email arrives.
 3. Subscribe a real address on the public site → welcome email arrives (verify in Resend dashboard).
 4. Upload an image in the CMS → URL is served from Cloudinary.

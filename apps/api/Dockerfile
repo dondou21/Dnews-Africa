@@ -47,6 +47,11 @@ COPY --from=builder /prisma/client /prisma/client
 RUN PRISMA_DIR=$(dirname "$(dirname "$(readlink -f /app/apps/api/node_modules/@prisma/client)")") && \
     mkdir -p "$PRISMA_DIR/.prisma" && \
     cp -r /prisma/client/. "$PRISMA_DIR/.prisma/client"
+COPY --from=builder /app/node_modules/.pnpm/@prisma+engines@*/node_modules/@prisma/engines/. /tmp/prisma-engines/
+RUN PRISMA_ENGINES_PKG=$(find /app/node_modules/.pnpm -maxdepth 1 -type d -name '@prisma+engines@*' | head -n 1)/node_modules/@prisma/engines && \
+    mkdir -p "$PRISMA_ENGINES_PKG" && \
+    cp -r /tmp/prisma-engines/. "$PRISMA_ENGINES_PKG/" && \
+    rm -rf /tmp/prisma-engines
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY apps/api/docker-start.sh ./apps/api/docker-start.sh
 RUN chmod +x /app/apps/api/docker-start.sh
