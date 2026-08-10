@@ -1,0 +1,16 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd c:/Users/Dondou/Desktop/dnews-africa/apps/api ; node -e \"const \\{articleRepository\\}=require\\('\\./dist/repositories/articleRepository\\.js'\\); console\\.log\\(typeof articleRepository\\.findHeroArticle\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd c:/Users/Dondou/Desktop/dnews-africa/apps/api ; node -e \"const express=require\\('express'\\); const app=require\\('\\./dist/app\\.js'\\)\\.default; console\\.log\\(typeof app\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd c:/Users/Dondou/Desktop/dnews-africa ; git reset --soft HEAD~1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
