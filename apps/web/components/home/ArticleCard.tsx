@@ -98,6 +98,12 @@ export default function ArticleCard({ article, variant = "default", priority }: 
   return (
     <article className="group flex flex-col">
       <Link href={`/articles/${article.slug}`}>
+        <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
+          {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
+        </span>
+        <h3 className="font-heading mb-3 text-lg font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-xl">
+          {article.title}
+        </h3>
         <div className="overflow-hidden rounded-xl">
           <ArticleImage
             src={imgSrc}
@@ -107,12 +113,6 @@ export default function ArticleCard({ article, variant = "default", priority }: 
             containerClassName="mb-3 transition-transform duration-500 group-hover:scale-[1.03]"
           />
         </div>
-        <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
-          {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
-        </span>
-        <h3 className="font-heading text-lg font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-xl">
-          {article.title}
-        </h3>
         <p className="mt-1.5 text-sm leading-relaxed text-dnews-gray">
           {sentence || excerpt}
         </p>
