@@ -1388,6 +1388,340 @@ export function plainTextToBlocks(text: string): { blocks: ContentBlock[]; warni
   return { blocks, warnings };
 }
 
+// ============================================================
+// HTML <-> Blocks conversion
+// ============================================================
+
+const VOID_ELEMENTS = new Set([
+  "img", "hr", "br", "input", "meta", "link", "source", "track", "area", "base", "col", "embed", "param", "wbr",
+]);
+
+interface HtmlToken {
+  kind: "open" | "close" | "text" | "void";
+  name: string;
+  attrs: Record<string, string>;
+  text?: string;
+}
+
+function tokenizeHtml(html: string): HtmlToken[] {
+  const tokens: HtmlToken[] = [];
+  const tagRe = /<\/?([a-zA-Z0-9]+)((?:[^>"']|"[^"]*"|'[^']*')*)\s*\/?>/g;
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = tagRe.exec(html)) !== null) {
+    const text = html.slice(lastIndex, m.index);
+    if (text) tokens.push({ kind: "text", name: "", attrs: {}, text });
+    const closing = m[0].startsWith("</");
+    const name = m[1].toLowerCase();
+    const attrsRaw = m[2] || "";
+    const attrs: Record<string, string> = {};
+    const attrRe = /([a-zA-Z0-9-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+)))?/g;
+    let am: RegExpExecArray | null;
+    while ((am = attrRe.exec(attrsRaw)) !== null) {
+      attrs[am[1].toLowerCase()] = (am[2] ?? am[3] ?? am[4] ?? "").trim();
+    }
+    if (closing) {
+      tokens.push({ kind: "close", name, attrs: {} });
+    } else if (/\/>$/.test(m[0]) || VOID_ELEMENTS.has(name)) {
+      tokens.push({ kind: "void", name, attrs });
+    } else {
+      tokens.push({ kind: "open", name, attrs });
+    }
+    lastIndex = m.index + m[0].length;
+  }
+  const trailing = html.slice(lastIndex);
+  if (trailing) tokens.push({ kind: "text", name: "", attrs: {}, text: trailing });
+  return tokens;
+}
+
+function decodeEntities(str: string): string {
+  return str
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_m, h: string) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/gi, (_m, n: string) => String.fromCharCode(Number(n)));
+}
+
+function findMatchingClose(tokens: HtmlToken[], openIndex: number, name: string): number {
+  let depth = 0;
+  for (let i = openIndex; i < tokens.length; i++) {
+    const tok = tokens[i];
+    if (tok.kind === "open" && tok.name === name) depth++;
+    else if (tok.kind === "close" && tok.name === name) {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return tokens.length;
+}
+
+function htmlText(tokens: HtmlToken[], start: number, end: number): string {
+  let out = "";
+  for (let i = start; i < end; i++) {
+    const tok = tokens[i];
+    if (tok.kind === "text") out += tok.text ?? "";
+    else if (tok.kind === "void" && tok.name === "br") out += "\n";
+  }
+  return decodeEntities(out).replace(/\u00a0/g, " ");
+}
+
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function escapeAttr(str: string): string {
+  return escapeHtml(str).replace(/\s+/g, " ");
+}
+
+export function htmlToBlocks(html: string): { blocks: ContentBlock[]; warnings: ConversionWarning[] } {
+  const warnings: ConversionWarning[] = [];
+  const tokens = tokenizeHtml(html || "");
+  const blocks: ContentBlock[] = [];
+  let i = 0;
+  const n = tokens.length;
+
+  const pushTextBlocks = (text: string) => {
+    const t = text.trim();
+    if (!t) return;
+    const parsed = plainTextToBlocks(t);
+    blocks.push(...parsed.blocks);
+  };
+
+  const parseList = (start: number, ordered: boolean) => {
+    const listName = ordered ? "ol" : "ul";
+    const closeIdx = findMatchingClose(tokens, start, listName);
+    const items: string[] = [];
+    for (let j = start + 1; j < closeIdx; j++) {
+      if (tokens[j].kind === "open" && tokens[j].name === "li") {
+        const liClose = findMatchingClose(tokens, j, "li");
+        const itemText = htmlText(tokens, j + 1, liClose).trim();
+        if (itemText) items.push(itemText);
+        j = liClose;
+      }
+    }
+    if (items.length) {
+      blocks.push(createBlock(ordered ? "numberedList" : "bulletList", { items }));
+    }
+  };
+
+  const parseContainer = (start: number, name: string) => {
+    const closeIdx = findMatchingClose(tokens, start, name);
+    const text = htmlText(tokens, start + 1, closeIdx).trim();
+    return { text, closeIdx };
+  };
+
+  while (i < n) {
+    const tok = tokens[i];
+    if (tok.kind === "text") {
+      pushTextBlocks(tok.text ?? "");
+      i++;
+      continue;
+    }
+    if (tok.kind === "close") {
+      i++;
+      continue;
+    }
+    if (tok.kind === "void") {
+      if (tok.name === "img") {
+        const src = tok.attrs.src || "";
+        if (src) {
+          blocks.push(createBlock("image", { url: src, alt: tok.attrs.alt || "", caption: "", credit: "", alignment: "full", size: "large" }));
+        }
+      } else if (tok.name === "hr") {
+        blocks.push(createBlock("divider", {}));
+      }
+      i++;
+      continue;
+    }
+
+    const name = tok.name;
+    if (name === "ul" || name === "ol") {
+      parseList(i, name === "ol");
+      i = findMatchingClose(tokens, i, name) + 1;
+      continue;
+    }
+    if (name === "h1" || name === "h2" || name === "h3" || name === "h4" || name === "h5" || name === "h6") {
+      const { text, closeIdx } = parseContainer(i, name);
+      if (text) {
+        const level = name === "h1" || name === "h2" ? "h2" : name === "h3" ? "h3" : "h4";
+        blocks.push(createBlock("heading", { text, level }));
+      }
+      i = closeIdx + 1;
+      continue;
+    }
+    if (name === "blockquote") {
+      const { text, closeIdx } = parseContainer(i, name);
+      if (text) {
+        const parts = text.split(/\s+[—-]\s+/).map((s) => s.trim());
+        if (parts.length > 1) {
+          blocks.push(createBlock("quote", { text: parts[0], attribution: parts.slice(1).join(" — ") }));
+        } else {
+          blocks.push(createBlock("quote", { text, attribution: "" }));
+        }
+      }
+      i = closeIdx + 1;
+      continue;
+    }
+    if (name === "figure") {
+      const closeIdx = findMatchingClose(tokens, i, name);
+      let imgTok: HtmlToken | null = null;
+      for (let j = i + 1; j < closeIdx; j++) {
+        if (tokens[j].kind === "void" && tokens[j].name === "img") {
+          imgTok = tokens[j];
+          break;
+        }
+      }
+      const captionText = htmlText(tokens, i + 1, closeIdx).trim();
+      if (imgTok && imgTok.attrs.src) {
+        blocks.push(createBlock("image", { url: imgTok.attrs.src, alt: imgTok.attrs.alt || "", caption: captionText, credit: "", alignment: "full", size: "large" }));
+      } else if (captionText) {
+        blocks.push(createBlock("paragraph", { text: captionText }));
+      }
+      i = closeIdx + 1;
+      continue;
+    }
+    if (name === "p" || name === "pre" || name === "div" || name === "aside" || name === "section" || name === "table" || name === "span" || name === "strong" || name === "em" || name === "a" || name === "code" || name === "iframe" || name === "video") {
+      const { text, closeIdx } = parseContainer(i, name);
+      if (name === "iframe") {
+        const src = tok.attrs.src || "";
+        if (src) blocks.push(createBlock("embed", { url: src, caption: "" }));
+        else if (text) pushTextBlocks(text);
+      } else if (name === "video") {
+        const src = tok.attrs.src || "";
+        if (src) blocks.push(createBlock("video", { url: src, caption: text, posterUrl: tok.attrs.poster || "" }));
+        else if (text) pushTextBlocks(text);
+      } else {
+        pushTextBlocks(text);
+      }
+      i = closeIdx + 1;
+      continue;
+    }
+    const closeIdx = findMatchingClose(tokens, i, name);
+    i = closeIdx + 1;
+  }
+
+  if (blocks.length === 0) blocks.push(createBlock("paragraph", { text: "" }));
+  return { blocks, warnings };
+}
+
+export function blocksToHtml(blocks: ContentBlock[]): string {
+  const parts: string[] = [];
+  for (const block of blocks) {
+    switch (block.type) {
+      case "paragraph":
+        parts.push(`<p>${escapeHtml(String(block.data.text ?? ""))}</p>`);
+        break;
+      case "heading": {
+        const level = block.data.level === "h3" ? 3 : block.data.level === "h4" ? 4 : 2;
+        parts.push(`<h${level}>${escapeHtml(String(block.data.text ?? ""))}</h${level}>`);
+        break;
+      }
+      case "quote":
+      case "pullQuote": {
+        const text = String(block.data.text ?? "");
+        const attribution = String(block.data.attribution ?? "");
+        parts.push(`<blockquote><p>${escapeHtml(text)}${attribution ? ` — ${escapeHtml(attribution)}` : ""}</p></blockquote>`);
+        break;
+      }
+      case "image": {
+        const url = String(block.data.url ?? "");
+        const alt = String(block.data.alt ?? "");
+        const caption = String(block.data.caption ?? "");
+        parts.push(`<figure><img src="${escapeAttr(url)}" alt="${escapeAttr(alt)}" />${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}</figure>`);
+        break;
+      }
+      case "imageGallery": {
+        const items = (block.data.items as Array<{ url?: string; caption?: string; credit?: string }>) ?? [];
+        for (const item of items) {
+          if (item.url) {
+            parts.push(`<figure><img src="${escapeAttr(item.url)}" alt="" />${item.caption ? `<figcaption>${escapeHtml(item.caption)}</figcaption>` : ""}</figure>`);
+          }
+        }
+        break;
+      }
+      case "video": {
+        const url = String(block.data.url ?? "");
+        const caption = String(block.data.caption ?? "");
+        const poster = String(block.data.posterUrl ?? "");
+        if (url) {
+          parts.push(`<figure><video controls src="${escapeAttr(url)}"${poster ? ` poster="${escapeAttr(poster)}"` : ""}></video>${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}</figure>`);
+        }
+        break;
+      }
+      case "divider":
+        parts.push("<hr />");
+        break;
+      case "bulletList": {
+        const items = (block.data.items as string[] ?? []);
+        if (items.length) {
+          parts.push(`<ul>${items.map((item) => `<li>${escapeHtml(String(item))}</li>`).join("")}</ul>`);
+        }
+        break;
+      }
+      case "numberedList": {
+        const items = (block.data.items as string[] ?? []);
+        if (items.length) {
+          parts.push(`<ol>${items.map((item) => `<li>${escapeHtml(String(item))}</li>`).join("")}</ol>`);
+        }
+        break;
+      }
+      case "table": {
+        const rows = (block.data.rows as string[][]) ?? [];
+        const header = (block.data.header as string[]) ?? [];
+        if (rows.length || header.length) {
+          const headerRow = header.length ? `<thead><tr>${header.map((h) => `<th>${escapeHtml(String(h))}</th>`).join("")}</tr></thead>` : "";
+          const body = `<tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${escapeHtml(String(c))}</td>`).join("")}</tr>`).join("")}</tbody>`;
+          parts.push(`<table>${headerRow}${body}</table>`);
+        }
+        break;
+      }
+      case "embed": {
+        const url = String(block.data.url ?? "");
+        const caption = String(block.data.caption ?? "");
+        if (url) {
+          parts.push(`<div><iframe src="${escapeAttr(url)}"></iframe>${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}</div>`);
+        }
+        break;
+      }
+      case "relatedArticle": {
+        const url = String(block.data.url ?? "");
+        const title = String(block.data.title ?? "");
+        if (url) {
+          parts.push(`<p><a href="${escapeAttr(url)}">${escapeHtml(title)}</a></p>`);
+        }
+        break;
+      }
+      case "callout": {
+        const title = String(block.data.title ?? "");
+        const text = String(block.data.text ?? "");
+        parts.push(`<blockquote><p>${title ? `<strong>${escapeHtml(title)}</strong><br />` : ""}${escapeHtml(text)}</p></blockquote>`);
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  return parts.join("");
+}
+
+export function contentIsEmpty(content: string): boolean {
+  const t = (content ?? "").trim();
+  if (!t) return true;
+  if (t === "[]") return true;
+  if (/^<p(\s[^>]*)?>\s*<\/p>$/.test(t)) return true;
+  if (/^<p(\s[^>]*)?><br\s*\/?><\/p>$/.test(t)) return true;
+  return false;
+}
+
 export function blocksToPlainText(blocks: ContentBlock[]): { text: string; warnings: ConversionWarning[] } {
   const parts: string[] = [];
   const warnings: ConversionWarning[] = [];

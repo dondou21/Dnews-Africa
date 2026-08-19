@@ -5,7 +5,7 @@ import { AlertTriangle, ArrowLeftRight, TextSelect, Pilcrow, Maximize2 } from "l
 import type { ContentBlock } from "@dnews/types";
 import {
   deserializeContent, serializeContent, isContentBlocks,
-  plainTextToBlocks, blocksToPlainText
+  plainTextToBlocks, blocksToPlainText, htmlToBlocks, blocksToHtml
 } from "@dnews/types";
 import BlocksEditor from "./blocks/BlockEditor";
 import RichTextEditor, { isRichTextContent } from "./RichTextEditor";
@@ -22,6 +22,7 @@ const MODE_LABELS: Record<EditorMode, string> = {
 function detectMode(content: string): EditorMode {
   if (isContentBlocks(content)) return "blocks";
   if (isRichTextContent(content)) return "richtext";
+  if (!content.trim()) return "richtext";
   return "plain";
 }
 
@@ -57,9 +58,9 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
     const next = order[(order.indexOf(mode) + 1) % order.length];
 
     if (mode === "richtext") {
-      const { blocks: newBlocks, warnings: convWarnings } = plainTextToBlocks(richHtml.replace(/<[^>]*>/g, ""));
+      const { blocks: newBlocks, warnings: convWarnings } = htmlToBlocks(richHtml);
       setBlocks(newBlocks);
-      setPlainText(richHtml.replace(/<[^>]*>/g, ""));
+      setPlainText(blocksToPlainText(newBlocks).text);
       if (next === "blocks" && convWarnings.length > 0) {
         showTemporaryWarnings("blocks", [
           `Converted ${newBlocks.length} block(s) from rich text.`,
@@ -69,7 +70,7 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
     } else if (mode === "blocks") {
       const { text, warnings: convWarnings } = blocksToPlainText(blocks);
       setPlainText(text);
-      setRichHtml(`<p>${text.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br />")}</p>`);
+      setRichHtml(blocksToHtml(blocks));
       if (next === "plain" && convWarnings.length > 0) {
         showTemporaryWarnings("plain", [
           `Converted ${blocks.length} block(s) to plain text.`,
@@ -79,7 +80,7 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
     } else {
       const { blocks: newBlocks, warnings: convWarnings } = plainTextToBlocks(plainText);
       setBlocks(newBlocks);
-      setRichHtml(`<p>${plainText.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br />")}</p>`);
+      setRichHtml(blocksToHtml(newBlocks));
       if (next === "blocks" && convWarnings.length > 0) {
         showTemporaryWarnings("blocks", [
           `Converted ${newBlocks.length} block(s) from plain text.`,
