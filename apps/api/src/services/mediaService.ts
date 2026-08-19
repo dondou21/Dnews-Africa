@@ -78,8 +78,9 @@ async function validateFile(file: Express.Multer.File): Promise<void> {
 }
 
 export function getMediaPublicUrl(filename: string): string {
-  const clean = filename.replace(/^\/+/, "");
-  return `${config.mediaBaseUrl}/${clean}`;
+  if (/^https?:\/\//.test(filename)) return filename;
+  const clean = filename.replace(/^\/+/, "").replace(/^uploads\//, "");
+  return `${config.apiUrl}/uploads/${clean}`;
 }
 
 function formatMediaResponse(media: MediaRecord): MediaResponse & { uploadedBy?: { id: string; firstName: string; lastName: string } } {
