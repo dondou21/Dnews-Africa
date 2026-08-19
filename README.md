@@ -19,7 +19,7 @@ Next.js frontend with React, TypeScript, and Tailwind CSS.
 cd client
 npm install
 npm run dev
-```
+``` 
 
 ### Server
 
