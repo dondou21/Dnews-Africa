@@ -91,9 +91,11 @@ export default function ArticleImage({
     <div
       className={`relative w-full shrink-0 overflow-hidden rounded-sm bg-dnews-light-gray ${containerClassName}`}
       style={
-        hasNaturalDimensions
-          ? { aspectRatio: `${naturalWidth} / ${naturalHeight}` }
-          : { aspectRatio: "16 / 9" }
+        layout === "card"
+          ? { aspectRatio: "16 / 9" }
+          : hasNaturalDimensions
+            ? { aspectRatio: `${naturalWidth} / ${naturalHeight}` }
+            : { aspectRatio: "16 / 9" }
       }
     >
       <Image
