@@ -71,6 +71,94 @@ describe("POST /api/v1/cms/articles", () => {
   });
 });
 
+describe("Article validation", () => {
+  it("should reject creation with missing required fields", async () => {
+    const res = await request(app)
+      .post("/api/v1/cms/articles")
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({ title: "Only Title" });
+    expect(res.status).toBe(400);
+    expect(res.body.errors).toBeDefined();
+  });
+
+  it("should reject creation with empty block content", async () => {
+    const res = await request(app)
+      .post("/api/v1/cms/articles")
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({
+        title: "Empty Blocks",
+        slug: "empty-blocks",
+        summary: "Summary",
+        content: "[]",
+        categoryId: 1,
+      });
+    expect(res.status).toBe(400);
+  });
+
+  it("should reject creation with empty HTML content", async () => {
+    const res = await request(app)
+      .post("/api/v1/cms/articles")
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({
+        title: "Empty Html",
+        slug: "empty-html",
+        summary: "Summary",
+        content: "<p></p>",
+        categoryId: 1,
+      });
+    expect(res.status).toBe(400);
+  });
+
+  it("should reject update clearing the title", async () => {
+    const res = await request(app)
+      .patch(`/api/v1/cms/articles/${draftArticleId}`)
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({ title: "" });
+    expect(res.status).toBe(400);
+  });
+
+  it("should reject update with whitespace-only summary", async () => {
+    const res = await request(app)
+      .patch(`/api/v1/cms/articles/${draftArticleId}`)
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({ summary: "   " });
+    expect(res.status).toBe(400);
+  });
+
+  it("should reject update clearing the content to empty blocks", async () => {
+    const res = await request(app)
+      .patch(`/api/v1/cms/articles/${draftArticleId}`)
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({ content: "[]" });
+    expect(res.status).toBe(400);
+  });
+
+  it("should reject publishing without required fields", async () => {
+    const res = await request(app)
+      .patch(`/api/v1/cms/articles/${draftArticleId}`)
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({ status: "PUBLISHED", title: "" });
+    expect(res.status).toBe(400);
+  });
+
+  it("should reject scheduling without required fields", async () => {
+    const res = await request(app)
+      .patch(`/api/v1/cms/articles/${draftArticleId}`)
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({ status: "SCHEDULED", scheduledAt: new Date(Date.now() + 1000 * 60 * 60).toISOString(), content: "[]" });
+    expect(res.status).toBe(400);
+  });
+
+  it("should allow updating a single field", async () => {
+    const res = await request(app)
+      .patch(`/api/v1/cms/articles/${draftArticleId}`)
+      .set("Authorization", `Bearer ${editorToken}`)
+      .send({ summary: "Updated summary" });
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toBe("Updated summary");
+  });
+});
+
 describe("GET /api/v1/public/articles", () => {
   it("should return only published articles", async () => {
     const res = await request(app).get("/api/v1/public/articles");
