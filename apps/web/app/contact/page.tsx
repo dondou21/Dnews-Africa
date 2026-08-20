@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
-import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6";
-import { SITE_CONFIG, socialLinks } from "@/lib/siteConfig";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Contact Us – Dnews Africa",
-  description:
-    "Get in touch with Dnews Africa. Reach out via email or follow us on social media.",
-};
+import { useState, type FormEvent } from "react";
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { FaYoutube, FaInstagram, FaFacebookF, FaXTwitter } from "react-icons/fa6";
+import { post } from "@dnews/api-client";
+import { SITE_CONFIG, socialLinks } from "@/lib/siteConfig";
 
 const iconMap: Record<string, typeof FaYoutube> = {
   YouTube: FaYoutube,
@@ -18,6 +16,35 @@ const iconMap: Record<string, typeof FaYoutube> = {
 const contactEmail = SITE_CONFIG.contactEmail || "contact@dnewsafrica.com";
 
 export default function ContactPage() {
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    setSuccess(false);
+    setSubmitting(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      await post("/contact", {
+        name: String(formData.get("name") ?? "").trim(),
+        email: String(formData.get("email") ?? "").trim(),
+        subject: String(formData.get("subject") ?? "").trim(),
+        message: String(formData.get("message") ?? "").trim(),
+      });
+      form.reset();
+      setSuccess(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Message could not be sent. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8">
       <div className="mb-10">
@@ -72,7 +99,29 @@ export default function ContactPage() {
           <h2 className="font-heading text-xl font-semibold text-dnews-accent">
             Send Us a Message
           </h2>
-          <form className="mt-4 space-y-4">
+          {success ? (
+            <div
+              role="status"
+              className="mt-4 rounded-sm border border-green-500/30 bg-green-50 p-5 dark:bg-green-900/15"
+            >
+              <div className="flex items-start gap-3">
+                <CheckCircle
+                  size={22}
+                  className="mt-0.5 shrink-0 text-green-600 dark:text-green-400"
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+                    Message sent successfully
+                  </p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-green-700 dark:text-green-400">
+                    Thank you for reaching out. The Dnews Africa team will get back to you soon.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+          <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="name"
@@ -139,11 +188,23 @@ export default function ContactPage() {
             </div>
             <button
               type="submit"
-              className="rounded bg-dnews-accent px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-dnews-accent-light"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 rounded bg-dnews-accent px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-dnews-accent-light disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Send Message
+              {submitting && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+              {submitting ? "Sending..." : "Send Message"}
             </button>
           </form>
+          )}
+          {error && (
+            <div
+              role="alert"
+              className="mt-4 flex items-start gap-2 rounded-sm border border-dnews-red/30 bg-dnews-red/5 px-4 py-3"
+            >
+              <AlertCircle size={15} className="mt-0.5 shrink-0 text-dnews-red" aria-hidden="true" />
+              <p className="text-xs leading-relaxed text-dnews-red">{error}</p>
+            </div>
+          )}
         </section>
       </div>
     </div>
