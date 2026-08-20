@@ -15,6 +15,7 @@ interface ArticleImageProps {
   src: string;
   alt: string;
   layout?: ImageLayout;
+  fit?: "cover" | "contain";
   focalPoint?: FocalPoint;
   priority?: boolean;
   sizes?: string;
@@ -39,6 +40,7 @@ export default function ArticleImage({
   src,
   alt,
   layout = "card",
+  fit = "cover",
   focalPoint,
   priority,
   sizes,
@@ -102,7 +104,7 @@ export default function ArticleImage({
         src={displaySrc}
         alt={alt}
         fill
-        className={`object-cover ${positionClass} transition-transform duration-500 group-hover:scale-105 ${className}`}
+        className={`${fit === "contain" ? "object-contain" : "object-cover"} ${positionClass} transition-transform duration-500 group-hover:scale-105 ${className}`}
         sizes={
           sizes ||
           (layout === "hero"
