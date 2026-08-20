@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   title: "Dnews Africa CMS",
   description: "Content management system for Dnews Africa",
   icons: {
-    icon: "/images/logo.png",
-    shortcut: "/images/logo.png",
+    icon: "/images/logo1.png",
+    shortcut: "/images/logo1.png",
   },
 };
 
