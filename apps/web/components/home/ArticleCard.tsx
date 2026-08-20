@@ -1,7 +1,7 @@
 import ArticleImage from "@/components/shared/ArticleImage";
 import Link from "next/link";
 import { getFeaturedImageUrl } from "@/lib/image";
-import { extractExcerpt, extractFirstSentence } from "@/lib/excerpt";
+import { extractExcerpt } from "@/lib/excerpt";
 
 interface ArticleItem {
   id: string;
@@ -48,19 +48,21 @@ interface ArticleCardProps {
 export default function ArticleCard({ article, variant = "default", priority }: ArticleCardProps) {
   const imgSrc = getFeaturedImageUrl(article.featuredImage, article.coverImageUrl);
   const imgAlt = article.featuredImage?.alt || article.coverImageAlt || article.title;
-  const sentence = extractFirstSentence(article.summary, article.content);
-  const excerpt = extractExcerpt(article.summary, article.content);
+  const excerpt =
+    extractExcerpt("", article.content, 180) ||
+    extractExcerpt(article.summary, "", 180);
   const authorDisplay = article.authorName || `${article.author?.firstName || ""} ${article.author?.lastName || ""}`.trim();
 
   if (variant === "hero") {
     return (
-      <article className="group border-b border-dnews-border pb-6">
-        <Link href={`/articles/${article.slug}`}>
+      <article className="group flex h-full flex-col border-b border-dnews-border pb-6">
+        <Link href={`/articles/${article.slug}`} className="flex h-full flex-col">
           <div className="overflow-hidden rounded-xl">
             <ArticleImage
               src={imgSrc}
               alt={imgAlt}
-              layout="hero"
+              layout="card"
+              fit="contain"
               priority={priority}
               containerClassName="mb-5 transition-transform duration-500 group-hover:scale-[1.02]"
             />
@@ -72,8 +74,8 @@ export default function ArticleCard({ article, variant = "default", priority }: 
             <h2 className="font-heading mt-2 text-xl font-bold leading-tight text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-2xl lg:text-3xl">
               {article.title}
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-dnews-gray">
-              {sentence || excerpt}
+            <p className="mt-2 line-clamp-3 min-h-[4.5rem] text-sm leading-relaxed text-dnews-gray">
+              {excerpt}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-dnews-muted">
               <span className="font-medium text-dnews-dark">
@@ -96,12 +98,12 @@ export default function ArticleCard({ article, variant = "default", priority }: 
   }
 
   return (
-    <article className="group flex flex-col">
-      <Link href={`/articles/${article.slug}`}>
-        <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
+    <article className="group flex h-full flex-col">
+      <Link href={`/articles/${article.slug}`} className="flex h-full flex-col">
+        <span className="mb-1.5 inline-block min-h-[1.25rem] text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
           {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
         </span>
-        <h3 className="font-heading mb-3 text-lg font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-xl">
+        <h3 className="font-heading mb-3 line-clamp-2 h-[3.5rem] overflow-hidden text-lg font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-xl">
           {article.title}
         </h3>
         <div className="overflow-hidden rounded-xl">
@@ -109,14 +111,15 @@ export default function ArticleCard({ article, variant = "default", priority }: 
             src={imgSrc}
             alt={imgAlt}
             layout="card"
+            fit="contain"
             priority={priority}
             containerClassName="mb-3 transition-transform duration-500 group-hover:scale-[1.03]"
           />
         </div>
-        <p className="mt-1.5 text-sm leading-relaxed text-dnews-gray">
-          {sentence || excerpt}
+        <p className="mt-1.5 line-clamp-3 min-h-[4.5rem] text-sm leading-relaxed text-dnews-gray">
+          {excerpt}
         </p>
-        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-dnews-muted">
+        <div className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 text-xs text-dnews-muted">
           <span className="font-medium text-dnews-dark">{authorDisplay}</span>
           <span className="text-dnews-border">·</span>
           <span>{formatDate(article.publishedAt)}</span>
