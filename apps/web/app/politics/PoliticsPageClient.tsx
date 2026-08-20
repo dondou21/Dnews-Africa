@@ -168,23 +168,23 @@ export default function PoliticsPageClient() {
 
             <section>
               <SectionHeader title="Latest Political News" />
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start">
+              <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {otherArticles.slice(0, 6).map((article) => (
-                  <article key={article.id} className="group">
-                    <Link href={`/articles/${article.slug}`}>
+                  <article key={article.id} className="group flex h-full flex-col">
+                    <Link href={`/articles/${article.slug}`} className="flex h-full flex-col">
                       <ArticleImage
                         src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
                         alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
                         layout="card"
                         containerClassName="mb-3"
                       />
-                      <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
+                      <h3 className="font-heading line-clamp-2 text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
                       {article.title}
                     </h3>
-                      <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
+                      <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-dnews-gray">
                         {extractExcerpt(article.summary, article.content)}
                       </p>
-                      <div className="mt-2 flex items-center gap-2 text-xs text-dnews-muted">
+                      <div className="mt-auto flex items-center gap-2 pt-2 text-xs text-dnews-muted">
                         <span className="font-medium text-dnews-dark">
                           By {article.authorName || `${article.author?.firstName || ""} ${article.author?.lastName || ""}`.trim()}
                         </span>
@@ -220,20 +220,20 @@ export default function PoliticsPageClient() {
 
             <section>
               <SectionHeader title="Editor&apos;s Picks" />
-              <div className="grid gap-6 sm:grid-cols-2 items-start">
+              <div className="grid items-stretch gap-6 sm:grid-cols-2">
                 {editorsPicks.map((article) => (
-                  <article key={article.id} className="group">
-                    <Link href={`/articles/${article.slug}`}>
+                  <article key={article.id} className="group flex h-full flex-col">
+                    <Link href={`/articles/${article.slug}`} className="flex h-full flex-col">
                       <ArticleImage
                         src={getFeaturedImageUrl(article.featuredImage, article.coverImageUrl)}
                         alt={article.featuredImage?.alt || article.coverImageAlt || article.title}
                         layout="card"
                         containerClassName="mb-3"
                       />
-                      <h3 className="font-heading text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
+                      <h3 className="font-heading line-clamp-2 text-base font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent">
                         {article.title}
                       </h3>
-                      <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
+                      <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-dnews-gray">
                         {extractExcerpt(article.summary, article.content)}
                       </p>
                     </Link>

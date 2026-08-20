@@ -54,8 +54,8 @@ export default function ArticleCard({ article, variant = "default", priority }: 
 
   if (variant === "hero") {
     return (
-      <article className="group border-b border-dnews-border pb-6">
-        <Link href={`/articles/${article.slug}`}>
+      <article className="group flex h-full flex-col border-b border-dnews-border pb-6">
+        <Link href={`/articles/${article.slug}`} className="flex h-full flex-col">
           <div className="overflow-hidden rounded-xl">
             <ArticleImage
               src={imgSrc}
@@ -69,10 +69,10 @@ export default function ArticleCard({ article, variant = "default", priority }: 
             <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
               {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
             </span>
-            <h2 className="font-heading mt-2 text-xl font-bold leading-tight text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-2xl lg:text-3xl">
+            <h2 className="font-heading mt-2 line-clamp-2 text-xl font-bold leading-tight text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-2xl lg:text-3xl">
               {article.title}
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-dnews-gray">
+            <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-dnews-gray">
               {sentence || excerpt}
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-dnews-muted">
@@ -96,12 +96,12 @@ export default function ArticleCard({ article, variant = "default", priority }: 
   }
 
   return (
-    <article className="group flex flex-col">
-      <Link href={`/articles/${article.slug}`}>
+    <article className="group flex h-full flex-col">
+      <Link href={`/articles/${article.slug}`} className="flex h-full flex-col">
         <span className="mb-1.5 inline-block text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
           {article.category?.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category?.name || ""}
         </span>
-        <h3 className="font-heading mb-3 text-lg font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-xl">
+        <h3 className="font-heading mb-3 line-clamp-2 text-lg font-bold leading-snug text-dnews-dark transition-colors group-hover:text-dnews-accent md:text-xl">
           {article.title}
         </h3>
         <div className="overflow-hidden rounded-xl">
@@ -113,10 +113,10 @@ export default function ArticleCard({ article, variant = "default", priority }: 
             containerClassName="mb-3 transition-transform duration-500 group-hover:scale-[1.03]"
           />
         </div>
-        <p className="mt-1.5 text-sm leading-relaxed text-dnews-gray">
+        <p className="mt-1.5 line-clamp-3 text-sm leading-relaxed text-dnews-gray">
           {sentence || excerpt}
         </p>
-        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-dnews-muted">
+        <div className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 text-xs text-dnews-muted">
           <span className="font-medium text-dnews-dark">{authorDisplay}</span>
           <span className="text-dnews-border">·</span>
           <span>{formatDate(article.publishedAt)}</span>

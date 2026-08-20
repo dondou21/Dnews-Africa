@@ -97,7 +97,7 @@ export default function CategoryPage({
           ))}
         </div>
       ) : articles.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start">
+        <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => (
             <ArticleCard key={article.id} article={article} />
           ))}
@@ -140,7 +140,7 @@ export default function CategoryPage({
           <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-brand-red">
             Latest Articles
           </h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 items-start">
+          <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {latestArticles.map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}

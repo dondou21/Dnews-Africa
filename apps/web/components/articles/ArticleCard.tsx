@@ -26,8 +26,8 @@ export default function ArticleCard({ article }: { article: ArticleItem }) {
   const excerpt = extractExcerpt(article.summary, article.content);
 
   return (
-    <article className="group overflow-hidden rounded-sm border border-dnews-border bg-dnews-card transition-shadow hover:shadow-md">
-      <Link href={`/articles/${article.slug}`}>
+    <article className="group flex h-full flex-col overflow-hidden rounded-sm border border-dnews-border bg-dnews-card transition-shadow hover:shadow-md">
+      <Link href={`/articles/${article.slug}`} className="flex h-full flex-col">
         <ArticleImage
           src={imgSrc}
           alt={imgAlt}
@@ -35,11 +35,11 @@ export default function ArticleCard({ article }: { article: ArticleItem }) {
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       </Link>
-      <div className="p-4">
-        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
+      <div className="flex flex-1 flex-col p-4">
+        <div className="mb-1 line-clamp-1 min-h-[1rem] text-[11px] font-semibold uppercase tracking-wider text-dnews-red">
           {article.category.parent ? `${article.category.parent.name} / ${article.category.name}` : article.category.name}
         </div>
-        <h2 className="font-heading text-lg font-bold leading-snug text-dnews-dark">
+        <h2 className="font-heading line-clamp-2 min-h-[3.5rem] text-lg font-bold leading-snug text-dnews-dark">
           <Link
             href={`/articles/${article.slug}`}
             className="transition-colors hover:text-dnews-accent"
@@ -47,10 +47,10 @@ export default function ArticleCard({ article }: { article: ArticleItem }) {
             {article.title}
           </Link>
         </h2>
-        <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-dnews-gray">
+        <p className="mt-1 line-clamp-3 min-h-[4.5rem] text-sm leading-relaxed text-dnews-gray">
           {excerpt}
         </p>
-        <div className="mt-3 flex items-center gap-2 text-[11px] text-dnews-muted">
+        <div className="mt-auto flex items-center gap-2 pt-3 text-[11px] text-dnews-muted">
           <span className="font-medium text-dnews-dark">
             {article.authorName || `${article.author.firstName} ${article.author.lastName}`}
           </span>
