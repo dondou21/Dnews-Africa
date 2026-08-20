@@ -40,6 +40,14 @@ function corsOrigin(
   }
 }
 
+// API package root regardless of process CWD (dev via tsx, compiled dist, Docker).
+const apiRootDir = path.resolve(__dirname, "../../");
+
+function resolveUploadDir(value: string | undefined): string {
+  if (!value) return path.join(apiRootDir, "uploads");
+  return path.isAbsolute(value) ? value : path.resolve(apiRootDir, value);
+}
+
 export const config = {
   port: parseInt(process.env.PORT || "4000", 10),
   nodeEnv: process.env.NODE_ENV || "development",
@@ -57,7 +65,7 @@ export const config = {
   emailCaptureDir: process.env.EMAIL_CAPTURE_DIR || path.resolve(__dirname, "../../.email-captures"),
   apiUrl: process.env.API_URL || `http://localhost:${process.env.PORT || 4000}`,
   mediaBaseUrl: process.env.MEDIA_BASE_URL || `http://localhost:${process.env.PORT || 4000}/uploads`,
-  uploadDir: process.env.UPLOAD_DIR || path.resolve(__dirname, "../../uploads"),
+  uploadDir: resolveUploadDir(process.env.UPLOAD_DIR),
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || "",
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || "",
