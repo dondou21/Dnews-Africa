@@ -125,10 +125,19 @@ export function useDraftAutosave(options: UseDraftAutosaveOptions): UseDraftAuto
 
     let cancelled = false;
 
+    const baselineString = snapshotStringRef.current;
+
     function markReady() {
       readyRef.current = true;
-      lastSavedStringRef.current = snapshotStringRef.current;
+      lastSavedStringRef.current = baselineString;
       setStatus("saved");
+      if (snapshotStringRef.current !== baselineString) {
+        setStatus("unsaved");
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => {
+          void doSave();
+        }, DRAFT_DEBOUNCE_MS);
+      }
     }
 
     async function loadExistingDraft() {
@@ -190,7 +199,7 @@ export function useDraftAutosave(options: UseDraftAutosaveOptions): UseDraftAuto
     return () => {
       cancelled = true;
     };
-  }, [enabled, formKey, baselineUpdatedAt]);
+  }, [enabled, formKey, baselineUpdatedAt, doSave]);
 
   useEffect(() => {
     const handleVisibility = () => {

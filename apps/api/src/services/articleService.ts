@@ -6,6 +6,7 @@ import prisma from "../utils/prisma";
 import { articleNewsletterService } from "./articleNewsletterService";
 import { eventService } from "./eventService";
 import { cleanupOrphanedMedia } from "../utils/mediaCleanup";
+import { contentIsEmpty } from "@dnews/types";
 
 export const articleService = {
   async getAll(params: ArticleQueryParams) {
@@ -138,6 +139,29 @@ export const articleService = {
     const updateData = { ...restData } as UpdateArticleInput;
     if (auId) {
       updateData.authorId = auId;
+    }
+
+    const finalStatus = updateData.status ?? existing.status;
+    if (finalStatus === "PUBLISHED" || finalStatus === "SCHEDULED") {
+      const merged = {
+        title: updateData.title ?? existing.title,
+        slug: updateData.slug ?? existing.slug,
+        summary: updateData.summary ?? existing.summary,
+        content: updateData.content ?? existing.content,
+        categoryId: updateData.categoryId ?? existing.categoryId,
+      };
+      const missing: string[] = [];
+      if (typeof merged.title !== "string" || merged.title.trim().length === 0) missing.push("title");
+      if (typeof merged.slug !== "string" || merged.slug.trim().length === 0) missing.push("slug");
+      if (typeof merged.summary !== "string" || merged.summary.trim().length === 0) missing.push("summary");
+      if (typeof merged.content !== "string" || merged.content.trim().length === 0 || contentIsEmpty(merged.content)) missing.push("content");
+      if (!merged.categoryId) missing.push("categoryId");
+      if (missing.length > 0) {
+        throw new AppError(
+          `Required fields must be set before ${finalStatus === "PUBLISHED" ? "publishing" : "scheduling"}: ${missing.join(", ")}`,
+          400
+        );
+      }
     }
 
     const wasPublished = existing.status === "PUBLISHED";

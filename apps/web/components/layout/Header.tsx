@@ -24,7 +24,7 @@ export default function Header() {
     <header className="border-b border-dnews-border bg-dnews-card dark:bg-black">
       <div className="mx-auto max-w-[1180px] px-4 py-1 md:py-1.5">
         <div className="flex items-center justify-center">
-          <Link href="/" className="inline-block w-[180px] sm:w-[220px] md:w-[260px]">
+          <Link href="/" className="inline-block max-w-full w-[360px] sm:w-[440px] md:w-[520px]">
             <Image
               src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
               alt="Dnews Africa"
@@ -32,7 +32,7 @@ export default function Header() {
               height={70}
               priority
               className="h-auto w-full object-contain"
-              sizes="(max-width: 640px) 180px, (max-width: 768px) 220px, 260px"
+              sizes="(max-width: 640px) 360px, (max-width: 768px) 440px, 520px"
             />
           </Link>
         </div>

@@ -176,18 +176,26 @@ export default function Navbar() {
           <div className="mx-auto max-w-[1180px] px-4 py-2">
             {navItems.map((item) => (
               <div key={item.label}>
-                <button
-                  onClick={() => setOpenAccordion(openAccordion === item.label ? null : item.label)}
-                  className="flex w-full items-center justify-between py-2.5 text-sm font-medium uppercase tracking-wide text-dnews-gray dark:text-white/70"
-                >
-                  <span>{item.label}</span>
-                  {item.children && (
+                {item.children ? (
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === item.label ? null : item.label)}
+                    className="flex w-full items-center justify-between py-2.5 text-sm font-medium uppercase tracking-wide text-dnews-gray dark:text-white/70"
+                  >
+                    <span>{item.label}</span>
                     <ChevronDown
                       size={14}
                       className={`transition-transform ${openAccordion === item.label ? "rotate-180" : ""}`}
                     />
-                  )}
-                </button>
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href ?? "#"}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex w-full items-center justify-between py-2.5 text-sm font-medium uppercase tracking-wide text-dnews-gray dark:text-white/70"
+                  >
+                    {item.label}
+                  </Link>
+                )}
                 {item.children && openAccordion === item.label && (
                   <div className="ml-4 space-y-1 pb-2">
                     {item.children.map((child) => (

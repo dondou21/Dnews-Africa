@@ -26,7 +26,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { get, del, uploadFile } from "@dnews/api-client";
-import { resolveImageUrl } from "@/lib/image";
+import { resolveImageUrl, FALLBACK_IMAGE } from "@/lib/image";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import type { MediaItem } from "@dnews/types";
 
@@ -51,6 +51,28 @@ function formatDate(dateStr: string): string {
 function getFileName(url: string): string {
   const parts = url.split("/");
   return parts[parts.length - 1];
+}
+
+function MediaImage({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <img
+      key={src}
+      src={failed ? FALLBACK_IMAGE : src}
+      alt={alt || ""}
+      className={className}
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 export default function MediaPage() {
@@ -302,11 +324,10 @@ function MediaPageContent() {
                 className="relative aspect-video w-full overflow-hidden bg-dnews-light-gray"
               >
                 {isImage(item) ? (
-                  <img
+                  <MediaImage
                     src={resolveImageUrl(item.url)}
                     alt={item.alt || ""}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center">
@@ -370,11 +391,10 @@ function MediaPageContent() {
                   className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-dnews-light-gray"
                 >
                   {isImage(item) ? (
-                    <img
+                    <MediaImage
                       src={resolveImageUrl(item.url)}
                       alt={item.alt || ""}
                       className="h-full w-full object-cover"
-                      loading="lazy"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center">
@@ -454,7 +474,7 @@ function MediaPageContent() {
           <div className="space-y-5">
             <div className="overflow-hidden rounded-xl bg-dnews-light-gray">
               {isImage(previewTarget) ? (
-                <img
+                <MediaImage
                   src={resolveImageUrl(previewTarget.url)}
                   alt={previewTarget.alt || ""}
                   className="mx-auto max-h-[60vh] w-full object-contain"
