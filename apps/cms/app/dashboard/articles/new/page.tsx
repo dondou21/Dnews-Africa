@@ -17,7 +17,7 @@ import DraftSaveIndicator from "@/components/dashboard/DraftSaveIndicator";
 import DraftRestoreDialog from "@/components/dashboard/DraftRestoreDialog";
 import { useDraftAutosave } from "@/hooks/useDraftAutosave";
 import type { ArticleDraftData } from "@/lib/draftAutosave";
-import type { Category } from "@dnews/types";
+import { contentIsEmpty, type Category } from "@dnews/types";
 
 export default function NewArticlePage() {
   return (
@@ -35,6 +35,7 @@ function NewArticleForm() {
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const errorRef = useRef<HTMLDivElement>(null);
 
   const [title, setTitle] = useState("");
@@ -179,9 +180,18 @@ function NewArticleForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
 
-    if (!title || !slug || !summary || !content || !categoryId) {
-      setError("Please fill in all required fields.");
+    const errors: Record<string, string> = {};
+    if (!title.trim()) errors.title = "Title is required";
+    if (!slug.trim()) errors.slug = "Slug is required";
+    if (!summary.trim()) errors.summary = "Summary is required";
+    if (contentIsEmpty(content)) errors.content = "Content is required";
+    if (!categoryId) errors.categoryId = "Category is required";
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setError("Please fix the highlighted required fields.");
       return;
     }
 
@@ -289,6 +299,9 @@ function NewArticleForm() {
                     required
                     className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent"
                   />
+                  {fieldErrors.title && (
+                    <p className="mt-1 text-xs text-dnews-red">{fieldErrors.title}</p>
+                  )}
                 </div>
 
                 <div>
@@ -303,6 +316,9 @@ function NewArticleForm() {
                     required
                     className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark placeholder-dnews-muted outline-none transition-colors focus:border-dnews-accent font-mono"
                   />
+                  {fieldErrors.slug && (
+                    <p className="mt-1 text-xs text-dnews-red">{fieldErrors.slug}</p>
+                  )}
                 </div>
 
                 <div>
@@ -316,10 +332,16 @@ function NewArticleForm() {
                     required
                     rows={3}
                   />
+                  {fieldErrors.summary && (
+                    <p className="mt-1 text-xs text-dnews-red">{fieldErrors.summary}</p>
+                  )}
                 </div>
 
                 <div>
                   <ArticleBlockEditor key={`blocks-${editorKey}`} content={content} onChange={setContent} />
+                  {fieldErrors.content && (
+                    <p className="mt-1 text-xs text-dnews-red">{fieldErrors.content}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -404,6 +426,9 @@ function NewArticleForm() {
                     onChange={(id) => setCategoryId(id)}
                     required
                   />
+                  {fieldErrors.categoryId && (
+                    <p className="mt-1 text-xs text-dnews-red">{fieldErrors.categoryId}</p>
+                  )}
                   {!categoriesLoading && categories.length === 0 && (
                     <p className="mt-1 text-xs text-dnews-red">
                       No categories found. Create one in Categories first.

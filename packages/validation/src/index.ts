@@ -31,6 +31,31 @@ function validateAuthor(
   }
 }
 
+function contentIsEmpty(content: string): boolean {
+  const t = (content ?? "").trim();
+  if (!t) return true;
+  if (t === "[]") return true;
+  if (/^<p(\s[^>]*)?>\s*<\/p>$/.test(t)) return true;
+  if (/^<p(\s[^>]*)?><br\s*\/?><\/p>$/.test(t)) return true;
+  return false;
+}
+
+function validateRequiredContent(data: Record<string, unknown>, ctx: z.RefinementCtx) {
+  const requiredKeys = ["title", "slug", "summary", "content", "categoryId"] as const;
+  for (const key of requiredKeys) {
+    const val = data[key];
+    if (
+      val === undefined ||
+      val === null ||
+      (typeof val === "string" && val.trim().length === 0) ||
+      (typeof val === "number" && !(val > 0)) ||
+      (key === "content" && typeof val === "string" && contentIsEmpty(val))
+    ) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: `${key} is required`, path: [key] });
+    }
+  }
+}
+
 export const articleBaseSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required"),
@@ -57,12 +82,22 @@ export const articleBaseSchema = z.object({
 export const createArticleSchema = articleBaseSchema.superRefine((data, ctx) => {
   futureDate(data.scheduledAt, ctx);
   validateAuthor(data, ctx, true);
+  validateRequiredContent({ ...data }, ctx);
 });
 
-export const updateArticleSchema = articleBaseSchema.partial().superRefine((data, ctx) => {
-  futureDate(data.scheduledAt, ctx);
-  validateAuthor(data, ctx, false);
-});
+export const updateArticleSchema = z
+  .object({
+    ...articleBaseSchema.shape,
+    title: articleBaseSchema.shape.title.optional().refine((v) => v === undefined || v.trim().length > 0, "Title cannot be blank"),
+    slug: articleBaseSchema.shape.slug.optional().refine((v) => v === undefined || v.trim().length > 0, "Slug cannot be blank"),
+    summary: articleBaseSchema.shape.summary.optional().refine((v) => v === undefined || v.trim().length > 0, "Summary cannot be blank"),
+    content: articleBaseSchema.shape.content.optional().refine((v) => v === undefined || !contentIsEmpty(v), "Content is required"),
+    categoryId: articleBaseSchema.shape.categoryId.optional(),
+  })
+  .superRefine((data, ctx) => {
+    futureDate(data.scheduledAt, ctx);
+    validateAuthor(data, ctx, false);
+  });
 
 export const articleQuerySchema = z.object({
   category: z.string().optional(),
