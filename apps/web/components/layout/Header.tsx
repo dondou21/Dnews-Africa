@@ -22,9 +22,9 @@ export default function Header() {
 
   return (
     <header className="border-b border-dnews-border bg-dnews-card dark:bg-black">
-      <div className="mx-auto max-w-[1180px] px-4 py-1 md:py-1.5">
+      <div className="mx-auto max-w-[1180px] px-4 py-1 md:py-1">
         <div className="flex items-center justify-center">
-          <Link href="/" className="inline-block max-w-full w-[360px] sm:w-[440px] md:w-[520px]">
+          <Link href="/" className="inline-block w-[360px] max-w-full leading-none sm:w-[440px] md:w-[520px]">
             <Image
               src={theme === "dark" ? "/images/logo1.png" : "/images/logo0.png"}
               alt="Dnews Africa"
@@ -37,11 +37,11 @@ export default function Header() {
           </Link>
         </div>
 
-        <div className="mt-1 flex items-center justify-center gap-2 md:mt-1.5">
+        <div className="mt-0.5 flex items-center justify-center gap-1.5 md:mt-1">
           <p className="text-center text-[9px] uppercase tracking-[0.15em] text-dnews-muted dark:text-white/60 md:text-[10px]">
             Independent news media across the continent and the world
           </p>
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-1.5 md:flex">
             <button
               onClick={toggleSearch}
               className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
@@ -61,7 +61,7 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="mt-1 flex items-center justify-center gap-2 md:hidden">
+        <div className="mt-0.5 flex items-center justify-center gap-1.5 md:hidden">
           <button
             onClick={toggleSearch}
             className="inline-flex h-7 w-7 items-center justify-center rounded border border-dnews-border text-dnews-gray transition-colors hover:bg-dnews-light-gray dark:border-white/30 dark:text-white/60 dark:hover:bg-white/10"
