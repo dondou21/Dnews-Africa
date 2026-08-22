@@ -51,8 +51,8 @@ export const articleService = {
     return formatArticle(article);
   },
 
-  async getHero() {
-    const article = await articleRepository.findHeroArticle();
+  async getHero(readIds: Set<string> = new Set()) {
+    const article = await articleRepository.findHeroArticle(readIds);
     return article ? formatArticle(article) : null;
   },
 

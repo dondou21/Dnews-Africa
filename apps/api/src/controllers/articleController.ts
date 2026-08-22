@@ -44,8 +44,15 @@ export const articleController = {
     res.json({ status: "success", data: article });
   }),
 
-  getHero: asyncHandler(async (_req: Request, res: Response) => {
-    const article = await articleService.getHero();
+  getHero: asyncHandler(async (req: Request, res: Response) => {
+    const rawRead = typeof req.query.read === "string" ? req.query.read : "";
+    const readIds = new Set(
+      rawRead
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
+    );
+    const article = await articleService.getHero(readIds);
     res.json({ status: "success", data: article });
   }),
 
