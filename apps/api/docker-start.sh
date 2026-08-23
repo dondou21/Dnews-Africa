@@ -7,9 +7,7 @@ if [ -z "${DIRECT_URL:-}" ] && [ -n "${DATABASE_URL:-}" ]; then
 fi
 
 echo "Running database migrations..."
-if ! npx prisma migrate deploy; then
-  echo "WARNING: prisma migrate deploy failed; starting API without applying migrations."
-fi
+npx prisma migrate deploy
 
 echo "Starting Dnews Africa API..."
 exec node dist/server.js

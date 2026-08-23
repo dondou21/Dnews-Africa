@@ -23,6 +23,12 @@ dist
 # misc
 .DS_Store
 *.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
 
 # debug
 npm-debug.log*
@@ -31,7 +37,8 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files
-.env*
+.env
+.env.*
 !.env.example
 !.env.test.example
 
@@ -64,6 +71,7 @@ server/
 *.log
 api-stderr.log
 api-stdout.log
+.email-captures/
 
 upload-test.mjs
 apps/api/uploads/
@@ -74,9 +82,14 @@ packages/api-client/src/index.js.map
 
 # temporary files
 *.tmp
+*.temp
+*.bak
+*.old
 
 # editor / OS
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 *.swp
 *~
