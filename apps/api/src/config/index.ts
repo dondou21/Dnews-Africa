@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
+import crypto from "crypto";
 
 const envPath = path.resolve(__dirname, "../../.env");
 const envLocalPath = path.resolve(__dirname, "../../.env.local");
@@ -7,8 +8,11 @@ const envLocalPath = path.resolve(__dirname, "../../.env.local");
 dotenv.config({ path: envLocalPath });
 dotenv.config({ path: envPath });
 
-const jwtSecret = process.env.JWT_SECRET || "default-secret-change-me";
-if (process.env.NODE_ENV === "production" && (jwtSecret === "default-secret-change-me" || jwtSecret.length < 32)) {
+const nodeEnv = process.env.NODE_ENV || "development";
+const jwtSecret = process.env.JWT_SECRET || (nodeEnv === "development" || nodeEnv === "test"
+  ? crypto.randomBytes(32).toString("hex")
+  : "");
+if (nodeEnv !== "development" && nodeEnv !== "test" && jwtSecret.length < 32) {
   throw new Error(
     "JWT_SECRET must be set to a random string of at least 32 characters in production."
   );
@@ -50,7 +54,7 @@ function resolveUploadDir(value: string | undefined): string {
 
 export const config = {
   port: parseInt(process.env.PORT || "4000", 10),
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv,
   corsOrigin,
   jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",

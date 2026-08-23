@@ -122,11 +122,18 @@ async function main() {
   }
 
   const seedUserPasswords: Record<string, string> = {
-    Admin: process.env.SEED_ADMIN_PASSWORD || "Admin@12345",
-    Editor: process.env.SEED_EDITOR_PASSWORD || "Editor@12345",
-    Journalist: process.env.SEED_JOURNALIST_PASSWORD || "Journalist@12345",
-    Moderator: process.env.SEED_MODERATOR_PASSWORD || "Moderator@12345",
+    Admin: process.env.SEED_ADMIN_PASSWORD || "",
+    Editor: process.env.SEED_EDITOR_PASSWORD || "",
+    Journalist: process.env.SEED_JOURNALIST_PASSWORD || "",
+    Moderator: process.env.SEED_MODERATOR_PASSWORD || "",
   };
+
+  const missingSeedPasswords = Object.entries(seedUserPasswords)
+    .filter(([, password]) => password.length < 12)
+    .map(([role]) => `SEED_${role.toUpperCase()}_PASSWORD`);
+  if (missingSeedPasswords.length > 0) {
+    throw new Error(`Seed passwords must be provided and at least 12 characters: ${missingSeedPasswords.join(", ")}`);
+  }
 
   const testUsers = [
     { firstName: "Admin", lastName: "User", email: "admin@dnewsafrica.com", password: seedUserPasswords.Admin, role: "Admin" },
