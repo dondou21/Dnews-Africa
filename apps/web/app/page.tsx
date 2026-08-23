@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import RightSidebar from "@/components/home/RightSidebar";
 import AdSlot from "@/components/home/AdSlot";
 import ArticleCard from "@/components/home/ArticleCard";
 import { get } from "@dnews/api-client";
 import SectionHeader from "@/components/home/SectionHeader";
 import { useRevalidateOnPublish } from "@/lib/useRevalidateOnPublish";
+import { useReadArticles } from "@/lib/useReadArticles";
 import type { CategoryWithCount } from "@dnews/types";
+
+const HERO_RECENT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 interface ArticleItem {
   id: string;
@@ -111,8 +114,46 @@ function useApiArticles() {
     return allArticles.filter((a) => allowed.has(a.category?.slug) && !exclude.has(a.slug)).slice(0, 3);
   }
 
-  const fallbackHeroArticle = allArticles.length > 0 ? allArticles[0] : null;
-  const heroArticle = heroArticleFromApi ?? fallbackHeroArticle;
+  const baseHeroArticle = allArticles.length > 0 ? allArticles[0] : null;
+
+  const { readIds, markRead } = useReadArticles();
+  const readIdsRef = useRef(readIds);
+  useEffect(() => {
+    readIdsRef.current = readIds;
+  }, [readIds]);
+
+  // Dynamic, read-aware hero selection layered on top of the API's hero.
+  // The API already handles "fresh content within 24h => newest recent" and
+  // "otherwise rotate randomly". Here we additionally make sure a hero the
+  // visitor has already consumed is not shown again when something else is
+  // available. This recomputes only when the underlying data changes (e.g. a
+  // page refresh), not when the read-state updates, so it does not cascade.
+  const [displayHeroArticle, setDisplayHeroArticle] = useState<ArticleItem | null>(null);
+  useEffect(() => {
+    const base = heroArticleFromApi ?? baseHeroArticle;
+    if (!base) {
+      setDisplayHeroArticle(null);
+      return;
+    }
+    const publishedAt = base.publishedAt ? new Date(base.publishedAt).getTime() : 0;
+    const isFresh = publishedAt > 0 && Date.now() - publishedAt <= HERO_RECENT_WINDOW_MS;
+    let chosen = base;
+    if (!isFresh && allArticles.length > 1 && readIdsRef.current.has(base.id)) {
+      const unread = allArticles.filter(
+        (a) => a.publishedAt && !readIdsRef.current.has(a.id) && a.id !== base!.id,
+      );
+      if (unread.length > 0) {
+        chosen = unread[Math.floor(Math.random() * unread.length)];
+      }
+    }
+    setDisplayHeroArticle(chosen);
+  }, [heroArticleFromApi, baseHeroArticle, allArticles, loading]);
+
+  useEffect(() => {
+    if (displayHeroArticle) markRead(displayHeroArticle.id);
+  }, [displayHeroArticle?.id, markRead]);
+
+  const heroArticle = displayHeroArticle;
   const usedSlugs = new Set(heroArticle ? [heroArticle.slug] : []);
 
   const secondaryArticles = allArticles.filter((a) => !usedSlugs.has(a.slug)).slice(0, 2);

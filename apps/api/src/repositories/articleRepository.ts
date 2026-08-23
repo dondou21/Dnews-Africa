@@ -1,6 +1,7 @@
 import { Prisma, $Enums } from "@prisma/client";
 import prisma from "../utils/prisma";
 import { cache } from "../utils/cache";
+import { selectHeroArticle } from "../utils/heroSelection";
 
 const ARTICLE_CACHE_TTL = 60 * 1000;
 const ARTICLE_CACHE_PREFIX = "articles:";
@@ -323,22 +324,21 @@ export const articleRepository = {
     );
   },
 
-  async findHeroArticle() {
-    const featuredArticle = await prisma.article.findFirst({
-      where: { status: "PUBLISHED", isFeatured: true, publishedAt: { not: null } },
-      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-      include: articleInclude,
-    });
-
-    if (featuredArticle) {
-      return featuredArticle;
-    }
-
-    return prisma.article.findFirst({
+  async findHeroCandidates(limit: number = 200) {
+    return prisma.article.findMany({
       where: { status: "PUBLISHED", publishedAt: { not: null } },
       orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      take: limit,
       include: articleInclude,
     });
+  },
+
+  async findHeroArticle(readIds: Set<string> = new Set()) {
+    const candidates = await this.findHeroCandidates();
+    if (candidates.length === 0) return null;
+    const selected = selectHeroArticle(candidates, readIds);
+    if (!selected) return null;
+    return candidates.find((c) => c.id === selected.id) ?? null;
   },
 
   async findFeatured() {
