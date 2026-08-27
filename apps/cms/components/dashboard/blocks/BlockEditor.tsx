@@ -11,6 +11,7 @@ import type { ContentBlock, ContentBlockType } from "@dnews/types";
 import { createBlock } from "@dnews/types";
 import BlockRenderer from "./BlockRenderer";
 import InlineImageUpload from "@/components/dashboard/InlineImageUpload";
+import MediaPicker from "@/components/dashboard/MediaPicker";
 
 interface BlockEditorProps {
   blocks: ContentBlock[];
@@ -38,6 +39,7 @@ const BLOCK_TEMPLATES: { type: ContentBlockType; label: string; icon: React.Reac
 
 function BlockSettings({ block, onUpdate }: { block: ContentBlock; onUpdate: (data: Record<string, unknown>) => void }) {
   const data = block.data;
+  const [showGalleryLibrary, setShowGalleryLibrary] = useState(false);
 
   const set = (key: string, value: unknown) => {
     onUpdate({ ...data, [key]: value });
@@ -101,77 +103,69 @@ function BlockSettings({ block, onUpdate }: { block: ContentBlock; onUpdate: (da
     case "image":
       return (
         <div className="space-y-3">
-          <InlineImageUpload
-            initialUrl={String(data.url ?? "")}
-            onUploadComplete={(url) => {
-              set("url", url);
-            }}
-            onClear={() => set("url", "")}
-          />
-          {String(data.url ?? "") && (
-            <>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Caption</label>
-                  <input
-                    type="text"
-                    value={String(data.caption ?? "")}
-                    onChange={(e) => set("caption", e.target.value)}
-                    placeholder="Image caption"
-                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Credit</label>
-                  <input
-                    type="text"
-                    value={String(data.credit ?? "")}
-                    onChange={(e) => set("credit", e.target.value)}
-                    placeholder="Photographer"
-                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Alt Text</label>
-                <input
-                  type="text"
-                  value={String(data.alt ?? "")}
-                  onChange={(e) => set("alt", e.target.value)}
-                  placeholder="Describe the image for accessibility"
-                  className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
-                />
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Alignment</label>
-                  <select
-                    value={String(data.alignment ?? "full")}
-                    onChange={(e) => set("alignment", e.target.value)}
-                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark outline-none"
-                  >
-                    <option value="full">Full Width</option>
-                    <option value="left">Float Left</option>
-                    <option value="center">Center</option>
-                    <option value="right">Float Right</option>
-                  </select>
-                </div>
-                <div className="flex-1">
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Size</label>
-                  <select
-                    value={String(data.size ?? "large")}
-                    onChange={(e) => set("size", e.target.value)}
-                    className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark outline-none"
-                  >
-                    <option value="small">Small</option>
-                    <option value="medium">Medium</option>
-                    <option value="large">Large</option>
-                    <option value="fullWidth">Full Width</option>
-                  </select>
-                </div>
-              </div>
-            </>
-          )}
+      <InlineImageUpload
+        initialUrl={String(data.url ?? "")}
+        initialAlt={String(data.alt ?? "")}
+        initialMediaId={String(data.mediaId ?? "")}
+        onComplete={({ url, mediaId, alt }) => {
+          onUpdate({ ...data, url, mediaId: mediaId ?? "", alt: alt ?? "" });
+        }}
+        onClear={() => onUpdate({ ...data, url: "", mediaId: "", alt: "" })}
+      />
+      {String(data.url ?? "") && (
+        <>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Caption</label>
+              <input
+                type="text"
+                value={String(data.caption ?? "")}
+                onChange={(e) => set("caption", e.target.value)}
+                placeholder="Image caption"
+                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Credit</label>
+              <input
+                type="text"
+                value={String(data.credit ?? "")}
+                onChange={(e) => set("credit", e.target.value)}
+                placeholder="Photographer"
+                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Alignment</label>
+              <select
+                value={String(data.alignment ?? "full")}
+                onChange={(e) => set("alignment", e.target.value)}
+                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark outline-none"
+              >
+                <option value="full">Full Width</option>
+                <option value="left">Float Left</option>
+                <option value="center">Center</option>
+                <option value="right">Float Right</option>
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-dnews-gray">Size</label>
+              <select
+                value={String(data.size ?? "large")}
+                onChange={(e) => set("size", e.target.value)}
+                className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark outline-none"
+              >
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+                <option value="fullWidth">Full Width</option>
+              </select>
+            </div>
+          </div>
+        </>
+      )}
         </div>
       );
 
@@ -377,7 +371,7 @@ function BlockSettings({ block, onUpdate }: { block: ContentBlock; onUpdate: (da
       );
 
     case "imageGallery": {
-      const items = (data.items as Array<{ url: string; caption?: string; credit?: string; alt?: string }>) ?? [];
+      const items = (data.items as Array<{ url: string; caption?: string; credit?: string; alt?: string; mediaId?: string }>) ?? [];
       return (
         <div className="space-y-2">
           {items.map((item, i) => (
@@ -426,19 +420,39 @@ function BlockSettings({ block, onUpdate }: { block: ContentBlock; onUpdate: (da
               </div>
             </div>
           ))}
-          <button
-            type="button"
-            onClick={() => set("items", [...items, { url: "", caption: "", credit: "", alt: "" }])}
-            className="text-xs text-dnews-accent hover:underline"
-          >
-            + Add image
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => set("items", [...items, { url: "", caption: "", credit: "", alt: "" }])}
+              className="text-xs text-dnews-accent hover:underline"
+            >
+              + Add image
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowGalleryLibrary(true)}
+              className="text-xs text-dnews-accent hover:underline"
+            >
+              + Add from Media Library
+            </button>
+          </div>
           <input
             type="text"
             value={String(data.caption ?? "")}
             onChange={(e) => set("caption", e.target.value)}
             placeholder="Gallery caption (optional)"
             className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-2 py-1 text-xs text-dnews-dark placeholder-dnews-muted outline-none focus:border-dnews-accent"
+          />
+          <MediaPicker
+            open={showGalleryLibrary}
+            onClose={() => setShowGalleryLibrary(false)}
+            onSelect={(m) =>
+              set("items", [
+                ...items,
+                { url: m.url, caption: "", credit: "", alt: m.alt || "", mediaId: m.id },
+              ])
+            }
+            title="Add Gallery Image"
           />
         </div>
       );
