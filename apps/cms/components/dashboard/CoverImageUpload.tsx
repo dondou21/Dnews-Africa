@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Upload, X, AlertCircle, Check, ImageIcon } from "lucide-react";
+import { Upload, X, AlertCircle, Check, ImageIcon, Library } from "lucide-react";
 import { uploadFile } from "@dnews/api-client";
 import { resolveImageUrl } from "@/lib/image";
+import MediaPicker from "./MediaPicker";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -24,6 +25,22 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
   const [dimensions, setDimensions] = useState<{ w: number; h: number } | null>(null);
+  const [showLibrary, setShowLibrary] = useState(false);
+
+  const handleLibrarySelect = useCallback(
+    (media: { id: string; url: string; alt?: string | null }) => {
+      if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
+      setPreview(null);
+      setUploadedUrl(media.url);
+      setMediaId(media.id);
+      setFileName("");
+      setDimensions(null);
+      const nextAlt = media.alt || "";
+      setAlt(nextAlt);
+      onImageChange(media.url, nextAlt, media.id);
+    },
+    [alt, onImageChange, preview]
+  );
 
   useEffect(() => {
     return () => {
@@ -111,15 +128,24 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
       />
 
       {!displaySrc && !uploading && (
-        <div
-          onClick={() => inputRef.current?.click()}
-          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed border-dnews-border bg-dnews-bg p-8 transition-colors hover:border-dnews-accent hover:bg-dnews-light-gray"
-        >
-          <ImageIcon size={32} className="text-dnews-muted" />
-          <div className="text-center">
-            <p className="text-sm font-medium text-dnews-dark">Choose Cover Image</p>
-            <p className="mt-1 text-xs text-dnews-muted">JPG, PNG, or WebP up to 5 MB</p>
+        <div className="space-y-2">
+          <div
+            onClick={() => inputRef.current?.click()}
+            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed border-dnews-border bg-dnews-bg p-8 transition-colors hover:border-dnews-accent hover:bg-dnews-light-gray"
+          >
+            <ImageIcon size={32} className="text-dnews-muted" />
+            <div className="text-center">
+              <p className="text-sm font-medium text-dnews-dark">Choose Cover Image</p>
+              <p className="mt-1 text-xs text-dnews-muted">JPG, PNG, or WebP up to 5 MB</p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowLibrary(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-sm border border-dnews-border bg-dnews-bg py-2 text-xs font-medium text-dnews-gray transition-colors hover:border-dnews-accent hover:text-dnews-accent"
+          >
+            <Library size={14} /> Choose from Media Library
+          </button>
         </div>
       )}
 
@@ -148,6 +174,14 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
                 title="Replace image"
               >
                 <Upload size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLibrary(true)}
+                className="inline-flex h-7 w-7 items-center justify-center rounded bg-black/60 text-white transition-colors hover:bg-black/80"
+                title="Choose from library"
+              >
+                <Library size={14} />
               </button>
               <button
                 type="button"
@@ -195,6 +229,13 @@ export default function CoverImageUpload({ initialUrl, initialAlt, onImageChange
           />
         </div>
       )}
+
+      <MediaPicker
+        open={showLibrary}
+        onClose={() => setShowLibrary(false)}
+        onSelect={handleLibrarySelect}
+        title="Select Cover Image"
+      />
     </div>
   );
 }
