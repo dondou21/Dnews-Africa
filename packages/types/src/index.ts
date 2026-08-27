@@ -1259,6 +1259,30 @@ export interface ContentBlock {
   data: Record<string, unknown>;
 }
 
+export interface ImageBlockData {
+  mediaId?: string;
+  url: string;
+  alt?: string;
+  caption?: string;
+  credit?: string;
+  alignment?: ImageAlignment;
+  size?: ImageSize;
+}
+
+export interface GalleryImageData {
+  mediaId?: string;
+  url: string;
+  alt?: string;
+  caption?: string;
+  credit?: string;
+}
+
+export interface ImageSelectionValue {
+  mediaId?: string;
+  url: string;
+  alt?: string;
+}
+
 export interface ConversionWarning {
   blockId: string;
   type: ContentBlockType;
