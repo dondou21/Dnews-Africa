@@ -45,6 +45,7 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
   });
   const [warnings, setWarnings] = useState<{ mode: EditorMode; messages: string[] } | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [richKey, setRichKey] = useState(0);
   const warningsTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const showTemporaryWarnings = useCallback((targetMode: EditorMode, messages: string[]) => {
@@ -89,6 +90,7 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
       }
     }
     setMode(next);
+    if (next === "richtext") setRichKey((k) => k + 1);
   }, [mode, blocks, richHtml, plainText, showTemporaryWarnings]);
 
   const handleBlocksChange = useCallback((newBlocks: ContentBlock[]) => {
@@ -140,7 +142,13 @@ export default function ArticleBlockEditor({ content, onChange }: ArticleBlockEd
       return <BlocksEditor blocks={blocks} onChange={handleBlocksChange} />;
     }
     if (mode === "richtext") {
-      return <RichTextEditor content={richHtml} onChange={handleRichTextChange} />;
+      return (
+        <RichTextEditor
+          key={`rt-${richKey}`}
+          content={richHtml}
+          onChange={handleRichTextChange}
+        />
+      );
     }
     return (
       <textarea
