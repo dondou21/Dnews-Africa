@@ -26,8 +26,9 @@ import PageHeader from "@/components/ui/PageHeader";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { get, del, uploadFile } from "@dnews/api-client";
-import { resolveImageUrl, FALLBACK_IMAGE } from "@/lib/image";
+import { resolveImageUrl } from "@/lib/image";
 import RoleGuard from "@/components/dashboard/RoleGuard";
+import MediaImage from "@/components/dashboard/MediaImage";
 import type { MediaItem } from "@dnews/types";
 
 type ViewMode = "grid" | "list";
@@ -51,28 +52,6 @@ function formatDate(dateStr: string): string {
 function getFileName(url: string): string {
   const parts = url.split("/");
   return parts[parts.length - 1];
-}
-
-function MediaImage({
-  src,
-  alt,
-  className,
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-}) {
-  const [failed, setFailed] = useState(false);
-  return (
-    <img
-      key={src}
-      src={failed ? FALLBACK_IMAGE : src}
-      alt={alt || ""}
-      className={className}
-      loading="lazy"
-      onError={() => setFailed(true)}
-    />
-  );
 }
 
 export default function MediaPage() {
