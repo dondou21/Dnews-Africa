@@ -3,7 +3,7 @@ import { cache } from "../utils/cache";
 import { articleNewsletterService } from "./articleNewsletterService";
 import { eventService } from "./eventService";
 
-const POLL_INTERVAL = 30_000;
+const POLL_INTERVAL = parseInt(process.env.SCHEDULER_POLL_INTERVAL_MS || "300000", 10); // 5 minutes default
 let intervalHandle: ReturnType<typeof setInterval> | null = null;
 let isPolling = false;
 
@@ -95,6 +95,10 @@ export async function publishDueArticles(): Promise<void> {
 
 export const schedulerService = {
   start(): void {
+    if (intervalHandle) {
+      console.log("[scheduler] Already running");
+      return;
+    }
     console.log("[scheduler] Starting...");
     publishDueArticles();
     intervalHandle = setInterval(publishDueArticles, POLL_INTERVAL);
