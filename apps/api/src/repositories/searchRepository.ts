@@ -1,5 +1,9 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../utils/prisma";
+import { cache } from "../utils/cache";
+
+const SEARCH_CACHE_TTL = 45 * 1000;
+const SEARCH_CACHE_PREFIX = "search:";
 
 const articleInclude = {
   category: { select: { id: true, name: true, slug: true } },
@@ -32,56 +36,62 @@ export interface SearchParams {
 
 export const searchRepository = {
   async search(params: SearchParams) {
-    const where: Prisma.ArticleWhereInput = { status: "PUBLISHED" };
+    return cache.wrap(
+      `${SEARCH_CACHE_PREFIX}${JSON.stringify(params)}`,
+      SEARCH_CACHE_TTL,
+      async () => {
+        const where: Prisma.ArticleWhereInput = { status: "PUBLISHED" };
 
-    if (params.q) {
-      where.OR = [
-        { title: { contains: params.q, mode: "insensitive" } },
-        { summary: { contains: params.q, mode: "insensitive" } },
-        { content: { contains: params.q, mode: "insensitive" } },
-        { category: { name: { contains: params.q, mode: "insensitive" } } },
-        {
-          tags: {
-            some: { tag: { name: { contains: params.q, mode: "insensitive" } } },
+        if (params.q) {
+          where.OR = [
+            { title: { contains: params.q, mode: "insensitive" } },
+            { summary: { contains: params.q, mode: "insensitive" } },
+            { content: { contains: params.q, mode: "insensitive" } },
+            { category: { name: { contains: params.q, mode: "insensitive" } } },
+            {
+              tags: {
+                some: { tag: { name: { contains: params.q, mode: "insensitive" } } },
+              },
+            },
+          ];
+        }
+
+        if (params.category) {
+          where.category = { slug: params.category };
+        }
+
+        if (params.tag) {
+          where.tags = { some: { tag: { slug: params.tag } } };
+        }
+
+        const orderBy: Prisma.ArticleOrderByWithRelationInput =
+          params.sort === "oldest"
+            ? { publishedAt: "asc" }
+            : { publishedAt: "desc" };
+
+        const skip = (params.page - 1) * params.limit;
+
+        const [articles, total] = await Promise.all([
+          prisma.article.findMany({
+            where,
+            orderBy,
+            skip,
+            take: params.limit,
+            include: articleInclude,
+          }),
+          prisma.article.count({ where }),
+        ]);
+
+        return {
+          articles,
+          pagination: {
+            page: params.page,
+            limit: params.limit,
+            total,
+            totalPages: Math.ceil(total / params.limit),
           },
-        },
-      ];
-    }
-
-    if (params.category) {
-      where.category = { slug: params.category };
-    }
-
-    if (params.tag) {
-      where.tags = { some: { tag: { slug: params.tag } } };
-    }
-
-    const orderBy: Prisma.ArticleOrderByWithRelationInput =
-      params.sort === "oldest"
-        ? { publishedAt: "asc" }
-        : { publishedAt: "desc" };
-
-    const skip = (params.page - 1) * params.limit;
-
-    const [articles, total] = await Promise.all([
-      prisma.article.findMany({
-        where,
-        orderBy,
-        skip,
-        take: params.limit,
-        include: articleInclude,
-      }),
-      prisma.article.count({ where }),
-    ]);
-
-    return {
-      articles,
-      pagination: {
-        page: params.page,
-        limit: params.limit,
-        total,
-        totalPages: Math.ceil(total / params.limit),
-      },
-    };
+        };
+      }
+    );
   },
 };

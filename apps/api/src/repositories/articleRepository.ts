@@ -12,6 +12,7 @@ function articleCacheKey(...parts: (string | number | undefined)[]) {
 
 function invalidateArticlesCache() {
   cache.clearPrefix(ARTICLE_CACHE_PREFIX);
+  cache.clearPrefix("search:");
   cache.del("dashboard:stats");
 }
 
@@ -183,21 +184,27 @@ export const articleRepository = {
   },
 
   async findPublishedBySlug(slug: string) {
-    return prisma.article.findFirst({
-      where: { slug, status: "PUBLISHED" },
-      include: {
-        ...articleInclude,
-        author: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
-            bio: true,
+    return cache.wrap(
+      articleCacheKey("slug", slug),
+      120 * 1000,
+      async () => {
+        return prisma.article.findFirst({
+          where: { slug, status: "PUBLISHED" },
+          include: {
+            ...articleInclude,
+            author: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+                bio: true,
+              },
+            },
           },
-        },
-      },
-    });
+        });
+      }
+    );
   },
 
   async findAllAdmin(params: ArticleQueryParams & { status?: string }) {
