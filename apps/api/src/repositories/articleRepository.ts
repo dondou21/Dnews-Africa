@@ -334,14 +334,12 @@ export const articleRepository = {
   },
 
   async findHeroCandidates(limit: number = 200) {
-    return cache.wrap(articleCacheKey("hero-candidates", limit), ARTICLE_LIST_CACHE_TTL, () =>
-      prisma.article.findMany({
-        where: { status: "PUBLISHED", publishedAt: { not: null } },
-        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-        take: limit,
-        include: articleInclude,
-      })
-    );
+    return prisma.article.findMany({
+      where: { status: "PUBLISHED", publishedAt: { not: null } },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      take: limit,
+      include: articleInclude,
+    });
   },
 
   async findHeroArticle(readIds: Set<string> = new Set()) {
