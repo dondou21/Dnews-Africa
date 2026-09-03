@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
+import { ZodError } from "zod";
 import { config } from "../config";
 
 export class AppError extends Error {
@@ -42,6 +43,14 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ) => {
+  if (err instanceof ZodError) {
+    return res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      errors: Object.fromEntries(err.errors.map((issue) => [issue.path.join("."), issue.message])),
+    });
+  }
+
   if (err instanceof ValidationError) {
     return res.status(err.statusCode).json({
       success: false,
