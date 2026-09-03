@@ -2,6 +2,8 @@ import { Router } from "express";
 import { workflowController } from "../../../controllers/workflowController";
 import { authenticate } from "../../../middlewares/authMiddleware";
 import { requireRole } from "../../../middlewares/requireRole";
+import { publishDueArticles } from "../../../services/schedulerService";
+import { asyncHandler } from "../../../middlewares/asyncHandler";
 
 const router = Router();
 
@@ -12,6 +14,10 @@ router.get("/articles", requireRole("Admin", "Editor", "Journalist"), workflowCo
 router.get("/notifications", requireRole("Admin", "Editor", "Journalist", "Moderator"), workflowController.getNotifications);
 router.patch("/notifications/:id/read", requireRole("Admin", "Editor", "Journalist", "Moderator"), workflowController.markNotificationRead);
 router.get("/editors", requireRole("Admin", "Editor"), workflowController.getEditors);
+router.post("/scheduler/trigger", requireRole("Admin", "Editor"), asyncHandler(async (_req, res) => {
+  await publishDueArticles(true);
+  res.json({ status: "success", data: { message: "Scheduler triggered" } });
+}));
 
 router.post("/articles/:id/submit", requireRole("Admin", "Editor", "Journalist"), workflowController.submitForReview);
 router.post("/articles/:id/approve", requireRole("Admin", "Editor"), workflowController.approve);

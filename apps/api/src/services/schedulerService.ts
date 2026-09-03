@@ -3,9 +3,9 @@ import { cache } from "../utils/cache";
 import { articleNewsletterService } from "./articleNewsletterService";
 import { eventService } from "./eventService";
 
-const POLL_INTERVAL = parseInt(process.env.SCHEDULER_POLL_INTERVAL_MS || "300000", 10); // 5 minutes default
-let intervalHandle: ReturnType<typeof setInterval> | null = null;
 let isPolling = false;
+let lastCheckTime = 0;
+const CHECK_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes cooldown for opportunistic check
 
 async function getSystemUser(): Promise<{ id: string }> {
   const admin = await prisma.user.findFirst({
@@ -19,9 +19,14 @@ async function getSystemUser(): Promise<{ id: string }> {
   throw new Error("Cannot find any user for scheduler audit logs");
 }
 
-export async function publishDueArticles(): Promise<void> {
+export async function publishDueArticles(force = false): Promise<void> {
+  const now = Date.now();
+  if (!force && now - lastCheckTime < CHECK_COOLDOWN_MS) {
+    return;
+  }
   if (isPolling) return;
   isPolling = true;
+  lastCheckTime = now;
 
   try {
     const dueArticles = await prisma.article.findMany({
@@ -95,21 +100,10 @@ export async function publishDueArticles(): Promise<void> {
 
 export const schedulerService = {
   start(): void {
-    if (intervalHandle) {
-      console.log("[scheduler] Already running");
-      return;
-    }
-    console.log("[scheduler] Starting...");
-    publishDueArticles();
-    intervalHandle = setInterval(publishDueArticles, POLL_INTERVAL);
-    console.log(`[scheduler] Polling every ${POLL_INTERVAL / 1000}s`);
+    console.log("[scheduler] Background polling disabled to prevent unnecessary Neon compute consumption when idle.");
   },
 
   stop(): void {
-    if (intervalHandle) {
-      clearInterval(intervalHandle);
-      intervalHandle = null;
-    }
     isPolling = false;
     console.log("[scheduler] Stopped");
   },
