@@ -29,6 +29,9 @@ export function normalizeDatabaseUrl(value: string | undefined, name = "DATABASE
 }
 
 const databaseUrl = normalizeDatabaseUrl(process.env.DATABASE_URL);
+const directUrl = normalizeDatabaseUrl(process.env.DIRECT_URL, "DIRECT_URL");
+if (databaseUrl) process.env.DATABASE_URL = databaseUrl;
+if (directUrl) process.env.DIRECT_URL = directUrl;
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
