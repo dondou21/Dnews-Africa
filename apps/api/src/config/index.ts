@@ -16,7 +16,12 @@ const jwtSecret = process.env.JWT_SECRET || (nodeEnv === "development" || nodeEn
 
 export function normalizeDatabaseUrl(value: string | undefined, name = "DATABASE_URL"): string | undefined {
   if (!value) return undefined;
-  const url = value.trim().replace(/^postgres:\/\//i, "postgresql://");
+  let url = value.trim();
+  if (url.startsWith("psql ")) url = url.slice(5).trim();
+  if ((url.startsWith("'") && url.endsWith("'")) || (url.startsWith('"') && url.endsWith('"'))) {
+    url = url.slice(1, -1).trim();
+  }
+  url = url.replace(/^postgres:\/\//i, "postgresql://");
   if (!url.toLowerCase().startsWith("postgresql://")) {
     throw new Error(`${name} must use the postgresql:// scheme (check the Railway variable; do not include a psql command).`);
   }

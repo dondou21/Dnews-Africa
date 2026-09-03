@@ -2,8 +2,17 @@
 set -e
 
 normalize_database_url() {
-  value="$1"
+  value="$(printf '%s' "$1" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
   name="$2"
+
+  case "$value" in
+    psql\ *) value="${value#psql }" ;;
+  esac
+  case "$value" in
+    \'*\') value="${value#\'}"; value="${value%\'}" ;;
+    \"*\") value="${value#\"}"; value="${value%\"}" ;;
+  esac
+
   case "$value" in
     postgres://*) value="postgresql://${value#postgres://}" ;;
     postgresql://*) ;;
