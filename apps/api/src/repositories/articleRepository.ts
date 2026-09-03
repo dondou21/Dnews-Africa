@@ -4,14 +4,16 @@ import { cache } from "../utils/cache";
 import { selectHeroArticle } from "../utils/heroSelection";
 
 const ARTICLE_CACHE_TTL = 60 * 1000;
+const ARTICLE_LIST_CACHE_TTL = 30 * 1000;
 const ARTICLE_CACHE_PREFIX = "articles:";
 
 function articleCacheKey(...parts: (string | number | undefined)[]) {
   return `${ARTICLE_CACHE_PREFIX}${parts.join(":")}`;
 }
 
-function invalidateArticlesCache() {
+export function invalidateArticlesCache() {
   cache.clearPrefix(ARTICLE_CACHE_PREFIX);
+  cache.clearPrefix("categories:");
   cache.clearPrefix("search:");
   cache.del("dashboard:stats");
 }
@@ -332,12 +334,14 @@ export const articleRepository = {
   },
 
   async findHeroCandidates(limit: number = 200) {
-    return prisma.article.findMany({
-      where: { status: "PUBLISHED", publishedAt: { not: null } },
-      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-      take: limit,
-      include: articleInclude,
-    });
+    return cache.wrap(articleCacheKey("hero-candidates", limit), ARTICLE_LIST_CACHE_TTL, () =>
+      prisma.article.findMany({
+        where: { status: "PUBLISHED", publishedAt: { not: null } },
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+        take: limit,
+        include: articleInclude,
+      })
+    );
   },
 
   async findHeroArticle(readIds: Set<string> = new Set()) {
@@ -349,21 +353,25 @@ export const articleRepository = {
   },
 
   async findFeatured() {
-    return prisma.article.findMany({
-      where: { status: "PUBLISHED", isFeatured: true, publishedAt: { not: null } },
-      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-      take: 10,
-      include: articleInclude,
-    });
+    return cache.wrap(articleCacheKey("featured"), ARTICLE_LIST_CACHE_TTL, () =>
+      prisma.article.findMany({
+        where: { status: "PUBLISHED", isFeatured: true, publishedAt: { not: null } },
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+        take: 10,
+        include: articleInclude,
+      })
+    );
   },
 
   async findLatest(limit: number = 10) {
-    return prisma.article.findMany({
-      where: { status: "PUBLISHED" },
-      orderBy: { publishedAt: "desc" },
-      take: limit,
-      include: articleInclude,
-    });
+    return cache.wrap(articleCacheKey("latest", limit), ARTICLE_LIST_CACHE_TTL, () =>
+      prisma.article.findMany({
+        where: { status: "PUBLISHED" },
+        orderBy: { publishedAt: "desc" },
+        take: limit,
+        include: articleInclude,
+      })
+    );
   },
 
   async create(data: CreateArticleInput) {

@@ -4,6 +4,7 @@ import { cache } from "../utils/cache";
 
 const CACHE_TTL = 5 * 60 * 1000;
 const ALL_KEY = "categories:all";
+const CATEGORY_CACHE_PREFIX = "categories:detail:";
 
 const categoryInclude: Prisma.CategoryInclude = {
   _count: { select: { articles: true, children: true } },
@@ -27,10 +28,12 @@ export const categoryRepository = {
     prisma.category.findUnique({ where: { id }, include: categoryInclude }),
 
   findBySlug: (slug: string) =>
-    prisma.category.findUnique({
-      where: { slug },
-      include: categoryInclude,
-    }),
+    cache.wrap(`${CATEGORY_CACHE_PREFIX}${slug}`, CACHE_TTL, () =>
+      prisma.category.findUnique({
+        where: { slug },
+        include: categoryInclude,
+      })
+    ),
 
   findByName: (name: string) =>
     prisma.category.findUnique({ where: { name } }),
@@ -81,6 +84,7 @@ export const categoryRepository = {
       include: categoryInclude,
     });
     cache.del(ALL_KEY);
+    cache.clearPrefix(CATEGORY_CACHE_PREFIX);
     return category;
   },
 
@@ -91,51 +95,55 @@ export const categoryRepository = {
       include: categoryInclude,
     });
     cache.del(ALL_KEY);
+    cache.clearPrefix(CATEGORY_CACHE_PREFIX);
     return category;
   },
 
   delete: async (id: number) => {
     const result = await prisma.category.delete({ where: { id } });
     cache.del(ALL_KEY);
+    cache.clearPrefix(CATEGORY_CACHE_PREFIX);
     return result;
   },
 
   findArticlesBySlug: (slug: string) =>
-    prisma.category.findUnique({
-      where: { slug },
-      include: {
-        articles: {
-          where: { status: "PUBLISHED" },
-          orderBy: { publishedAt: "desc" },
-          include: {
-            author: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                avatarUrl: true,
+    cache.wrap(`${CATEGORY_CACHE_PREFIX}articles:${slug}`, CACHE_TTL, () =>
+      prisma.category.findUnique({
+        where: { slug },
+        include: {
+          articles: {
+            where: { status: "PUBLISHED" },
+            orderBy: { publishedAt: "desc" },
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  avatarUrl: true,
+                },
               },
             },
           },
-        },
-        children: {
-          include: {
-            articles: {
-              where: { status: "PUBLISHED" },
-              orderBy: { publishedAt: "desc" },
-              include: {
-                author: {
-                  select: {
-                    id: true,
-                    firstName: true,
-                    lastName: true,
-                    avatarUrl: true,
+          children: {
+            include: {
+              articles: {
+                where: { status: "PUBLISHED" },
+                orderBy: { publishedAt: "desc" },
+                include: {
+                  author: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                      avatarUrl: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    }),
+      }),
+    ),
 };

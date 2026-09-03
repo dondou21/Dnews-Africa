@@ -1,6 +1,6 @@
 import { Prisma, $Enums } from "@prisma/client";
 import { workflowRepository } from "../repositories/workflowRepository";
-import { articleRepository } from "../repositories/articleRepository";
+import { articleRepository, invalidateArticlesCache } from "../repositories/articleRepository";
 import { notificationService } from "./notificationService";
 import { articleNewsletterService } from "./articleNewsletterService";
 import { eventService } from "./eventService";
@@ -235,6 +235,7 @@ export const workflowService = {
 
       return updated;
     });
+
   },
 
   async scheduleArticle(articleId: string, user: AuthenticatedUser, scheduledAt: string) {
@@ -299,6 +300,8 @@ export const workflowService = {
 
       return updated;
     });
+
+    invalidateArticlesCache();
 
     await notificationService.notifyPublished(
       article,
@@ -538,5 +541,9 @@ export const workflowService = {
 
       return updated;
     });
+
+    if (toStatus === "PUBLISHED") {
+      invalidateArticlesCache();
+    }
   },
 };
