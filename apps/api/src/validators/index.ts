@@ -3,4 +3,5 @@ export { loginSchema, registerSchema, changePasswordSchema } from "./authValidat
 export { createCategorySchema, updateCategorySchema } from "./categoryValidator";
 export { subscribeSchema } from "./newsletterValidator";
 export { createContactSchema } from "./contactValidator";
+export { updateSettingsSchema } from "./settingsValidator";
 export { searchQuerySchema } from "./searchValidator";
