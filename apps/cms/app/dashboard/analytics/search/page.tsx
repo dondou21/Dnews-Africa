@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Search, XCircle, TrendingUp, Clock, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Search, XCircle, TrendingUp, AlertTriangle } from "lucide-react";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";

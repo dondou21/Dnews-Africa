@@ -9,7 +9,6 @@ import LoadingState from "@/components/dashboard/LoadingState";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import DateRangeFilter from "@/components/analytics/DateRangeFilter";
 import LineChart from "@/components/analytics/LineChart";
-import BarChart from "@/components/analytics/BarChart";
 import PieChart from "@/components/analytics/PieChart";
 import { get, post } from "@dnews/api-client";
 import type { ReportSummary, AnalyticsExport } from "@dnews/types";

@@ -11,7 +11,6 @@ import DateRangeFilter from "@/components/analytics/DateRangeFilter";
 import BarChart from "@/components/analytics/BarChart";
 import LineChart from "@/components/analytics/LineChart";
 import PieChart from "@/components/analytics/PieChart";
-import Gauge from "@/components/analytics/Gauge";
 import { get } from "@dnews/api-client";
 import type { DashboardData, TopArticle, TrendingArticle } from "@dnews/types";
 import { SOURCE_LABELS, SOURCE_COLORS, formatDuration, formatNumber } from "@dnews/types";
@@ -112,7 +111,7 @@ function AnalyticsContent() {
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-sm border border-dnews-border bg-dnews-card p-5">
                 <h3 className="mb-3 text-sm font-semibold text-dnews-dark">Page Views</h3>
-                <LineChart data={data.topArticles.slice(0, 10).map((a, i) => ({ label: a.title.slice(0, 15), value: a.views }))} height={200} />
+                <LineChart data={data.topArticles.slice(0, 10).map((a) => ({ label: a.title.slice(0, 15), value: a.views }))} height={200} />
               </div>
               <div className="rounded-sm border border-dnews-border bg-dnews-card p-5">
                 <h3 className="mb-3 text-sm font-semibold text-dnews-dark">Traffic Distribution</h3>
