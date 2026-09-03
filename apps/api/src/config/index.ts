@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 import crypto from "crypto";
+import { z } from "zod";
 
 const envPath = path.resolve(__dirname, "../../.env");
 const envLocalPath = path.resolve(__dirname, "../../.env.local");
@@ -12,13 +13,26 @@ const nodeEnv = process.env.NODE_ENV || "development";
 const jwtSecret = process.env.JWT_SECRET || (nodeEnv === "development" || nodeEnv === "test"
   ? crypto.randomBytes(32).toString("hex")
   : "");
-if (nodeEnv !== "development" && nodeEnv !== "test" && jwtSecret.length < 32) {
-  throw new Error(
-    "JWT_SECRET must be set to a random string of at least 32 characters in production."
-  );
-}
 
-const configuredCorsOrigin = (process.env.CORS_ORIGIN || "http://localhost:5000,http://localhost:5001")
+const envSchema = z.object({
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  PORT: z.coerce.number().int().min(1).max(65535).default(4000),
+  JWT_SECRET: z.string().min(32).optional(),
+  JWT_EXPIRES_IN: z.string().min(1).default("7d"),
+  CORS_ORIGIN: z.string().default("http://localhost:5000,http://localhost:5001"),
+  DATABASE_URL: z.string().min(1).optional(),
+}).superRefine((env, ctx) => {
+  if (env.NODE_ENV === "production" && !env.JWT_SECRET) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["JWT_SECRET"], message: "JWT_SECRET is required in production" });
+  }
+  if (env.NODE_ENV === "production" && !env.DATABASE_URL) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["DATABASE_URL"], message: "DATABASE_URL is required in production" });
+  }
+});
+
+const env = envSchema.parse({ ...process.env, JWT_SECRET: process.env.JWT_SECRET || jwtSecret });
+
+const configuredCorsOrigin = env.CORS_ORIGIN
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
@@ -31,7 +45,7 @@ function corsOrigin(
     callback(null, true);
     return;
   }
-  if (process.env.NODE_ENV === "production") {
+  if (env.NODE_ENV === "production") {
     callback(null, false);
     return;
   }
@@ -53,12 +67,12 @@ function resolveUploadDir(value: string | undefined): string {
 }
 
 export const config = {
-  port: parseInt(process.env.PORT || "4000", 10),
+  port: env.PORT,
   nodeEnv,
   corsOrigin,
-  jwtSecret,
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
-  isProduction: process.env.NODE_ENV === "production",
+  jwtSecret: env.JWT_SECRET || jwtSecret,
+  jwtExpiresIn: env.JWT_EXPIRES_IN,
+  isProduction: env.NODE_ENV === "production",
   clientUrl: process.env.CLIENT_URL || process.env.SITE_URL || "http://localhost:5000",
   siteUrl: process.env.SITE_URL || process.env.CLIENT_URL || "https://dnewsafrica.com",
   resendApiKey: process.env.RESEND_API_KEY || "",
