@@ -1,6 +1,7 @@
 export interface HeroCandidate {
   id: string;
   publishedAt: Date | string | null;
+  isFeatured?: boolean;
 }
 
 export const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
@@ -36,6 +37,8 @@ export function selectHeroArticle(
   const recent = sorted.filter(
     (c) => now - new Date(c.publishedAt as string).getTime() <= recentWindowMs,
   );
+  const recentFeatured = recent.filter((c) => c.isFeatured);
+  if (recentFeatured.length > 0) return recentFeatured[0];
   if (recent.length > 0) return recent[0];
 
   const unread = sorted.filter((c) => !readIds.has(c.id));

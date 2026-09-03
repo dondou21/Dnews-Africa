@@ -15,6 +15,10 @@ function article(id: string, hoursAgo: number | null): HeroCandidate {
   };
 }
 
+function featuredArticle(id: string, hoursAgo: number): HeroCandidate {
+  return { ...article(id, hoursAgo), isFeatured: true };
+}
+
 const HOUR = 60 * 60 * 1000;
 
 describe("selectHeroArticle", () => {
@@ -36,6 +40,14 @@ describe("selectHeroArticle", () => {
   it("treats an article published exactly 24h ago as outside the window", () => {
     const candidates = [article("exactly-24h", 24), article("recent-1h", 1)];
     expect(selectHeroArticle(candidates)?.id).toBe("recent-1h");
+  });
+
+  it("prioritizes the newest recent featured article over a newer non-featured article", () => {
+    const candidates = [
+      featuredArticle("featured-2h", 2),
+      { ...article("non-featured-1h", 1), isFeatured: false },
+    ];
+    expect(selectHeroArticle(candidates)?.id).toBe("featured-2h");
   });
 
   it("falls back to dynamic mode when nothing is within 24h", () => {

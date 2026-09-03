@@ -168,7 +168,7 @@ export const articleService = {
     const article = await articleRepository.update(id, updateData);
 
     if (!wasPublished && article.status === "PUBLISHED") {
-      articleNewsletterService.sendArticleNewsletter(id).catch((err) => {
+      await articleNewsletterService.sendArticleNewsletter(id).catch((err) => {
         console.error(`[articleNewsletter] Failed to send for article ${id}:`, err);
       });
       const catSlug = existing.categoryId
