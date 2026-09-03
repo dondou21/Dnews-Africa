@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ArticleStatus } from "@prisma/client";
 
 export const submitForReviewSchema = z.object({
   changeReason: z.string().optional(),
@@ -48,6 +49,12 @@ export const createRevisionSchema = z.object({
 
 export const restoreRevisionSchema = z.object({
   changeReason: z.string().min(1, "Change reason is required"),
+});
+
+export const changeStatusSchema = z.object({
+  status: z.nativeEnum(ArticleStatus),
+  notes: z.string().max(2000).optional(),
+  scheduledAt: z.string().datetime().optional(),
 });
 
 export const compareRevisionsSchema = z.object({

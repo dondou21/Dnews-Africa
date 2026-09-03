@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { Prisma, $Enums } from "@prisma/client";
 import { workflowService } from "../services/workflowService";
 import { workflowRepository } from "../repositories/workflowRepository";
-import { AppError } from "../middlewares/errorHandler";
+import { AppError, ZodValidationError } from "../middlewares/errorHandler";
 import prisma from "../utils/prisma";
 import {
   submitForReviewSchema,
@@ -14,6 +14,7 @@ import {
   createEditorialCommentSchema,
   resolveCommentSchema,
   restoreRevisionSchema,
+  changeStatusSchema,
 } from "../validators/workflowValidator";
 
 export const workflowController = {
@@ -21,7 +22,10 @@ export const workflowController = {
     try {
       const { id } = req.params;
       const parsed = submitForReviewSchema.safeParse(req.body);
-      const changeReason = parsed.success ? parsed.data.changeReason : undefined;
+      if (!parsed.success) {
+        throw new ZodValidationError(parsed.error.errors.map((error) => ({ path: error.path.join("."), message: error.message })));
+      }
+      const changeReason = parsed.data.changeReason;
       const article = await workflowService.submitForReview(id, req.user!, changeReason);
       res.json({ status: "success", data: article });
     } catch (error) { next(error); }
@@ -31,7 +35,10 @@ export const workflowController = {
     try {
       const { id } = req.params;
       const parsed = approveArticleSchema.safeParse(req.body);
-      const notes = parsed.success ? parsed.data.notes : undefined;
+      if (!parsed.success) {
+        throw new ZodValidationError(parsed.error.errors.map((error) => ({ path: error.path.join("."), message: error.message })));
+      }
+      const notes = parsed.data.notes;
       const article = await workflowService.approveArticle(id, req.user!, notes);
       res.json({ status: "success", data: article });
     } catch (error) { next(error); }
@@ -108,9 +115,11 @@ export const workflowController = {
   async changeStatus(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { status: toStatus, notes, scheduledAt } = req.body;
-      if (!toStatus) throw new AppError("Status is required", 400);
-      const article = await workflowService.changeStatus(id, req.user!, toStatus, { notes, scheduledAt });
+      const parsed = changeStatusSchema.parse(req.body);
+      const article = await workflowService.changeStatus(id, req.user!, parsed.status, {
+        notes: parsed.notes,
+        scheduledAt: parsed.scheduledAt,
+      });
       res.json({ status: "success", data: article });
     } catch (error) { next(error); }
   },
@@ -168,7 +177,10 @@ export const workflowController = {
     try {
       const { id, version } = req.params;
       const parsed = restoreRevisionSchema.safeParse(req.body);
-      const changeReason = parsed.success ? parsed.data.changeReason : undefined;
+      if (!parsed.success) {
+        throw new ZodValidationError(parsed.error.errors.map((error) => ({ path: error.path.join("."), message: error.message })));
+      }
+      const changeReason = parsed.data.changeReason;
       const revision = await workflowRepository.getRevision(id, parseInt(version));
       if (!revision) throw new AppError("Revision not found", 404);
       const article = await workflowService.changeStatus(id, req.user!, "DRAFT", { notes: changeReason ?? `Restored from version ${version}` });
