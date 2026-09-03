@@ -151,7 +151,7 @@ function useApiArticles() {
 
   useEffect(() => {
     if (displayHeroArticle) markRead(displayHeroArticle.id);
-  }, [displayHeroArticle?.id, markRead]);
+  }, [displayHeroArticle, markRead]);
 
   const heroArticle = displayHeroArticle;
   const usedSlugs = new Set(heroArticle ? [heroArticle.slug] : []);
@@ -195,16 +195,16 @@ export default function Home() {
 
   if (data.loading) {
     return (
-      <div className="mx-auto max-w-[1180px] px-4 py-4 md:py-6">
+      <div className="mx-auto max-w-295 px-4 py-4 md:py-6">
         <div className="flex flex-col lg:flex-row lg:gap-8">
-          <main className="min-w-0 flex-1 lg:flex-[7]">
+          <main className="min-w-0 flex-1 lg:flex-7">
             <div className="mb-6 animate-pulse space-y-4">
-              <div className="aspect-[16/9] w-full rounded-sm bg-dnews-border/50" />
+              <div className="aspect-video w-full rounded-sm bg-dnews-border/50" />
               <div className="h-8 w-3/4 rounded bg-dnews-border/50" />
               <div className="h-4 w-1/2 rounded bg-dnews-border/50" />
             </div>
           </main>
-          <aside className="w-full shrink-0 lg:w-[360px]">
+          <aside className="w-full shrink-0 lg:w-90">
             <div className="animate-pulse space-y-4">
               <div className="h-40 rounded-sm bg-dnews-border/50" />
             </div>
@@ -226,9 +226,9 @@ export default function Home() {
   } = data;
 
   return (
-    <div className="mx-auto max-w-[1180px] px-4 py-4 md:py-6">
+    <div className="mx-auto max-w-295 px-4 py-4 md:py-6">
       <div className="flex flex-col lg:flex-row lg:gap-8">
-        <main className="min-w-0 flex-1 lg:flex-[7]">
+        <main className="min-w-0 flex-1 lg:flex-7">
           {heroArticle && (
             <section className="mb-6 border-b border-dnews-border pb-6">
               <ArticleCard article={heroArticle} variant="hero" priority />
@@ -281,7 +281,7 @@ export default function Home() {
           </section>
         </main>
 
-        <aside className="w-full shrink-0 lg:w-[360px]">
+        <aside className="w-full shrink-0 lg:w-90">
           <div className="border-t border-dnews-border pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
             <div className="lg:sticky lg:top-24">
               <RightSidebar trendingArticles={trending} />

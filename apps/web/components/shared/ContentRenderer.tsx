@@ -67,7 +67,7 @@ interface ContentRendererProps {
 export default function ContentRenderer({ content }: ContentRendererProps) {
   const blocks = useMemo(() => deserializeContent(content), [content]);
   const isBlocks = useMemo(() => isContentBlocks(content), [content]);
-  const isHtml = useMemo(() => isHtmlContent(content) && !isBlocks, [content]);
+  const isHtml = useMemo(() => isHtmlContent(content) && !isBlocks, [content, isBlocks]);
   const sanitized = useMemo(() => isHtml ? sanitizeHtml(content) : "", [isHtml, content]);
 
   if (isBlocks) {
