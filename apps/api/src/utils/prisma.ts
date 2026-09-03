@@ -1,6 +1,7 @@
 import path from "path";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
+import { config } from "../config";
 
 const envPath = path.resolve(__dirname, "../../.env");
 const envLocalPath = path.resolve(__dirname, "../../.env.local");
@@ -14,7 +15,7 @@ const prisma = new PrismaClient({
   log: isProduction ? ["warn", "error"] : ["query", "warn", "error"],
   datasources: {
     db: {
-      url: process.env.DATABASE_URL,
+      url: config.databaseUrl,
     },
   },
 });
