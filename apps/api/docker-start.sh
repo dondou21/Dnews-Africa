@@ -25,7 +25,7 @@ if [ -n "${DATABASE_URL:-}" ]; then
   DATABASE_URL="$(normalize_database_url "$DATABASE_URL" DATABASE_URL)"
   export DATABASE_URL
 else
-  echo "DATABASE_URL is required before running migrations." >&2
+  echo "DATABASE_URL is required before starting the API." >&2
   exit 1
 fi
 
@@ -36,9 +36,6 @@ elif [ -n "${DIRECT_URL:-}" ]; then
   DIRECT_URL="$(normalize_database_url "$DIRECT_URL" DIRECT_URL)"
   export DIRECT_URL
 fi
-
-echo "Running database migrations..."
-npx prisma migrate deploy
 
 echo "Starting Dnews Africa API..."
 exec node dist/server.js
