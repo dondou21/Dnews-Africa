@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Newspaper, Play, Pause, TrendingUp, MousePointerClick, Eye } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
-import LoadingState from "@/components/dashboard/LoadingState";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import { get } from "@dnews/api-client";
 import type { AdStats } from "@dnews/types";

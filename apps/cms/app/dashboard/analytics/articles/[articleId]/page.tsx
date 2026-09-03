@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Eye, Clock, ScrollText, BarChart3, Globe, Users } from "lucide-react";
+import { ArrowLeft, Eye, Clock, ScrollText, BarChart3, Users } from "lucide-react";
 import RoleGuard from "@/components/dashboard/RoleGuard";
 import StatsCard from "@/components/dashboard/StatsCard";
 import LoadingState from "@/components/dashboard/LoadingState";

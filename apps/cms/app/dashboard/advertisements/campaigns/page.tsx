@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback, type FormEvent } from "react";
-import Link from "next/link";
 import { Plus, Search, Trash2, Edit } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";

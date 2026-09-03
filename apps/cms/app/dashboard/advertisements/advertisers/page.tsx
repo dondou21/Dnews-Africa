@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, type FormEvent } from "react";
-import { Plus, Search, Edit, Trash2, Globe, Mail, Phone } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Globe } from "lucide-react";
 import DataTable, { type Column } from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import Pagination from "@/components/dashboard/Pagination";
