@@ -12,17 +12,10 @@ export default function CategorySelect({ categories, loading, value, onChange, r
   const parents = categories.filter((c) => c.parentId == null).sort((a, b) => a.name.localeCompare(b.name));
   const subcategories = categories.filter((c) => c.parentId != null);
 
-  const selectedCat = categories.find((c) => c.id === value) ?? null;
-  const hasSelection = selectedCat != null;
-
-  // A selected subcategory is shown under its parent; a selected top-level
-  // category is shown directly in the category dropdown.
-  const isSubcategory = hasSelection && selectedCat.parentId != null;
-  const selectedParentId = isSubcategory
-    ? selectedCat.parentId
-    : hasSelection
-      ? selectedCat.id
-      : null;
+  const selectedCategory = categories.find((c) => c.id === value) ?? null;
+  const hasSelection = selectedCategory != null;
+  const selectedParentId = selectedCategory?.parentId ?? selectedCategory?.id ?? null;
+  const selectedSubcategoryId = selectedCategory && selectedCategory.parentId != null ? selectedCategory.id : "";
 
   const selectedChildren = selectedParentId != null
     ? subcategories.filter((c) => c.parentId === selectedParentId).sort((a, b) => a.name.localeCompare(b.name))
@@ -32,24 +25,23 @@ export default function CategorySelect({ categories, loading, value, onChange, r
     <div className="space-y-3">
       <div>
         <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-dnews-gray">
-          Category <span className="text-dnews-red">*</span>
+          Category {required && <span className="text-dnews-red">*</span>}
         </label>
         <select
-          value={hasSelection ? (selectedParentId ?? "") : ""}
+          value={selectedParentId ?? ""}
           onChange={(e) => {
-            const parentId = e.target.value ? Number(e.target.value) : null;
-            if (parentId != null) {
-              onChange(parentId);
-            }
+            const nextParentId = e.target.value ? Number(e.target.value) : null;
+            if (nextParentId == null) return;
+            onChange(nextParentId);
           }}
           className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent"
         >
           <option value="">
             {loading ? "Loading..." : "Select category"}
           </option>
-          {parents.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
+          {parents.map((parent) => (
+            <option key={parent.id} value={parent.id}>
+              {parent.name}
             </option>
           ))}
         </select>
@@ -60,32 +52,35 @@ export default function CategorySelect({ categories, loading, value, onChange, r
           Subcategory
         </label>
         <select
-          value={isSubcategory ? selectedCat.id : ""}
+          value={selectedSubcategoryId}
           onChange={(e) => {
-            const subId = e.target.value ? Number(e.target.value) : null;
-            if (subId != null) {
-              onChange(subId);
-            } else if (selectedParentId != null) {
+            const nextValue = e.target.value ? Number(e.target.value) : null;
+            if (nextValue != null) {
+              onChange(nextValue);
+              return;
+            }
+
+            if (selectedParentId != null) {
               onChange(selectedParentId);
             }
           }}
-          disabled={!hasSelection || selectedChildren.length === 0}
+          disabled={!selectedParentId || selectedChildren.length === 0}
           className="w-full rounded-sm border border-dnews-border bg-dnews-bg px-3 py-2.5 text-sm text-dnews-dark outline-none transition-colors focus:border-dnews-accent disabled:cursor-not-allowed disabled:opacity-50"
         >
           <option value="">
-            {!hasSelection
+            {!selectedParentId
               ? "Select a category first"
               : selectedChildren.length === 0
                 ? "No subcategories available"
                 : "No subcategory"}
           </option>
-          {selectedChildren.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
+          {selectedChildren.map((child) => (
+            <option key={child.id} value={child.id}>
+              {child.name}
             </option>
           ))}
         </select>
-        {hasSelection && selectedChildren.length > 0 && (
+        {selectedParentId != null && selectedChildren.length > 0 && (
           <p className="mt-1 text-[11px] text-dnews-muted">
             Select a subcategory or leave as &quot;No subcategory&quot; to use the parent category only.
           </p>
