@@ -5,6 +5,7 @@ import { selectHeroArticle } from "../utils/heroSelection";
 
 const ARTICLE_CACHE_TTL = 60 * 1000;
 const ARTICLE_LIST_CACHE_TTL = 30 * 1000;
+const HERO_CANDIDATES_CACHE_TTL = 30 * 1000;
 const ARTICLE_CACHE_PREFIX = "articles:";
 
 function articleCacheKey(...parts: (string | number | undefined)[]) {
@@ -334,12 +335,16 @@ export const articleRepository = {
   },
 
   async findHeroCandidates(limit: number = 200) {
-    return prisma.article.findMany({
-      where: { status: "PUBLISHED", publishedAt: { not: null } },
-      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-      take: limit,
-      include: articleInclude,
-    });
+    return cache.wrap(
+      articleCacheKey("hero-candidates", limit),
+      HERO_CANDIDATES_CACHE_TTL,
+      () => prisma.article.findMany({
+        where: { status: "PUBLISHED", publishedAt: { not: null } },
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+        take: limit,
+        include: articleInclude,
+      }),
+    );
   },
 
   async findHeroArticle(readIds: Set<string> = new Set()) {

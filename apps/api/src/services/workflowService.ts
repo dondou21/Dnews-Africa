@@ -4,6 +4,7 @@ import { articleRepository, invalidateArticlesCache } from "../repositories/arti
 import { notificationService } from "./notificationService";
 import { articleNewsletterService } from "./articleNewsletterService";
 import { eventService } from "./eventService";
+import { cancelScheduledArticle, registerScheduledArticle } from "./schedulerService";
 import { AppError } from "../middlewares/errorHandler";
 import prisma from "../utils/prisma";
 import type { AuthenticatedUser } from "../types/express";
@@ -216,7 +217,7 @@ export const workflowService = {
     }
 
     return prisma.$transaction(async (tx) => {
-      const updated = await tx.article.update({
+      const updatedArticle = await tx.article.update({
         where: { id: articleId },
         data: { status: "REJECTED", changeReason: notes },
       });
@@ -233,7 +234,7 @@ export const workflowService = {
         },
       });
 
-      return updated;
+      return updatedArticle;
     });
 
   },
@@ -255,8 +256,8 @@ export const workflowService = {
       throw new AppError("Scheduled time must be in the future. Select a time at least 1 minute ahead.", 400);
     }
 
-    return prisma.$transaction(async (tx) => {
-      const updated = await tx.article.update({
+    const updated = await prisma.$transaction(async (tx) => {
+      const updatedArticle = await tx.article.update({
         where: { id: articleId },
         data: { status: "SCHEDULED", scheduledAt: scheduleDate },
       });
@@ -269,8 +270,12 @@ export const workflowService = {
         },
       });
 
-      return updated;
+      return updatedArticle;
     });
+
+    registerScheduledArticle(updated.id, scheduleDate);
+    invalidateArticlesCache();
+    return updated;
   },
 
   async publishArticle(articleId: string, user: AuthenticatedUser) {
@@ -300,6 +305,8 @@ export const workflowService = {
 
       return updated;
     });
+
+    cancelScheduledArticle(articleId);
 
     invalidateArticlesCache();
 
@@ -339,7 +346,7 @@ export const workflowService = {
       throw new AppError(`Cannot archive article in ${article.status} status`, 400);
     }
 
-    return prisma.$transaction(async (tx) => {
+    const updated = await prisma.$transaction(async (tx) => {
       const updated = await tx.article.update({
         where: { id: articleId },
         data: { status: "ARCHIVED", archivedAt: new Date() },
@@ -488,7 +495,7 @@ export const workflowService = {
 
     const auditAction = getAuditAction(currentStatus, toStatus);
 
-    return prisma.$transaction(async (tx) => {
+    const updated = await prisma.$transaction(async (tx) => {
       const updated = await tx.article.update({
         where: { id: articleId },
         data: updateData as Prisma.ArticleUpdateInput,
@@ -543,7 +550,15 @@ export const workflowService = {
     });
 
     if (toStatus === "PUBLISHED") {
+      cancelScheduledArticle(articleId);
       invalidateArticlesCache();
+    } else if (toStatus === "SCHEDULED" && options?.scheduledAt) {
+      registerScheduledArticle(articleId, new Date(options.scheduledAt));
+      invalidateArticlesCache();
+    } else {
+      cancelScheduledArticle(articleId);
     }
+
+    return updated;
   },
 };

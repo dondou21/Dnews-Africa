@@ -5,6 +5,7 @@ import { formatArticle, formatArticleList } from "../utils/formatArticle";
 import prisma from "../utils/prisma";
 import { articleNewsletterService } from "./articleNewsletterService";
 import { eventService } from "./eventService";
+import { cancelScheduledArticle, registerScheduledArticle } from "./schedulerService";
 import { cleanupOrphanedMedia } from "../utils/mediaCleanup";
 import { contentIsEmpty } from "@dnews/types";
 
@@ -80,6 +81,11 @@ export const articleService = {
     }
 
     const article = await articleRepository.create(createData);
+    if (article.status === "SCHEDULED" && article.scheduledAt) {
+      registerScheduledArticle(article.id, article.scheduledAt);
+    } else {
+      cancelScheduledArticle(article.id);
+    }
     return formatArticle(article);
   },
 
@@ -167,6 +173,12 @@ export const articleService = {
     const wasPublished = existing.status === "PUBLISHED";
     const article = await articleRepository.update(id, updateData);
 
+    if (article.status === "SCHEDULED" && article.scheduledAt) {
+      registerScheduledArticle(article.id, article.scheduledAt);
+    } else {
+      cancelScheduledArticle(article.id);
+    }
+
     if (!wasPublished && article.status === "PUBLISHED") {
       await articleNewsletterService.sendArticleNewsletter(id).catch((err) => {
         console.error(`[articleNewsletter] Failed to send for article ${id}:`, err);
@@ -206,6 +218,7 @@ export const articleService = {
     const featuredImageId = existing.featuredImageId;
 
     await articleRepository.delete(id);
+    cancelScheduledArticle(id);
 
     if (featuredImageId) {
       try {

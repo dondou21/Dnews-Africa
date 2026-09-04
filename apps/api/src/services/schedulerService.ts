@@ -1,11 +1,70 @@
 import prisma from "../utils/prisma";
-import { cache } from "../utils/cache";
+import { invalidateArticlesCache } from "../repositories/articleRepository";
 import { articleNewsletterService } from "./articleNewsletterService";
 import { eventService } from "./eventService";
 
 let isPolling = false;
-let lastCheckTime = 0;
-const CHECK_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes cooldown for opportunistic check
+const MAX_TIMEOUT_MS = 2_147_000_000;
+const scheduledTimers = new Map<string, ReturnType<typeof setTimeout>>();
+let isStarted = false;
+
+function clearScheduledTimer(articleId: string): void {
+  const timer = scheduledTimers.get(articleId);
+  if (timer) clearTimeout(timer);
+  scheduledTimers.delete(articleId);
+}
+
+function scheduleTimer(articleId: string, scheduledAt: Date): void {
+  clearScheduledTimer(articleId);
+
+  const delay = scheduledAt.getTime() - Date.now();
+  const timer = setTimeout(async () => {
+    scheduledTimers.delete(articleId);
+    if (delay > MAX_TIMEOUT_MS) {
+      scheduleTimer(articleId, scheduledAt);
+      return;
+    }
+    await publishDueArticles(true).catch((err) => {
+      console.error(`[scheduler] Failed to publish scheduled article ${articleId}:`, err);
+    });
+
+    const remaining = await prisma.article.findUnique({
+      where: { id: articleId },
+      select: { status: true, scheduledAt: true },
+    }).catch(() => null);
+    if (remaining?.status === "SCHEDULED" && remaining.scheduledAt) {
+      scheduleTimer(articleId, remaining.scheduledAt);
+    }
+  }, Math.max(0, Math.min(delay, MAX_TIMEOUT_MS)));
+
+  scheduledTimers.set(articleId, timer);
+}
+
+export function registerScheduledArticle(articleId: string, scheduledAt: Date): void {
+  if (scheduledAt.getTime() <= Date.now()) {
+    void publishDueArticles(true);
+    return;
+  }
+  scheduleTimer(articleId, scheduledAt);
+}
+
+export function cancelScheduledArticle(articleId: string): void {
+  clearScheduledTimer(articleId);
+}
+
+async function hydrateScheduledArticles(): Promise<void> {
+  const articles = await prisma.article.findMany({
+    where: { status: "SCHEDULED", scheduledAt: { not: null } },
+    select: { id: true, scheduledAt: true },
+  });
+
+  if (!isStarted) return;
+  for (const article of articles) {
+    if (!isStarted) return;
+    if (article.scheduledAt) scheduleTimer(article.id, article.scheduledAt);
+  }
+  console.log(`[scheduler] Registered ${articles.length} scheduled article timer(s)`);
+}
 
 async function getSystemUser(): Promise<{ id: string }> {
   const admin = await prisma.user.findFirst({
@@ -19,14 +78,9 @@ async function getSystemUser(): Promise<{ id: string }> {
   throw new Error("Cannot find any user for scheduler audit logs");
 }
 
-export async function publishDueArticles(force = false): Promise<void> {
-  const now = Date.now();
-  if (!force && now - lastCheckTime < CHECK_COOLDOWN_MS) {
-    return;
-  }
+export async function publishDueArticles(_force = false): Promise<void> {
   if (isPolling) return;
   isPolling = true;
-  lastCheckTime = now;
 
   try {
     const dueArticles = await prisma.article.findMany({
@@ -43,17 +97,15 @@ export async function publishDueArticles(force = false): Promise<void> {
 
       for (const article of dueArticles) {
         try {
-          const current = await prisma.article.findUnique({
-            where: { id: article.id },
-            select: { status: true },
-          });
-          if (current?.status !== "SCHEDULED") continue;
-
+          const publishedAt = new Date();
+          let published = false;
           await prisma.$transaction(async (tx) => {
-            await tx.article.update({
-              where: { id: article.id },
-              data: { status: "PUBLISHED", publishedAt: new Date() },
+            const updated = await tx.article.updateMany({
+              where: { id: article.id, status: "SCHEDULED" },
+              data: { status: "PUBLISHED", publishedAt },
             });
+            if (updated.count === 0) return;
+            published = true;
 
             await tx.articleAuditLog.create({
               data: {
@@ -67,9 +119,10 @@ export async function publishDueArticles(force = false): Promise<void> {
             });
           });
 
+          if (!published) continue;
+
           console.log(`[scheduler] Published article "${article.title}" (${article.slug})`);
-          cache.clearPrefix("articles:");
-          cache.del("dashboard:stats");
+          invalidateArticlesCache();
           console.log(`[scheduler] Triggering newsletter for article ${article.id}`);
           articleNewsletterService.sendArticleNewsletter(article.id).catch((err) => {
             console.error(`[scheduler] Failed to send newsletter for article ${article.id}:`, err);
@@ -84,7 +137,7 @@ export async function publishDueArticles(force = false): Promise<void> {
             title: article.title,
             categorySlug: catSlug,
             isFeatured: article.isFeatured,
-            publishedAt: article.scheduledAt?.toISOString(),
+            publishedAt: publishedAt.toISOString(),
           });
         } catch (err) {
           console.error(`[scheduler] Failed to publish article ${article.id}:`, err);
@@ -100,11 +153,17 @@ export async function publishDueArticles(force = false): Promise<void> {
 
 export const schedulerService = {
   start(): void {
-    console.log("[scheduler] Background polling disabled to prevent unnecessary Neon compute consumption when idle.");
+    if (isStarted) return;
+    isStarted = true;
+    hydrateScheduledArticles().catch((err) => {
+      console.error("[scheduler] Failed to register scheduled articles:", err);
+    });
   },
 
   stop(): void {
+    for (const articleId of scheduledTimers.keys()) clearScheduledTimer(articleId);
     isPolling = false;
+    isStarted = false;
     console.log("[scheduler] Stopped");
   },
 };

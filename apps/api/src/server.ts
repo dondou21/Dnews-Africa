@@ -1,7 +1,6 @@
 import app from "./app";
 import { config } from "./config";
 import { schedulerService } from "./services/schedulerService";
-import { warmUpPool } from "./utils/poolWarmup";
 import { spawn } from "node:child_process";
 
 const HOST = "0.0.0.0";
@@ -40,7 +39,6 @@ console.log(`[server] PORT=${config.port}`);
 const server = app.listen(config.port, HOST, () => {
   console.log(`[server] Listening on ${HOST}:${config.port}`);
   schedulerService.start();
-  warmUpPool().then(() => console.log("[server] Database pool warmed up"));
 });
 
 server.on("error", (err: NodeJS.ErrnoException) => {

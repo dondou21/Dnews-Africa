@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { Request, Response } from "express";
 import { articleService } from "../services/articleService";
-import { publishDueArticles } from "../services/schedulerService";
 import { createArticleSchema, updateArticleSchema, articleQuerySchema } from "../validators/articleValidator";
 import { AppError, ZodValidationError } from "../middlewares/errorHandler";
 import { asyncHandler } from "../middlewares/asyncHandler";
@@ -20,7 +19,6 @@ function parseZod(schema: z.ZodSchema, data: unknown) {
 
 export const articleController = {
   getAll: asyncHandler(async (req: Request, res: Response) => {
-    publishDueArticles().catch(() => {});
     const parsed = parseZod(articleQuerySchema, req.query);
     const result = await articleService.getAll(parsed);
     res.json({ status: "success", data: result });
