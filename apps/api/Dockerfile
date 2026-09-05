@@ -21,7 +21,9 @@ RUN pnpm --filter api exec prisma generate
 
 RUN mkdir -p /prisma && cp -r /app/node_modules/.pnpm/@prisma+client@*/node_modules/.prisma/client /prisma/client
 
-RUN pnpm --filter api... build
+RUN pnpm --filter @dnews/types build && \
+    pnpm --filter @dnews/validation build && \
+    pnpm --filter api build
 
 FROM node:22-alpine AS runner
 
@@ -43,6 +45,8 @@ COPY packages/validation/package.json ./packages/validation/
 RUN pnpm install --frozen-lockfile --filter api... --prod
 
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/packages/types/dist ./packages/types/dist
+COPY --from=builder /app/packages/validation/dist ./packages/validation/dist
 COPY --from=builder /prisma/client /prisma/client
 RUN PRISMA_DIR=$(dirname "$(dirname "$(readlink -f /app/apps/api/node_modules/@prisma/client)")") && \
     mkdir -p "$PRISMA_DIR/.prisma" && \
